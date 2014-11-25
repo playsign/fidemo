@@ -16,4 +16,4 @@ js/ -- for javascript code / modules, examples ported from the Santander demo ar
 
 index.html is here at root for running locally and for hosting the app on the web at: http://130.206.81.111/fidemo/
 
-it runs main.js which is now also at root for now.
+it runs main.js which is also at root for now.
