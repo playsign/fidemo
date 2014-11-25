@@ -103,7 +103,7 @@ var buildingsConfig = {
         tilesPerDirection: 1,
         cullZoom: 13
       }],
-      workerURL: "../../build/vizi-worker.min.js"
+      workerURL: "build/vizi-worker.min.js"
     }
   },
   triggers: [{
