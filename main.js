@@ -2,9 +2,9 @@ var world = new VIZI.World({
   viewport: document.querySelector("#vizicities-viewport"),
   // center: new VIZI.LatLon(40.01000594412381, -105.2727379358738) // Collada
   // center: new VIZI.LatLon(65.0164696, 25.479259499999998) // Oulu
-    center: new VIZI.LatLon(43.47195, -3.79909) // Santander
+  // center: new VIZI.LatLon(43.47195, -3.79909) // Santander
   // center: new VIZI.LatLon(43.462051, -3.800011) // Santander2
-  // center: new VIZI.LatLon(60.1709611, 24.94067) // Helsinki
+    center: new VIZI.LatLon(60.17096119799872, 24.94066956044796) // Helsinki
 });
 
 var controls = new VIZI.ControlsMap(world.camera);
