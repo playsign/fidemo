@@ -199,6 +199,8 @@ var choroplethConfig = {
 var switchboardChoropleth = new VIZI.BlueprintSwitchboard(choroplethConfig);
 switchboardChoropleth.addToWorld(world);
 
+debugObject(60.17096119799872, 24.94066956044796);
+
 var clock = new VIZI.Clock();
 
 var update = function() {
