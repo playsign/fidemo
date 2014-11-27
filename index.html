@@ -20,9 +20,9 @@
       left: 0px;
     }
 
-    #webrocket-container {
+    #webtundra-container {
       position: absolute;
-      background-color: black;
+      background-color: green;
       width: 100%;
       height: 100%;
     }
@@ -33,28 +33,29 @@
       margin: -360px 0 0 -640px;
       position: absolute;
       top: 50%;
-      width: 1280px;
+width: 1280px;
+display: none;
     }
   </style>
 
   <link rel="stylesheet" type="text/css" href="build/vizicities/vizi.css">
+  <!-- includes three.js r69 which is used in this app. -->
+  <script src="build/vizicities/vizi.js"></script>
 
+  <!-- three using codes here may or may not work - networking should -->
   <script src="build/webtundra/lib/jquery.js"></script>
   <script src="build/webtundra/lib/jquery-ui.js"></script>
   <script src="build/webtundra/lib/loglevel.js"></script>
-  <script src="build/webtundra/lib/three.js"></script>
   <script src="build/webtundra/lib/signals.js"></script>
   <script src="build/webtundra/lib/jquery.mousewheel.js"></script>
   <script src="build/webtundra/lib/jquery.contextmenu.js"></script>
   <script src="build/webtundra/lib/three/CSS3DRenderer.js"></script>
   <script src="build/webtundra/lib/three/OBJLoader.js"></script>
   <script src="build/webtundra/realxtend-webtundra.js"></script>
-  
-  <script src="build/vizicities/vizi.js"></script>  
 </head>
 <body>
   <!-- todo: combine these so that vizi renders with webtundra -->
-  <div id="webrocket-container"></div>
+  <div id="webtundra-container"></div>
   <div id="vizicities-viewport"></div>
 
   <script src="js/client/debugObject.js"></script>
