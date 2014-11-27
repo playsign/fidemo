@@ -13,11 +13,23 @@ try
     console : false
   });
 
-  // Run application. EC_Script is not yet implemented in the WebTundra SDK
-  // so we are just going to ensure the scripts dependencies here and run it.
+  var freecamera = undefined;
+  var demoapp = undefined;
+
+  // Free camera application
   $.getScript("build/webtundra/application/freecamera.js")
     .done(function(script, textStatus) {
-      var freecamera = new FreeCameraApplication();
+      freecamera = new FreeCameraApplication();
+    })
+    .fail(function(jqxhr, settings, exception) {
+      console.error(exception);
+    }
+  );
+
+  // Fiware demo application
+  $.getScript("js/client/tundra-client.js")
+    .done(function(script, textStatus) {
+      demoapp = new FiwareDemo();
     })
     .fail(function(jqxhr, settings, exception) {
       console.error(exception);
