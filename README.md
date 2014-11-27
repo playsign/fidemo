@@ -24,4 +24,4 @@ Local development and peview
 1. Install [node.js](http://nodejs.org/)
 2. Run `npm install` on the repo root folder to fetch dependencies.
 3. Run `npm install -g grunt-cli` to install the grunt executable as a global tool (only have to do this once per computer)
-4. Run 'grunt dev'. This will open the index.html in the default OS web browser.
+4. Run `grunt dev`. This will open the index.html in the default OS web browser.
