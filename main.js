@@ -1,16 +1,16 @@
-
 // Init WebTundra
-// note: WebTundra ships with three r62 but it picks up the later included r69 from vizi.js!
+// NOTE was: WebTundra ships with three r62 but it picks up the later included r69 from vizi.js!
+// NOW: removed the three r62 from WTs deps and index.html has vizi, for three, first now
 try
 {
   var client = tundra.createWebTundraClient({
-    container    : "#webtundra-container",
+    container    : "#NOT-vizicities-viewport",
     renderSystem : ThreeJsRenderer,
     asset : {
       localStoragePath : "build/webtundra"
     },
     taskbar : false,
-    console : false
+    console : true
   });
 
   var freecamera = undefined;
@@ -42,13 +42,10 @@ catch(e)
   console.error(e.stack);
 }
 
-//Three.JS Scene & Renderer to be passed to Vizi
+//TODO XXX check this & the WT confs etc
+var viewport = document.querySelector("#vizicities-viewport");
 
-//this way nothing shows - just WT's empty scene, not sure why yet
-/*threejs = {
-    scene: TundraSDK.framework.renderer.scene,
-    renderer: TundraSDK.framework.renderer.renderer
-}*/
+//Three.JS Scene & Renderer to be passed to Vizi
 
 //creating the scene here - that's perhaps nicest anyway, can pass it to WT then too
 function createScene() {
@@ -98,13 +95,21 @@ function createRenderer(viewport, scene) {
     return renderer;
 }
 
-var viewport = document.querySelector("#vizicities-viewport");
-var scene = createScene();
-var renderer = createRenderer(viewport, scene);
+//this way nothing shows - just WT's empty scene, not sure why yet
+/*threejs = {
+    scene: TundraSDK.framework.renderer.scene,
+    renderer: TundraSDK.framework.renderer.renderer
+}*/
+
+/* use the local code here to create for this app */
+var fidemo_scene = createScene() //need to pass to renderer so can't be in same decl below
 threejs = {
-    scene: scene,
-    renderer: renderer
+    scene: fidemo_scene,
+    renderer: createRenderer(viewport, fidemo_scene)
 }
+console.log("FIDEMO: created scene", threejs.scene);
+
+//threejs = null; //no overrides, vizicity creates scene & renderer
 
 var world = new VIZI.World({
   viewport: viewport,
@@ -335,12 +340,14 @@ addLights(world.scene.scene);
 var clock = new VIZI.Clock();
 
 var update = function() {
-  var delta = clock.getDelta();
+    var delta = clock.getDelta();
 
-  world.onTick(delta);
-  world.render();
-
-  window.requestAnimationFrame(update);
+    world.onTick(delta);
+    //world.render();
+    //render ourself now that we create (or pass) the scene & renderer
+    threejs.renderer.render(threejs.scene, world.camera.camera);
+    
+    window.requestAnimationFrame(update); //is this really best as first like a rumour says?
 };
 
 update();
