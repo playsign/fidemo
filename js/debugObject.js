@@ -6,8 +6,8 @@ function debugObject(lat, lng) {
     
     var dscenepoint = world.project(dgeocoord);
     dcube.position.x = dscenepoint.x;
-    dcube.position.y = dscenepoint.y; //defaults to 0 when no altitude
-    dcube.position.z = dscenepoint.z;
+    dcube.position.y = dscenepoint.z; 
+    dcube.position.z = dscenepoint.y; //defaults to 0 when no altitude
     dcube.scale.set(4, 18, 4);
     world.scene.add(dcube)
     return dcube;
