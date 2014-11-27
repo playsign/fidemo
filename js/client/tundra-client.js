@@ -17,6 +17,15 @@ var FiwareDemo = ICameraApplication.$extend(
         TundraSDK.framework.renderer.scene.add(dcube)
         this.dcube = dcube;
         this.move = 1;
+
+        var scene = TundraSDK.framework.scene;
+        var ECEnt = scene.createLocalEntity(100, ["Name", "Placeable", "Camera"]);
+
+        this.log.debug("Created entity", ECEnt);
+
+        var mesh = ECEnt.createLocalComponent("Mesh", "cube");
+        mesh.meshRef = "cube.json";
+        scene.addEntity(ECEnt);
     },
 
     onConnected : function()
