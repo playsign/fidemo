@@ -48,7 +48,11 @@ var world = new VIZI.World({
   // center: new VIZI.LatLon(65.0164696, 25.479259499999998) // Oulu
   // center: new VIZI.LatLon(43.47195, -3.79909) // Santander
   // center: new VIZI.LatLon(43.462051, -3.800011) // Santander2
-    center: new VIZI.LatLon(60.17096119799872, 24.94066956044796) // Helsinki
+    center: new VIZI.LatLon(60.17096119799872, 24.94066956044796), // Helsinki
+    threejs: {
+        scene: TundraSDK.framework.renderer.scene,
+        renderer: TundraSDK.framework.renderer.renderer
+    }
 });
 
 var controls = new VIZI.ControlsMap(world.camera);
