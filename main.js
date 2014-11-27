@@ -42,17 +42,78 @@ catch(e)
   console.error(e.stack);
 }
 
+//Three.JS Scene & Renderer to be passed to Vizi
+
+//this way nothing shows - just WT's empty scene, not sure why yet
+/*threejs = {
+    scene: TundraSDK.framework.renderer.scene,
+    renderer: TundraSDK.framework.renderer.renderer
+}*/
+
+//creating the scene here - that's perhaps nicest anyway, can pass it to WT then too
+function createScene() {
+    var scene = new THREE.Scene();
+
+    // TODO: Fog distance should be an option
+    //scene.fog = new THREE.Fog(self.options.fogColour, 1, 15000);
+
+    // TODO: Make this more customisable, perhaps as a "day/night" option
+    // - I'm sure people would want to add their own lighting too
+    // TODO: Should this even be in here?
+    var directionalLight = new THREE.DirectionalLight( 0x999999 );
+    directionalLight.intesity = 0.1;
+    directionalLight.position.x = 1;
+    directionalLight.position.y = 1;
+    directionalLight.position.z = 1;
+
+    scene.add(directionalLight);
+
+    var directionalLight2 = new THREE.DirectionalLight( 0x999999 );
+    directionalLight2.intesity = 0.1;
+    directionalLight2.position.x = -1;
+    directionalLight2.position.y = 1;
+    directionalLight2.position.z = -1;
+
+    scene.add(directionalLight2);
+
+    return scene;
+}
+
+function createRenderer(viewport, scene) {
+    var renderer;
+
+    renderer = new THREE.WebGLRenderer({
+        antialias: true
+    });
+
+    renderer.setSize(viewport.clientWidth, viewport.clientHeight);
+    //renderer.setClearColor(scene.fog.color, 1);
+
+    // Gamma settings make things look 'nicer' for some reason
+    renderer.gammaInput = true;
+    renderer.gammaOutput = true;
+
+    viewport.appendChild(renderer.domElement);
+
+    return renderer;
+}
+
+var viewport = document.querySelector("#vizicities-viewport");
+var scene = createScene();
+var renderer = createRenderer(viewport, scene);
+threejs = {
+    scene: scene,
+    renderer: renderer
+}
+
 var world = new VIZI.World({
-  viewport: document.querySelector("#vizicities-viewport"),
+  viewport: viewport,
   // center: new VIZI.LatLon(40.01000594412381, -105.2727379358738) // Collada
   // center: new VIZI.LatLon(65.0164696, 25.479259499999998) // Oulu
   // center: new VIZI.LatLon(43.47195, -3.79909) // Santander
   // center: new VIZI.LatLon(43.462051, -3.800011) // Santander2
     center: new VIZI.LatLon(60.17096119799872, 24.94066956044796), // Helsinki
-    threejs: {
-        scene: TundraSDK.framework.renderer.scene,
-        renderer: TundraSDK.framework.renderer.renderer
-    }
+    threejs: threejs
 });
 
 var controls = new VIZI.ControlsMap(world.camera);
@@ -250,6 +311,26 @@ switchboardChoropleth.addToWorld(world);
 debugObject(60.17096119799872, 24.94066956044796); //Helsinki start center
 debugObject(60.170040, 24.936350); //Lasipalatsinaukion tötsä
 debugObject(60.171680, 24.943881); //Rautatientorin patsas
+
+//lights
+function addLights(scene) {
+    var directionalLight = new THREE.DirectionalLight( 0x999999 );
+    directionalLight.intesity = 0.1;
+    directionalLight.position.x = 1;
+    directionalLight.position.y = 1;
+    directionalLight.position.z = 1;
+
+    scene.add(directionalLight);
+
+    var directionalLight2 = new THREE.DirectionalLight( 0x999999 );
+    directionalLight2.intesity = 0.1;
+    directionalLight2.position.x = -1;
+    directionalLight2.position.y = 1;
+    directionalLight2.position.z = -1;
+    
+    scene.add(directionalLight2);
+}
+addLights(world.scene.scene);
 
 var clock = new VIZI.Clock();
 

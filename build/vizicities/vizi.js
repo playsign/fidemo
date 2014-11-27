@@ -6591,7 +6591,7 @@ if (typeof window === undefined) {
       viewport: self.options.viewport,
       // TODO: Remove this when running WebGL tests on Travis is solved
       suppressRenderer: self.options.suppressRenderer,
-      threejsRenderer: self.options.threejsRenderer   
+      threejs: self.options.threejs
     });
 
     self.camera = self.options.camera || new VIZI.Camera({
