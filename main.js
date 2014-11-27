@@ -4,7 +4,7 @@
 try
 {
   var client = tundra.createWebTundraClient({
-    container    : "#NOT-vizicities-viewport",
+    container    : "#webtundra-container",
     renderSystem : ThreeJsRenderer,
     asset : {
       localStoragePath : "build/webtundra"
@@ -43,8 +43,9 @@ catch(e)
 }
 
 //TODO XXX check this & the WT confs etc
-var viewport = document.querySelector("#vizicities-viewport");
+var viewport = document.querySelector("#webtundra-container");
 
+//var viewport = document.querySelector("#vizicities-viewport");
 //Three.JS Scene & Renderer to be passed to Vizi
 
 //creating the scene here - that's perhaps nicest anyway, can pass it to WT then too
@@ -95,19 +96,22 @@ function createRenderer(viewport, scene) {
     return renderer;
 }
 
-//this way nothing shows - just WT's empty scene, not sure why yet
-/*threejs = {
+/* this way nothing shows - just WT's empty scene, not sure why yet
+*/
+threejs = {
     scene: TundraSDK.framework.renderer.scene,
     renderer: TundraSDK.framework.renderer.renderer
-}*/
+}
+//viewport.appendChild(threejs.renderer.domElement);
 
-/* use the local code here to create for this app */
+/* use the local code here to create for this app
 var fidemo_scene = createScene() //need to pass to renderer so can't be in same decl below
 threejs = {
     scene: fidemo_scene,
     renderer: createRenderer(viewport, fidemo_scene)
 }
 console.log("FIDEMO: created scene", threejs.scene);
+*/
 
 //threejs = null; //no overrides, vizicity creates scene & renderer
 

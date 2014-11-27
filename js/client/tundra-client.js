@@ -15,6 +15,8 @@ var FiwareDemo = ICameraApplication.$extend(
         var dcube = new THREE.Mesh(dcubegeom, dmat);
         dcube.scale.set(4, 18, 4);
         TundraSDK.framework.renderer.scene.add(dcube)
+        this.dcube = dcube;
+        this.move = 1;
     },
 
     onConnected : function()
@@ -24,11 +26,16 @@ var FiwareDemo = ICameraApplication.$extend(
 
     onDisconnected : function()
     {
-		this.log.debug("Disconnected from server"); 
+	this.log.debug("Disconnected from server"); 
     },
 
     onUpdate : function(frametime)
     {
+        var x = this.dcube.position.x;
+        if (Math.abs(this.dcube.position.x) > 150) { //stupid simple bounce
+            this.move = - this.move;
+        }
+        this.dcube.position.x = x + this.move;
     },
 
     onKeyEvent : function(event)
