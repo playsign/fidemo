@@ -5,7 +5,7 @@
 /**
  * Blueprint sensor output
  * @author Tapani Jämsä - playsign.net
- */ 
+ */
 
   VIZI.BlueprintOutputSensor = function(options) {
     var self = this;
@@ -58,14 +58,11 @@
       var boxLatitude = data[i].coordinates[0];
       var boxName = "Sensor";
       var boxDescription = [];
-      // var customValue;
-      // for (var variable in data[i].data) {
-        // doesn't work yet boxDescription.push(variable + ": " + data[i].data[variable]);
-      // }
       var boxId = data[i].node;
 
       if (data[i].light) {
-        // self.createSphere(boxLatitude, boxLongitude, boxName, boxDescription, boxId, customValue);
+        var lux = parseFloat(data[i].light, 10);
+        self.createLightbulb(boxLatitude, boxLongitude, boxName, boxDescription, boxId, lux);
       } else {
         self.createThermometer(boxLatitude, boxLongitude, boxName, boxDescription, boxId);
       }
@@ -105,13 +102,9 @@ VIZI.BlueprintOutputSensor.prototype.createThermometer = function(lat, lon, name
     thermo.description = desc;
     thermo.uuid = uuid;
 
-   
-
     var dgeocoord = new VIZI.LatLon(lat, lon);
     var dscenepoint = self.world.project(dgeocoord);
 
- // var coord = [lon, lat];
-    // var newPos = city.geo.projection(coord, city.geo.tileZoom);
     thermo.position.x = dscenepoint.x;
     thermo.position.y = 5;
     thermo.position.z = dscenepoint.y;
@@ -120,7 +113,6 @@ VIZI.BlueprintOutputSensor.prototype.createThermometer = function(lat, lon, name
     // pois.push(thermo);
     // dialogs.push(undefined);
 
-    
     self.add(thermo);
     /*
     VIZI.Layer.add vizi.js:7140
@@ -131,6 +123,58 @@ VIZI.BlueprintOutputSensor.prototype.createThermometer = function(lat, lon, name
     */
 
 };
+
+  VIZI.BlueprintOutputSensor.prototype.createLightbulb = function(lat, lon, name, desc, uuid, customValue) {
+    var self = this;
+
+    console.log("createLightbulb");
+
+    /*
+    0.0001 lux    Moonless, overcast night sky (starlight)[3]
+    0.002 lux   Moonless clear night sky with airglow[3]
+    0.27–1.0 lux  Full moon on a clear night[3][4]
+    3.4 lux     Dark limit of civil twilight under a clear sky[5]
+    50 lux      Family living room lights (Australia, 1998)[6]
+    80 lux      Office building hallway/toilet lighting[7][8]
+    100 lux     Very dark overcast day[3]
+    320–500     lux Office lighting[9][10][11]
+    400 lux     Sunrise or sunset on a clear day.
+    1000 lux    Overcast day;[3] typical TV studio lighting
+    10000–25000   lux Full daylight (not direct sun)[3]
+    32000–100000  lux Direct sunlight
+    */
+
+    // Lux between 0-500
+    var newColor = customValue / 10; // 500; // lux between 0 and 1
+    console.log("newColor: " + newColor);
+
+    var lightMesh = new THREE.Mesh(self.lightbulb.geometry.clone(), self.lightbulb.material.clone());
+    lightMesh.material.materials[0].color = new THREE.Color(newColor, newColor, 0);
+    lightMesh.material.materials[0].emissive = new THREE.Color(0x8F4800);
+
+    lightMesh.scale.set(0.125, 0.125, 0.125);
+
+    lightMesh.name = name;
+    lightMesh.description = desc;
+    lightMesh.uuid = uuid;
+
+    // // PointLight
+    // var light = new THREE.PointLight( 0xFFF87A, customValue, 100 );
+    // sphere.add(light);
+
+    var dgeocoord = new VIZI.LatLon(lat, lon);
+    var dscenepoint = self.world.project(dgeocoord);
+    lightMesh.position.x = dscenepoint.x;
+    lightMesh.position.y = 5;
+    lightMesh.position.z = dscenepoint.y;
+
+    // lightMesh.index = pois.length;
+    // pois.push(lightMesh);
+    // dialogs.push(undefined);
+
+    self.add(lightMesh);
+  };
+
 
   VIZI.BlueprintOutputSensor.prototype.onAdd = function(world) {
     var self = this;
