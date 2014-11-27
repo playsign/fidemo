@@ -8,13 +8,23 @@
     html, body {
       height: 100%;
       width: 100%;
+      margin: 0px;
+      padding: 0px;
+      overflow: hidden;
     }
 
     body {
+      position: absolute;
       background: #222;
-      margin: 0;
-      overflow: hidden;
-      padding: 0;
+      top: 0px;
+      left: 0px;
+    }
+
+    #webrocket-container {
+      position: absolute;
+      background-color: black;
+      width: 100%;
+      height: 100%;
     }
 
     #vizicities-viewport {
@@ -27,11 +37,26 @@
     }
   </style>
 
-  <link rel="stylesheet" type="text/css" href="build/vizi.css">
+  <link rel="stylesheet" type="text/css" href="build/vizicities/vizi.css">
+
+  <script src="build/webtundra/lib/jquery.js"></script>
+  <script src="build/webtundra/lib/jquery-ui.js"></script>
+  <script src="build/webtundra/lib/loglevel.js"></script>
+  <script src="build/webtundra/lib/three.js"></script>
+  <script src="build/webtundra/lib/signals.js"></script>
+  <script src="build/webtundra/lib/jquery.mousewheel.js"></script>
+  <script src="build/webtundra/lib/jquery.contextmenu.js"></script>
+  <script src="build/webtundra/lib/three/CSS3DRenderer.js"></script>
+  <script src="build/webtundra/lib/three/OBJLoader.js"></script>
+  <script src="build/webtundra/realxtend-webtundra.js"></script>
+  
+  <script src="build/vizicities/vizi.js"></script>  
 </head>
 <body>
+  <!-- todo: combine these so that vizi renders with webtundra -->
+  <div id="webrocket-container"></div>
   <div id="vizicities-viewport"></div>
-  <script src="build/vizi.js"></script>
+
   <script src="js/debugObject.js"></script>
   <script src="main.js"></script>
 </body>

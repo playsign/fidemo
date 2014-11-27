@@ -1,3 +1,35 @@
+
+// Init WebTundra
+// note: WebTundra ships with three r62 but it picks up the later included r69 from vizi.js!
+try
+{
+  var client = tundra.createWebTundraClient({
+    container    : "#webtundra-container",
+    renderSystem : ThreeJsRenderer,
+    asset : {
+      localStoragePath : "build/webtundra"
+    },
+    taskbar : false,
+    console : false
+  });
+
+  // Run application. EC_Script is not yet implemented in the WebTundra SDK
+  // so we are just going to ensure the scripts dependencies here and run it.
+  $.getScript("build/webtundra/application/freecamera.js")
+    .done(function(script, textStatus) {
+      var freecamera = new FreeCameraApplication();
+    })
+    .fail(function(jqxhr, settings, exception) {
+      console.error(exception);
+    }
+  );
+}
+catch(e)
+{
+  console.error("WebTundra initialization failed");
+  console.error(e.stack);
+}
+
 var world = new VIZI.World({
   viewport: document.querySelector("#vizicities-viewport"),
   // center: new VIZI.LatLon(40.01000594412381, -105.2727379358738) // Collada
@@ -103,7 +135,7 @@ var buildingsConfig = {
         tilesPerDirection: 1,
         cullZoom: 13
       }],
-      workerURL: "build/vizi-worker.min.js"
+      workerURL: "build/vizicities/vizi-worker.min.js"
     }
   },
   triggers: [{
