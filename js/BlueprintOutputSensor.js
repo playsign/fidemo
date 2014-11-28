@@ -25,15 +25,32 @@
 
     self.world;
 
+    // POI
+
+    self.mouse = {
+        x: 0,
+        y: 0
+      };
+
+    self.pois = [];
+    self.dialogs = [];
+
+    // listeners
+    document.addEventListener('mousemove', self.onDocumentMouseMove.bind(self), false);
+    document.addEventListener('mouseup', self.onDocumentMouseUp.bind(self), false);
+    document.addEventListener('mousewheel', self.updateDialogs.bind(self), false);
+
     // MODELS
 
     var jsonLoader = new THREE.JSONLoader();
     
     // Lightbulb model
-    jsonLoader.load("models/lightbulb.js", self.loadLightbulbModel.bind(this));
+    self.lightbulb;
+    jsonLoader.load("models/lightbulb.js", self.loadLightbulbModel.bind(self));
     
     // Thermometer model
-    jsonLoader.load("models/thermometer.js", self.loadThermometerModel.bind(this));
+    self.thermometer;
+    jsonLoader.load("models/thermometer.js", self.loadThermometerModel.bind(self));
   };
 
   VIZI.BlueprintOutputSensor.prototype = Object.create( VIZI.BlueprintOutput.prototype );
@@ -41,6 +58,8 @@
   // Initialise instance and start automated processes
   VIZI.BlueprintOutputSensor.prototype.init = function() {
     var self = this;
+
+
 
     self.emit("initialised");
   };
@@ -109,9 +128,9 @@ VIZI.BlueprintOutputSensor.prototype.createThermometer = function(lat, lon, name
     thermo.position.y = 5;
     thermo.position.z = dscenepoint.y;
 
-    // thermo.index = pois.length;
-    // pois.push(thermo);
-    // dialogs.push(undefined);
+    thermo.index = self.pois.length;
+    self.pois.push(thermo);
+    self.dialogs.push(undefined);
 
     self.add(thermo);
     /*
@@ -146,7 +165,6 @@ VIZI.BlueprintOutputSensor.prototype.createThermometer = function(lat, lon, name
 
     // Lux between 0-500
     var newColor = customValue / 10; // 500; // lux between 0 and 1
-    console.log("newColor: " + newColor);
 
     var lightMesh = new THREE.Mesh(self.lightbulb.geometry.clone(), self.lightbulb.material.clone());
     lightMesh.material.materials[0].color = new THREE.Color(newColor, newColor, 0);
@@ -168,9 +186,9 @@ VIZI.BlueprintOutputSensor.prototype.createThermometer = function(lat, lon, name
     lightMesh.position.y = 5;
     lightMesh.position.z = dscenepoint.y;
 
-    // lightMesh.index = pois.length;
-    // pois.push(lightMesh);
-    // dialogs.push(undefined);
+    lightMesh.index = self.pois.length;
+    self.pois.push(lightMesh);
+    self.dialogs.push(undefined);
 
     self.add(lightMesh);
   };
@@ -190,12 +208,139 @@ VIZI.BlueprintOutputSensor.prototype.createThermometer = function(lat, lon, name
     self.lightbulb = new THREE.Mesh(geometry, material);
   };
 
-    VIZI.BlueprintOutputSensor.prototype.loadThermometerModel = function(geometry, materials) {
+  VIZI.BlueprintOutputSensor.prototype.loadThermometerModel = function(geometry, materials) {
     var self = this;
     console.log("load thermometer model");
     var material = new THREE.MeshFaceMaterial(materials);
     material.materials[0].emissive = new THREE.Color(0xffffff);
     self.thermometer = new THREE.Mesh(geometry, material);
   };
+
+  VIZI.BlueprintOutputSensor.prototype.onDocumentMouseMove = function(event) {
+    var self = this;
+    // the following line would stop any other event handler from firing
+    // (such as the mouse's TrackballControls)
+    // event.preventDefault();
+
+    // update the mouse variable
+    self.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    self.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    self.updateDialogs();
+
+  };
+
+  VIZI.BlueprintOutputSensor.prototype.onDocumentMouseUp = function(event) {
+    var self = this;
+
+    // the following line would stop any other event handler from firing
+    // (such as the mouse's TrackballControls)
+    // event.preventDefault();
+
+
+    // update the mouse variable
+    self.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    self.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    // find intersections
+
+    // create a Ray with origin at the mouse position
+    // and direction into the scene (camera direction)
+    var vector = new THREE.Vector3(self.mouse.x, self.mouse.y, 1);
+    vector.unproject(self.world.camera.camera);
+    var pLocal = new THREE.Vector3(0, 0, -1);
+    var pWorld = pLocal.applyMatrix4(self.world.camera.camera.matrixWorld);
+    var ray = new THREE.Raycaster(pWorld, vector.sub(pWorld).normalize());
+
+    // create an array containing all objects in the scene with which the ray intersects
+    var intersects = ray.intersectObjects(self.pois);
+
+    // if there is one (or more) intersections
+    if (intersects.length > 0) {
+      console.log(intersects[0]);
+      var selectedObject = intersects[0].object;
+
+      if (self.dialogs[selectedObject.index] === undefined) {
+
+        // jQuery dialog
+        var newDialog = selectedObject.uuid;
+        var descr = "";
+        for (var attr in selectedObject.description) {
+          descr += selectedObject.description[attr] + "<br>";
+        }
+        $("body").append("<div id=" + newDialog + " title='" + selectedObject.name + "'>" + descr + "</div>");
+        self.dialogs[selectedObject.index] = $("#" + newDialog).dialog({
+          width: 300,
+          height: "auto",
+          ind: selectedObject.index,
+          close: function(ev, ui) {
+            console.log("destroy dialog");
+            var customAttrValue = $("#" + this.id).dialog("option", "ind");
+            self.dialogs[customAttrValue].remove();
+            self.dialogs[customAttrValue] = undefined;
+          }
+        });
+
+        self.setDialogPosition(selectedObject.index);
+      } else {
+        self.dialogs[selectedObject.index].remove();
+        self.dialogs[selectedObject.index] = undefined;
+      }
+
+    }
+
+  };
+
+  VIZI.BlueprintOutputSensor.prototype.updateDialogs = function(event) {
+    var self = this;
+    for (var i = 0; i < self.dialogs.length; i++) {
+      self.setDialogPosition(i);
+    }
+  };
+
+  // Calculate and set dialog position
+
+VIZI.BlueprintOutputSensor.prototype.setDialogPosition  = function(i) {
+  var self = this;
+  if (self.dialogs[i] === undefined) {
+    return;
+  }
+
+  var pLocal = new THREE.Vector3(0, 0, -1);
+  var pWorld = pLocal.applyMatrix4(self.world.camera.camera.matrixWorld);
+  var forward = pWorld.sub(self.world.camera.camera.position).normalize();
+  var toOther = self.pois[i].position.clone();
+  toOther.sub(self.world.camera.camera.position);
+
+  if (forward.dot(toOther) < 0) {
+    self.dialogs[i].remove();
+    self.dialogs[i] = undefined;
+    return;
+  }
+
+  var x, y, p, v, percX, percY;
+
+  // this will give us position relative to the world
+  p = new THREE.Vector3(self.pois[i].position.x, self.pois[i].position.y /* + (pois[i].geometry.height / 2) */ , self.pois[i].position.z);
+
+  // projectVector will translate position to 2d
+  v = p.project(self.world.camera.camera);
+
+  // translate our vector so that percX=0 represents
+  // the left edge, percX=1 is the right edge,
+  // percY=0 is the top edge, and percY=1 is the bottom edge.
+  percX = (v.x + 1) / 2;
+  percY = (-v.y + 1) / 2;
+
+  // scale these values to our viewport size
+  x = percX * window.innerWidth;
+  y = percY * window.innerHeight;
+
+  // calculate distance between the camera and the person. Used for fading the tooltip
+  var distance = p.distanceTo(self.world.camera.camera.position);
+  distance = 2 / distance;
+
+  self.dialogs[i].dialog("option", "position", [x, y]);
+};
 
 }());
