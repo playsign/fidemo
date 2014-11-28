@@ -42,6 +42,8 @@
 
     // MODELS
 
+    self.modelYpos = 10;
+
     var jsonLoader = new THREE.JSONLoader();
     
     // Lightbulb model
@@ -77,6 +79,12 @@
       var boxLatitude = data[i].coordinates[0];
       var boxName = "Sensor";
       var boxDescription = [];
+      for (var variable in data[i]) {
+        if(!data[i][variable]){
+          continue;
+        }
+        boxDescription.push(variable + ": " + data[i][variable]);
+      }
       var boxId = data[i].node;
 
       if (data[i].light) {
@@ -125,7 +133,7 @@ VIZI.BlueprintOutputSensor.prototype.createThermometer = function(lat, lon, name
     var dscenepoint = self.world.project(dgeocoord);
 
     thermo.position.x = dscenepoint.x;
-    thermo.position.y = 5;
+    thermo.position.y = self.modelYpos;
     thermo.position.z = dscenepoint.y;
 
     thermo.index = self.pois.length;
@@ -183,7 +191,7 @@ VIZI.BlueprintOutputSensor.prototype.createThermometer = function(lat, lon, name
     var dgeocoord = new VIZI.LatLon(lat, lon);
     var dscenepoint = self.world.project(dgeocoord);
     lightMesh.position.x = dscenepoint.x;
-    lightMesh.position.y = 5;
+    lightMesh.position.y = self.modelYpos;
     lightMesh.position.z = dscenepoint.y;
 
     lightMesh.index = self.pois.length;
@@ -299,7 +307,6 @@ VIZI.BlueprintOutputSensor.prototype.createThermometer = function(lat, lon, name
   };
 
   // Calculate and set dialog position
-
 VIZI.BlueprintOutputSensor.prototype.setDialogPosition  = function(i) {
   var self = this;
   if (self.dialogs[i] === undefined) {
