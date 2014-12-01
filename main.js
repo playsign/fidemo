@@ -1,10 +1,127 @@
+// Init WebTundra
+// NOTE was: WebTundra ships with three r62 but it picks up the later included r69 from vizi.js!
+// NOW: removed the three r62 from WTs deps and index.html has vizi, for three, first now
+try
+{
+  var client = tundra.createWebTundraClient({
+    container    : "#webtundra-container",
+    renderSystem : ThreeJsRenderer,
+    asset : {
+      localStoragePath : "build/webtundra"
+    },
+    taskbar : false,
+    console : true
+  });
+
+  var freecamera = undefined;
+  var demoapp = undefined;
+
+  // Free camera application
+  $.getScript("build/webtundra/application/freecamera.js")
+    .done(function(script, textStatus) {
+      freecamera = new FreeCameraApplication();
+    })
+    .fail(function(jqxhr, settings, exception) {
+      console.error(exception);
+    }
+  );
+
+  // Fiware demo application
+  $.getScript("js/client/tundra-client.js")
+    .done(function(script, textStatus) {
+      demoapp = new FiwareDemo();
+    })
+    .fail(function(jqxhr, settings, exception) {
+      console.error(exception);
+    }
+  );
+}
+catch(e)
+{
+  console.error("WebTundra initialization failed");
+  console.error(e.stack);
+}
+
+var viewport = document.querySelector("#webtundra-container");
+//var viewport = document.querySelector("#vizicities-viewport");
+
+//Three.JS Scene & Renderer to be passed to Vizi
+
+/*
+//creating the scene here - that's perhaps nicest anyway, can pass it to WT then too
+function createScene() {
+    var scene = new THREE.Scene();
+
+    // TODO: Fog distance should be an option
+    //scene.fog = new THREE.Fog(self.options.fogColour, 1, 15000);
+
+    // TODO: Make this more customisable, perhaps as a "day/night" option
+    // - I'm sure people would want to add their own lighting too
+    // TODO: Should this even be in here?
+    var directionalLight = new THREE.DirectionalLight( 0x999999 );
+    directionalLight.intesity = 0.1;
+    directionalLight.position.x = 1;
+    directionalLight.position.y = 1;
+    directionalLight.position.z = 1;
+
+    scene.add(directionalLight);
+
+    var directionalLight2 = new THREE.DirectionalLight( 0x999999 );
+    directionalLight2.intesity = 0.1;
+    directionalLight2.position.x = -1;
+    directionalLight2.position.y = 1;
+    directionalLight2.position.z = -1;
+
+    scene.add(directionalLight2);
+
+    return scene;
+}
+
+function createRenderer(viewport, scene) {
+    var renderer;
+
+    renderer = new THREE.WebGLRenderer({
+        antialias: true
+    });
+
+    renderer.setSize(viewport.clientWidth, viewport.clientHeight);
+    //renderer.setClearColor(scene.fog.color, 1);
+
+    // Gamma settings make things look 'nicer' for some reason
+    renderer.gammaInput = true;
+    renderer.gammaOutput = true;
+
+    viewport.appendChild(renderer.domElement);
+
+    return renderer;
+}
+*/
+
+/* use WebTundra's scene & renderer */
+threejs = {
+    scene: TundraSDK.framework.renderer.scene,
+    renderer: TundraSDK.framework.renderer.renderer
+}
+
+/* use the local code here to create for this app
+var fidemo_scene = createScene() //need to pass to renderer so can't be in same decl below
+threejs = {
+    scene: fidemo_scene,
+    renderer: createRenderer(viewport, fidemo_scene)
+}
+console.log("FIDEMO: created scene", threejs.scene);
+*/
+
+//threejs = null; //no overrides, vizicity creates scene & renderer
+
 var world = new VIZI.World({
-  viewport: document.querySelector("#vizicities-viewport"),
+  viewport: viewport,
   // center: new VIZI.LatLon(40.01000594412381, -105.2727379358738) // Collada
   // center: new VIZI.LatLon(65.0164696, 25.479259499999998) // Oulu
-    center: new VIZI.LatLon(43.47195, -3.79909) // Santander
+  // center: new VIZI.LatLon(43.47195, -3.79909) // Santander
   // center: new VIZI.LatLon(43.462051, -3.800011) // Santander2
-  // center: new VIZI.LatLon(60.1709611, 24.94067) // Helsinki
+    center: new VIZI.LatLon(60.17096119799872, 24.94066956044796), // Helsinki
+    threejs: threejs
 });
 
 var controls = new VIZI.ControlsMap(world.camera);
@@ -229,7 +346,7 @@ var buildingsConfig = {
         tilesPerDirection: 1,
         cullZoom: 13
       }],
-      workerURL: "build/vizi-worker.min.js"
+      workerURL: "build/vizicities/vizi-worker.min.js"
     }
   },
   triggers: [{
@@ -329,16 +446,41 @@ var switchboardChoropleth = new VIZI.BlueprintSwitchboard(choroplethConfig);
 switchboardChoropleth.addToWorld(world);
 
 //
+debugObject(60.17096119799872, 24.94066956044796); //Helsinki start center
+debugObject(60.170040, 24.936350); //Lasipalatsinaukion tötsä
+debugObject(60.171680, 24.943881); //Rautatientorin patsas
+
+//lights
+function addLights(scene) {
+    var directionalLight = new THREE.DirectionalLight( 0x999999 );
+    directionalLight.intesity = 0.1;
+    directionalLight.position.x = 1;
+    directionalLight.position.y = 1;
+    directionalLight.position.z = 1;
+
+    scene.add(directionalLight);
+
+    var directionalLight2 = new THREE.DirectionalLight( 0x999999 );
+    directionalLight2.intesity = 0.1;
+    directionalLight2.position.x = -1;
+    directionalLight2.position.y = 1;
+    directionalLight2.position.z = -1;
+    
+    scene.add(directionalLight2);
+}
+addLights(world.scene.scene);
 
 var clock = new VIZI.Clock();
 
 var update = function() {
-  var delta = clock.getDelta();
+    var delta = clock.getDelta();
 
-  world.onTick(delta);
-  world.render();
-
-  window.requestAnimationFrame(update);
+    world.onTick(delta);
+    //world.render();
+    //render ourself now that we create (or pass) the scene & renderer
+    threejs.renderer.render(threejs.scene, world.camera.camera);
+    
+    window.requestAnimationFrame(update); //is this really best as first like a rumour says?
 };
 
 update();
