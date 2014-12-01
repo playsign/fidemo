@@ -15,12 +15,16 @@
     _.defaults(self.options, {});
 
     // Triggers and actions reference
-    self.triggers = [
-      {name: "initialised", arguments: []}
+    self.triggers = [{
+        name: "initialised",
+        arguments: []
+      }
     ];
 
-    self.actions = [
-      {name: "outputSensor", arguments: ["sensor"]}
+    self.actions = [{
+        name: "outputSensor",
+        arguments: ["sensor"]
+      }
     ];
 
     self.world;
@@ -60,8 +64,6 @@
   // Initialise instance and start automated processes
   VIZI.BlueprintOutputSensor.prototype.init = function() {
     var self = this;
-
-
 
     self.emit("initialised");
   };
