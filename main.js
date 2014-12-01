@@ -116,11 +116,11 @@ console.log("FIDEMO: created scene", threejs.scene);
 
 var world = new VIZI.World({
   viewport: viewport,
-  // center: new VIZI.LatLon(40.01000594412381, -105.2727379358738) // Collada
-  // center: new VIZI.LatLon(65.0164696, 25.479259499999998) // Oulu
-  // center: new VIZI.LatLon(43.47195, -3.79909) // Santander
-  // center: new VIZI.LatLon(43.462051, -3.800011) // Santander2
-    center: new VIZI.LatLon(60.17096119799872, 24.94066956044796), // Helsinki
+  // center: new VIZI.LatLon(40.01000594412381, -105.2727379358738), // Collada
+  // center: new VIZI.LatLon(65.0164696, 25.479259499999998), // Oulu
+  center: new VIZI.LatLon(43.47195, -3.79909), // Santander
+  // center: new VIZI.LatLon(43.462051, -3.800011), // Santander2
+    // center: new VIZI.LatLon(60.17096119799872, 24.94066956044796), // Helsinki
     threejs: threejs
 });
 
