@@ -35,12 +35,79 @@ try
       console.error(exception);
     }
   );
+
+    // Connected to server
+    client.onConnected(null, function() {
+        // Setup initial camera position
+        if (freecamera && freecamera.cameraEntity)
+            freecamera.cameraEntity.placeable.setPosition(0, 8.50, 28.50);
+
+        instructions = $("<div/>", { 
+            text : "Click on the top sphere to start the physics simulation",
+            css : {
+                "position": "absolute",
+                "width": 360,
+                "background-color": "white",
+                "top": 10,
+                "left": 10,
+                "padding": 10,
+                "border-radius": 10,
+                "text-align": "center"
+            }
+        });
+        client.ui.addWidgetToScene(instructions);
+        instructions.hide();
+        instructions.fadeIn(5000);
+
+        var dirLight = new THREE.DirectionalLight();
+        client.renderer.scene.add(dirLight);
+    });
+
+    // Disconnected from server
+    client.onDisconnected(null, function() {
+        if (instructions)
+            instructions.remove()
+        instructions = null;
+    });
+
+    // Mouse pressed
+    client.input.onMousePress(null, function(mouse) {
+	console.log("onMousePress");
+        if (!mouse.leftDown)
+            return;
+
+	var serverEnt = client.scene.entityByName("FIWARE Demo Application"); //"Test Cube");
+	serverEnt.exec(EntityAction.Server, "TestAction");
+
+        var result = client.renderer.raycast();
+	console.log(result);
+        if (result.entity != null && result.entity.name === "Boulder")
+        {
+            result.entity.exec(EntityAction.Server, "MousePress");
+            if (instructions)
+            {
+                instructions.text("Good job!");
+                instructions.fadeOut(5000, function() {
+                    instructions.remove();
+                    instructions = null;
+                });
+            }
+        }
+    });
 }
 catch(e)
 {
   console.error("WebTundra initialization failed");
   console.error(e.stack);
 }
+
+console.log("Client inited:" + client);
+T = TundraSDK.framework;
+
+var loginProperties = {};
+loginProperties.username = "fidemo-user";
+var loginHost = "ws://127.0.0.1:2345";
+client.connect(loginHost, loginProperties);
 
 var viewport = document.querySelector("#webtundra-container");
 //var viewport = document.querySelector("#vizicities-viewport");
