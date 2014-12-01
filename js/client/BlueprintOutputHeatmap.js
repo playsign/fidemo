@@ -69,8 +69,8 @@ plane scale there:
     VIZI.BlueprintOutputHeatmap.prototype.outputHeatmap = function(data) {
         var self = this;
 
-        //debugObject(self.heatmapbox.south, self.heatmapbox.west);
-        //debugObject(self.heatmapbox.north, self.heatmapbox.east);
+        // debugObject(self.heatmapbox.south, self.heatmapbox.west);
+        // debugObject(self.heatmapbox.north, self.heatmapbox.east);
 
         var heatgeom = new THREE.CubeGeometry(1, 1, 1);
         var heatmat = new THREE.MeshBasicMaterial({
@@ -79,7 +79,7 @@ plane scale there:
         var heatlayer = new THREE.Mesh(heatgeom, heatmat);
 
         var heatboxcenter = [(self.heatmapbox.east + self.heatmapbox.west) / 2, (self.heatmapbox.south + self.heatmapbox.north) / 2];
-        //debugObject(heatboxcenter[1], heatboxcenter[0]);
+        // debugObject(heatboxcenter[1], heatboxcenter[0]);
 
         var dgeocoord = new VIZI.LatLon(heatboxcenter[1], heatboxcenter[0]);
         var dscenepoint = self.world.project(dgeocoord);
@@ -89,7 +89,7 @@ plane scale there:
         heatlayer.position.y = 10;
         heatlayer.position.z = dscenepoint.y;
 
-        heatlayer.scale.set(233, 0.5, 205);
+        heatlayer.scale.set(182, 0.5, 130);
         self.add(heatlayer);
 
         // create a heatmap instance
