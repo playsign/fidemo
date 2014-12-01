@@ -43,7 +43,7 @@ try
             freecamera.cameraEntity.placeable.setPosition(0, 8.50, 28.50);
 
         instructions = $("<div/>", { 
-            text : "Click on the top sphere to start the physics simulation",
+            text : "Click anywhere to jump the big plane up & down",
             css : {
                 "position": "absolute",
                 "width": 360,
