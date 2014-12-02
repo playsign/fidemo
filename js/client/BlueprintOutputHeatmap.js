@@ -72,7 +72,7 @@ plane scale there:
         // debugObject(self.heatmapbox.south, self.heatmapbox.west);
         // debugObject(self.heatmapbox.north, self.heatmapbox.east);
 
-        var heatgeom = new THREE.CubeGeometry(1, 1, 1);
+        var heatgeom = new THREE.PlaneGeometry( 1, 1, 1, 1 );
         var heatmat = new THREE.MeshBasicMaterial({
             color: 0xFFFFFF
         });
@@ -89,7 +89,8 @@ plane scale there:
         heatlayer.position.y = 10;
         heatlayer.position.z = dscenepoint.y;
 
-        heatlayer.scale.set(182, 0.5, 130);
+        heatlayer.scale.set(182, 130, 0.5);
+        heatlayer.rotation.set(Math.PI * -0.5,0,0);
         self.add(heatlayer);
 
         // create a heatmap instance
