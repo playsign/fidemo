@@ -73,7 +73,7 @@
  <entity id="3" sync="true">
   <component typeId="17" type="Mesh" sync="true">
    <attribute value="0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,300.000000,11.000000,300.000000" type="Transform" id="nodeTransformation" name="Transform"/>
-   <attribute value="http://localhost:8000/fidemo/cube.json" type="AssetReference" id="meshRef" name="Mesh ref"/>
+   <attribute value="http://localhost:8000/fidemo/data/cube.json" type="AssetReference" id="meshRef" name="Mesh ref"/>
    <attribute value="" type="AssetReference" id="skeletonRef" name="Skeleton ref"/>
    <attribute value="local://green.material" type="AssetReferenceList" id="meshMaterial" name="Mesh materials"/>
    <attribute value="0.000000" type="real" id="drawDistance" name="Draw distance"/>
