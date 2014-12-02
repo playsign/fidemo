@@ -173,11 +173,13 @@ console.log("FIDEMO: created scene", threejs.scene);
 
 //threejs = null; //no overrides, vizicity creates scene & renderer
 
+var santanderLatLon;
+
 var world = new VIZI.World({
   viewport: viewport,
   // center: new VIZI.LatLon(40.01000594412381, -105.2727379358738), // Collada
   // center: new VIZI.LatLon(65.0164696, 25.479259499999998), // Oulu
-  center: new VIZI.LatLon(43.47195, -3.79909), // Santander
+  center: santanderLatLon = new VIZI.LatLon(43.47195, -3.79909),
   // center: new VIZI.LatLon(43.462051, -3.800011), // Santander2
     // center: new VIZI.LatLon(60.17096119799872, 24.94066956044796), // Helsinki
     threejs: threejs
@@ -276,117 +278,119 @@ switchboardMap.addToWorld(world);
 
 // SENSOR
 
-var sensorConfig = {
-  input: {
-    type: "BlueprintInputSensor",
-    options: {
-      path: "./data/nodeinfo.json"
-    }
-  },
-  output: {
-    type: "BlueprintOutputSensor",
-    options: {
-      // modelPathPrefix: "./data/"
-    }
-  },
-  triggers: [{
-    triggerObject: "output",
-    triggerName: "initialised",
-    triggerArguments: [],
-    actionObject: "input",
-    actionName: "requestData",
-    actionArguments: [],
-    actionOutput: {}
-  }, {
-    triggerObject: "input",
-    triggerName: "dataReceived",
-    triggerArguments: ["sensorsJSON"],
-    actionObject: "output",
-    actionName: "outputSensor",
-    actionArguments: ["sensor"],
-    actionOutput: {
-      sensor: {
-        // Loop through each item in triggerArg.kml and return a new array of processed values (a map)
-        process: "map", // String representation of the transformation to be applied. Only "map" is supported right now.
-        // Name of trigger argument
-        itemsObject: "sensorsJSON", // String representation of the trigger argument that holds the data you're interested in.
-        // Within sensor the data is stored in the document.placemark array
-        itemsProperties: "sensors", // String representation of any object properties or array indices to get to the data list.
-        // Return a new object for each document.placemark item with the given propertiea
-        transformation: { // Object with a property for each action argument name and a string representation of the hierarchy to get from itemsProperties to the specific piece of data you require.
-          // Eg. document.placemark[n].point.coordinates
-          coordinates: ["geopos[0]", "geopos[1]"], // get coordinates from properties of the JSON          
-          battery: "data.Battery",
-          date: "data.Last update",
-          light: "data.Light",
-          node: "data.Node",
-          temperature: "data.Temperature"
-        }
+if (santanderLatLon !== undefined) {
+  var sensorConfig = {
+    input: {
+      type: "BlueprintInputSensor",
+      options: {
+        path: "./data/nodeinfo.json"
       }
-    }
-  }]
-};
-
-var switchboardSensor = new VIZI.BlueprintSwitchboard(sensorConfig);
-switchboardSensor.addToWorld(world);
-
-
-// HEATMAP
-
-var heatmapConfig = {
-  input: {
-    type: "BlueprintInputSensor",
-    options: {
-      path: "./data/nodeinfo.json"
-    }
-  },
-  output: {
-    type: "BlueprintOutputHeatmap",
-    options: {
-      // modelPathPrefix: "./data/"
-    }
-  },
-  triggers: [{
-      triggerObject: "output",
-      triggerName: "initialised",
-      triggerArguments: [],
-      actionObject: "input",
-      actionName: "requestData",
-      actionArguments: [],
-      actionOutput: {}
-    }, {
-      triggerObject: "input",
-      triggerName: "dataReceived",
-      triggerArguments: ["sensorsJSON"],
-      actionObject: "output",
-      actionName: "outputHeatmap",
-      actionArguments: ["sensor"],
-      actionOutput: {
-        sensor: {
-          // Loop through each item in triggerArg.kml and return a new array of processed values (a map)
-          process: "map", // String representation of the transformation to be applied. Only "map" is supported right now.
-          // Name of trigger argument
-          itemsObject: "sensorsJSON", // String representation of the trigger argument that holds the data you're interested in.
-          // Within sensor the data is stored in the document.placemark array
-          itemsProperties: "sensors", // String representation of any object properties or array indices to get to the data list.
-          // Return a new object for each document.placemark item with the given propertiea
-          transformation: { // Object with a property for each action argument name and a string representation of the hierarchy to get from itemsProperties to the specific piece of data you require.
-            // Eg. document.placemark[n].point.coordinates
-            coordinates: ["geopos[0]", "geopos[1]"], // get coordinates from properties of the JSON          
-            battery: "data.Battery",
-            date: "data.Last update",
-            light: "data.Light",
-            node: "data.Node",
-            temperature: "data.Temperature"
+    },
+    output: {
+      type: "BlueprintOutputSensor",
+      options: {
+        // modelPathPrefix: "./data/"
+      }
+    },
+    triggers: [{
+        triggerObject: "output",
+        triggerName: "initialised",
+        triggerArguments: [],
+        actionObject: "input",
+        actionName: "requestData",
+        actionArguments: [],
+        actionOutput: {}
+      }, {
+        triggerObject: "input",
+        triggerName: "dataReceived",
+        triggerArguments: ["sensorsJSON"],
+        actionObject: "output",
+        actionName: "outputSensor",
+        actionArguments: ["sensor"],
+        actionOutput: {
+          sensor: {
+            // Loop through each item in triggerArg.kml and return a new array of processed values (a map)
+            process: "map", // String representation of the transformation to be applied. Only "map" is supported right now.
+            // Name of trigger argument
+            itemsObject: "sensorsJSON", // String representation of the trigger argument that holds the data you're interested in.
+            // Within sensor the data is stored in the document.placemark array
+            itemsProperties: "sensors", // String representation of any object properties or array indices to get to the data list.
+            // Return a new object for each document.placemark item with the given propertiea
+            transformation: { // Object with a property for each action argument name and a string representation of the hierarchy to get from itemsProperties to the specific piece of data you require.
+              // Eg. document.placemark[n].point.coordinates
+              coordinates: ["geopos[0]", "geopos[1]"], // get coordinates from properties of the JSON          
+              battery: "data.Battery",
+              date: "data.Last update",
+              light: "data.Light",
+              node: "data.Node",
+              temperature: "data.Temperature"
+            }
           }
         }
       }
-    }
-  ]
-};
-var switchboardHeatmap = new VIZI.BlueprintSwitchboard(heatmapConfig);
-switchboardHeatmap.addToWorld(world);
+    ]
+  };
 
+  var switchboardSensor = new VIZI.BlueprintSwitchboard(sensorConfig);
+  switchboardSensor.addToWorld(world);
+
+
+  // HEATMAP
+
+  var heatmapConfig = {
+    input: {
+      type: "BlueprintInputSensor",
+      options: {
+        path: "./data/nodeinfo.json"
+      }
+    },
+    output: {
+      type: "BlueprintOutputHeatmap",
+      options: {
+        // modelPathPrefix: "./data/"
+      }
+    },
+    triggers: [{
+        triggerObject: "output",
+        triggerName: "initialised",
+        triggerArguments: [],
+        actionObject: "input",
+        actionName: "requestData",
+        actionArguments: [],
+        actionOutput: {}
+      }, {
+        triggerObject: "input",
+        triggerName: "dataReceived",
+        triggerArguments: ["sensorsJSON"],
+        actionObject: "output",
+        actionName: "outputHeatmap",
+        actionArguments: ["sensor"],
+        actionOutput: {
+          sensor: {
+            // Loop through each item in triggerArg.kml and return a new array of processed values (a map)
+            process: "map", // String representation of the transformation to be applied. Only "map" is supported right now.
+            // Name of trigger argument
+            itemsObject: "sensorsJSON", // String representation of the trigger argument that holds the data you're interested in.
+            // Within sensor the data is stored in the document.placemark array
+            itemsProperties: "sensors", // String representation of any object properties or array indices to get to the data list.
+            // Return a new object for each document.placemark item with the given propertiea
+            transformation: { // Object with a property for each action argument name and a string representation of the hierarchy to get from itemsProperties to the specific piece of data you require.
+              // Eg. document.placemark[n].point.coordinates
+              coordinates: ["geopos[0]", "geopos[1]"], // get coordinates from properties of the JSON          
+              battery: "data.Battery",
+              date: "data.Last update",
+              light: "data.Light",
+              node: "data.Node",
+              temperature: "data.Temperature"
+            }
+          }
+        }
+      }
+    ]
+  };
+  var switchboardHeatmap = new VIZI.BlueprintSwitchboard(heatmapConfig);
+  switchboardHeatmap.addToWorld(world);
+}
 
 // BUILDINGS
 
@@ -504,10 +508,10 @@ var choroplethConfig = {
 var switchboardChoropleth = new VIZI.BlueprintSwitchboard(choroplethConfig);
 switchboardChoropleth.addToWorld(world);
 
-//
-// debugObject(60.17096119799872, 24.94066956044796); //Helsinki start center
-// debugObject(60.170040, 24.936350); //Lasipalatsinaukion tötsä
-// debugObject(60.171680, 24.943881); //Rautatientorin patsas
+
+debugObject(60.17096119799872, 24.94066956044796); //Helsinki start center
+debugObject(60.170040, 24.936350); //Lasipalatsinaukion tötsä
+debugObject(60.171680, 24.943881); //Rautatientorin patsas
 
 //lights
 function addLights(scene) {
