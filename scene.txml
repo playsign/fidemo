@@ -115,4 +115,36 @@
    <attribute value="true" type="bool" id="useGravity" name="Use gravity"/>
   </component>
  </entity>
+ <entity id="4" sync="true">
+  <component typeId="20" type="Placeable" sync="false">
+   <attribute value="1.449089,42.247108,34.574203,-53.699989,1.500000,0.000000,1.000000,1.000000,1.000000" type="Transform" id="transform" name="Transform"/>
+   <attribute value="false" type="bool" id="drawDebug" name="Show bounding box"/>
+   <attribute value="true" type="bool" id="visible" name="Visible"/>
+   <attribute value="1" type="int" id="selectionLayer" name="Selection layer"/>
+   <attribute value="" type="EntityReference" id="parentRef" name="Parent entity ref"/>
+   <attribute value="" type="string" id="parentBone" name="Parent bone name"/>
+  </component>
+  <component typeId="5" type="Script" sync="false">
+   <attribute value="local://freelookcamera.js;" type="AssetReferenceList" id="scriptRef" name="Script ref"/>
+   <attribute value="true" type="bool" id="runOnLoad" name="Run on load"/>
+   <attribute value="0" type="int" id="runMode" name="Run mode"/>
+   <attribute value="" type="string" id="applicationName" name="Script application name"/>
+   <attribute value="" type="string" id="className" name="Script class name"/>
+  </component>
+  <component typeId="15" type="Camera" sync="false">
+   <attribute value="0.000000 1.000000 0.000000" type="float3" id="upVector" name="Up vector"/>
+   <attribute value="0.100000" type="real" id="nearPlane" name="Near plane"/>
+   <attribute value="2000.000000" type="real" id="farPlane" name="Far plane"/>
+   <attribute value="45.000000" type="real" id="verticalFov" name="Vertical FOV"/>
+   <attribute value="" type="string" id="aspectRatio" name="Aspect ratio"/>
+  </component>
+  <component typeId="26" type="Name" sync="false">
+   <attribute value="FreeLookCamera" type="string" id="name" name="Name"/>
+   <attribute value="" type="string" id="description" name="Description"/>
+   <attribute value="" type="string" id="group" name="Group"/>
+  </component>
+  <component typeId="7" type="SoundListener" sync="false">
+   <attribute value="true" type="bool" id="active" name="Active"/>
+  </component>
+ </entity>
 </scene>
