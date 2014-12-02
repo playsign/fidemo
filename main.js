@@ -1,105 +1,105 @@
 // Init WebTundra
 // NOTE was: WebTundra ships with three r62 but it picks up the later included r69 from vizi.js!
 // NOW: removed the three r62 from WTs deps and index.html has vizi, for three, first now
-try
-{
-  var client = tundra.createWebTundraClient({
-    container    : "#webtundra-container",
-    renderSystem : ThreeJsRenderer,
-    asset : {
-      localStoragePath : "build/webtundra"
-    },
-    taskbar : false,
-    console : true
-  });
+// try
+// {
+//   var client = tundra.createWebTundraClient({
+//     container    : "#webtundra-container",
+//     renderSystem : ThreeJsRenderer,
+//     asset : {
+//       localStoragePath : "build/webtundra"
+//     },
+//     taskbar : false,
+//     console : true
+//   });
 
-  var freecamera = undefined;
-  var demoapp = undefined;
+//   var freecamera = undefined;
+//   var demoapp = undefined;
 
-  // Free camera application
-  $.getScript("build/webtundra/application/freecamera.js")
-    .done(function(script, textStatus) {
-      freecamera = new FreeCameraApplication();
-    })
-    .fail(function(jqxhr, settings, exception) {
-      console.error(exception);
-    }
-  );
+//   // Free camera application
+//   $.getScript("build/webtundra/application/freecamera.js")
+//     .done(function(script, textStatus) {
+//       freecamera = new FreeCameraApplication();
+//     })
+//     .fail(function(jqxhr, settings, exception) {
+//       console.error(exception);
+//     }
+//   );
 
-  // Fiware demo application
-  $.getScript("js/client/tundra-client.js")
-    .done(function(script, textStatus) {
-      demoapp = new FiwareDemo();
-    })
-    .fail(function(jqxhr, settings, exception) {
-      console.error(exception);
-    }
-  );
+//   // Fiware demo application
+//   $.getScript("js/client/tundra-client.js")
+//     .done(function(script, textStatus) {
+//       demoapp = new FiwareDemo();
+//     })
+//     .fail(function(jqxhr, settings, exception) {
+//       console.error(exception);
+//     }
+//   );
 
-    // Connected to server
-    client.onConnected(null, function() {
-        // Setup initial camera position
-        if (freecamera && freecamera.cameraEntity)
-            freecamera.cameraEntity.placeable.setPosition(0, 8.50, 28.50);
+//     // Connected to server
+//     client.onConnected(null, function() {
+//         // Setup initial camera position
+//         if (freecamera && freecamera.cameraEntity)
+//             freecamera.cameraEntity.placeable.setPosition(0, 8.50, 28.50);
 
-        instructions = $("<div/>", { 
-            text : "Click anywhere to jump the big plane up & down",
-            css : {
-                "position": "absolute",
-                "width": 360,
-                "background-color": "white",
-                "top": 10,
-                "left": 10,
-                "padding": 10,
-                "border-radius": 10,
-                "text-align": "center"
-            }
-        });
-        client.ui.addWidgetToScene(instructions);
-        instructions.hide();
-        instructions.fadeIn(5000);
+//         instructions = $("<div/>", { 
+//             text : "Click anywhere to jump the big plane up & down",
+//             css : {
+//                 "position": "absolute",
+//                 "width": 360,
+//                 "background-color": "white",
+//                 "top": 10,
+//                 "left": 10,
+//                 "padding": 10,
+//                 "border-radius": 10,
+//                 "text-align": "center"
+//             }
+//         });
+//         client.ui.addWidgetToScene(instructions);
+//         instructions.hide();
+//         instructions.fadeIn(5000);
 
-        //var dirLight = new THREE.DirectionalLight();
-        //client.renderer.scene.add(dirLight);
-    });
+//         //var dirLight = new THREE.DirectionalLight();
+//         //client.renderer.scene.add(dirLight);
+//     });
 
-    // Disconnected from server
-    client.onDisconnected(null, function() {
-        if (instructions)
-            instructions.remove()
-        instructions = null;
-    });
+//     // Disconnected from server
+//     client.onDisconnected(null, function() {
+//         if (instructions)
+//             instructions.remove()
+//         instructions = null;
+//     });
 
-    // Mouse pressed
-    client.input.onMousePress(null, function(mouse) {
-	console.log("onMousePress");
-        if (!mouse.leftDown)
-            return;
+//     // Mouse pressed
+//     client.input.onMousePress(null, function(mouse) {
+// 	console.log("onMousePress");
+//         if (!mouse.leftDown)
+//             return;
 
-	var serverEnt = client.scene.entityByName("FIWARE Demo Application"); //"Test Cube");
-	serverEnt.exec(EntityAction.Server, "TestAction");
+// 	var serverEnt = client.scene.entityByName("FIWARE Demo Application"); //"Test Cube");
+// 	serverEnt.exec(EntityAction.Server, "TestAction");
 
-        var result = client.renderer.raycast();
-	console.log(result);
-        if (result.entity != null) //&& result.entity.name === "Boulder")
-        {
-            result.entity.exec(EntityAction.Server, "MousePress");
-        }
-    });
-}
-catch(e)
-{
-  console.error("WebTundra initialization failed");
-  console.error(e.stack);
-}
+//         var result = client.renderer.raycast();
+// 	console.log(result);
+//         if (result.entity != null) //&& result.entity.name === "Boulder")
+//         {
+//             result.entity.exec(EntityAction.Server, "MousePress");
+//         }
+//     });
+// // }
+// catch(e)
+// {
+//   console.error("WebTundra initialization failed");
+//   console.error(e.stack);
+// }
 
-console.log("Client inited:" + client);
-T = TundraSDK.framework;
+// console.log("Client inited:" + client);
+// T = TundraSDK.framework;
 
-var loginProperties = {};
-loginProperties.username = "fidemo-user";
-var loginHost = "ws://127.0.0.1:2345";
-client.connect(loginHost, loginProperties);
+// var loginProperties = {};
+// loginProperties.username = "fidemo-user";
+// var loginHost = "ws://127.0.0.1:2345";
+// client.connect(loginHost, loginProperties);
 
 var viewport = document.querySelector("#webtundra-container");
 //var viewport = document.querySelector("#vizicities-viewport");
@@ -157,10 +157,10 @@ function createRenderer(viewport, scene) {
 */
 
 /* use WebTundra's scene & renderer */
-threejs = {
-    scene: TundraSDK.framework.renderer.scene,
-    renderer: TundraSDK.framework.renderer.renderer
-}
+// threejs = {
+//     scene: TundraSDK.framework.renderer.scene,
+//     renderer: TundraSDK.framework.renderer.renderer
+// }
 
 /* use the local code here to create for this app
 var fidemo_scene = createScene() //need to pass to renderer so can't be in same decl below
@@ -171,7 +171,7 @@ threejs = {
 console.log("FIDEMO: created scene", threejs.scene);
 */
 
-//threejs = null; //no overrides, vizicity creates scene & renderer
+threejs = null; //no overrides, vizicity creates scene & renderer
 
 var santanderLatLon;
 
@@ -179,9 +179,9 @@ var world = new VIZI.World({
   viewport: viewport,
   // center: new VIZI.LatLon(40.01000594412381, -105.2727379358738), // Collada
   // center: new VIZI.LatLon(65.0164696, 25.479259499999998), // Oulu
-  center: santanderLatLon = new VIZI.LatLon(43.47195, -3.79909),
+  // center: santanderLatLon = new VIZI.LatLon(43.47195, -3.79909),
   // center: new VIZI.LatLon(43.462051, -3.800011), // Santander2
-    // center: new VIZI.LatLon(60.17096119799872, 24.94066956044796), // Helsinki
+    center: new VIZI.LatLon(60.17096119799872, 24.94066956044796), // Helsinki
     threejs: threejs
 });
 
@@ -509,9 +509,9 @@ var switchboardChoropleth = new VIZI.BlueprintSwitchboard(choroplethConfig);
 switchboardChoropleth.addToWorld(world);
 
 
-debugObject(60.17096119799872, 24.94066956044796); //Helsinki start center
-debugObject(60.170040, 24.936350); //Lasipalatsinaukion tötsä
-debugObject(60.171680, 24.943881); //Rautatientorin patsas
+// debugObject(60.17096119799872, 24.94066956044796); //Helsinki start center
+// debugObject(60.170040, 24.936350); //Lasipalatsinaukion tötsä
+// debugObject(60.171680, 24.943881); //Rautatientorin patsas
 
 //lights
 function addLights(scene) {
@@ -539,9 +539,9 @@ var update = function() {
     var delta = clock.getDelta();
 
     world.onTick(delta);
-    //world.render();
+    world.render();
     //render ourself now that we create (or pass) the scene & renderer
-    threejs.renderer.render(threejs.scene, world.camera.camera);
+    // threejs.renderer.render(threejs.scene, world.camera.camera);
     
     window.requestAnimationFrame(update); //is this really best as first like a rumour says?
 };
