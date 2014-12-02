@@ -42,17 +42,19 @@
 
     // Request data
     $.getJSON(self.options.path, function(data) {
-      function json2array(json) {
-        var result = [];
-        var keys = Object.keys(json);
-        keys.forEach(function(key) {
-          result.push(json[key]);
-        });
-        return result;
-      }
+      // Santander json hack
 
-      var arr = json2array(data.sensors);
-      data.sensors = arr;
+      // function json2array(json) {
+      //   var result = [];
+      //   var keys = Object.keys(json);
+      //   keys.forEach(function(key) {
+      //     result.push(json[key]);
+      //   });
+      //   return result;
+      // }
+
+      // var arr = json2array(data.sensors);
+      // data.sensors = arr;
 
       console.log(data);
       self.emit("dataReceived", data);
