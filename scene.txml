@@ -33,7 +33,7 @@
    <attribute value="" type="QVariantList" id="entities" name="Entities"/>
   </component>
   <component typeId="5" type="Script" sync="true">
-   <attribute value="volumetrigger.js" type="AssetReferenceList" id="scriptRef" name="Script ref"/>
+   <attribute value="js/server/volumetrigger.js" type="AssetReferenceList" id="scriptRef" name="Script ref"/>
    <attribute value="true" type="bool" id="runOnLoad" name="Run on load"/>
    <attribute value="0" type="int" id="runMode" name="Run mode"/>
    <attribute value="" type="string" id="applicationName" name="Script application name"/>
@@ -62,9 +62,9 @@
   </component>
   <component typeId="17" type="Mesh" sync="true">
    <attribute value="0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.500000,1.000000" type="Transform" id="nodeTransformation" name="Transform"/>
-   <attribute value="plane.mesh" type="AssetReference" id="meshRef" name="Mesh ref"/>
+   <attribute value="data/server/plane.mesh" type="AssetReference" id="meshRef" name="Mesh ref"/>
    <attribute value="" type="AssetReference" id="skeletonRef" name="Skeleton ref"/>
-   <attribute value="local://red.material" type="AssetReferenceList" id="meshMaterial" name="Mesh materials"/>
+   <attribute value="data/server/red.material" type="AssetReferenceList" id="meshMaterial" name="Mesh materials"/>
    <attribute value="0.000000" type="real" id="drawDistance" name="Draw distance"/>
    <attribute value="false" type="bool" id="castShadows" name="Cast shadows"/>
    <attribute value="false" type="bool" id="useInstancing" name="Use instancing"/>
@@ -73,9 +73,9 @@
  <entity id="3" sync="true">
   <component typeId="17" type="Mesh" sync="true">
    <attribute value="0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,300.000000,11.000000,300.000000" type="Transform" id="nodeTransformation" name="Transform"/>
-   <attribute value="http://localhost:8000/fidemo/data/cube.json" type="AssetReference" id="meshRef" name="Mesh ref"/>
+   <attribute value="data/cube.json" type="AssetReference" id="meshRef" name="Mesh ref"/>
    <attribute value="" type="AssetReference" id="skeletonRef" name="Skeleton ref"/>
-   <attribute value="local://green.material" type="AssetReferenceList" id="meshMaterial" name="Mesh materials"/>
+   <attribute value="data/server/green.material" type="AssetReferenceList" id="meshMaterial" name="Mesh materials"/>
    <attribute value="0.000000" type="real" id="drawDistance" name="Draw distance"/>
    <attribute value="false" type="bool" id="castShadows" name="Cast shadows"/>
    <attribute value="false" type="bool" id="useInstancing" name="Use instancing"/>
