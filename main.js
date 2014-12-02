@@ -59,8 +59,8 @@ try
         instructions.hide();
         instructions.fadeIn(5000);
 
-        var dirLight = new THREE.DirectionalLight();
-        client.renderer.scene.add(dirLight);
+        //var dirLight = new THREE.DirectionalLight();
+        //client.renderer.scene.add(dirLight);
     });
 
     // Disconnected from server
@@ -81,17 +81,9 @@ try
 
         var result = client.renderer.raycast();
 	console.log(result);
-        if (result.entity != null && result.entity.name === "Boulder")
+        if (result.entity != null) //&& result.entity.name === "Boulder")
         {
             result.entity.exec(EntityAction.Server, "MousePress");
-            if (instructions)
-            {
-                instructions.text("Good job!");
-                instructions.fadeOut(5000, function() {
-                    instructions.remove();
-                    instructions = null;
-                });
-            }
         }
     });
 }
