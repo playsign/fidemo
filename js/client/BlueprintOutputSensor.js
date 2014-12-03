@@ -46,20 +46,21 @@
 
     // MODELS & MATERIALS
 
-    self.modelYpos = 30;
+    self.modelYpos = 10;
+    self.spriteYpos = 30;
 
     var jsonLoader = new THREE.JSONLoader();
     
     // Lightbulb model
     self.lightbulb;
-    jsonLoader.load("models/lightbulb.js", self.loadLightbulbModel.bind(self));
+    jsonLoader.load("data/3d/lightbulb.js", self.loadLightbulbModel.bind(self));
     
     // Thermometer model
     self.thermometer;
-    jsonLoader.load("models/thermometer.js", self.loadThermometerModel.bind(self));
+    jsonLoader.load("data/3d/thermometer.js", self.loadThermometerModel.bind(self));
 
     // Pin sprite material
-    var pinMap = THREE.ImageUtils.loadTexture( "textures/bussi.png" );
+    var pinMap = THREE.ImageUtils.loadTexture( "data/2d/bussi.png" );
     self.pinMaterial = new THREE.SpriteMaterial( { map: pinMap, color: 0xffffff, fog: true } );
   };
 
@@ -140,7 +141,7 @@ VIZI.BlueprintOutputSensor.prototype.createPin = function(lat, lon, name, desc, 
     var dscenepoint = self.world.project(dgeocoord);
 
     pin.position.x = dscenepoint.x;
-    pin.position.y = self.modelYpos;
+    pin.position.y = self.spriteYpos;
     pin.position.z = dscenepoint.y;
 
     pin.index = self.pois.length;
