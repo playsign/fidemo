@@ -14,6 +14,8 @@ var Msg =
     ServerSendPrivateMessage : "ServerSendPrivateMessage"
 };
 
+function Noop() {}
+
 function UsernameForClient(connection)
 {
     var username = connection.Property("username");

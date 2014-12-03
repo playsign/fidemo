@@ -62,13 +62,20 @@ var UserPresenceServer = Class.extend(
             this.removeUserPresence(id, user);
         }
 
-        // TODO asset.RequestAsset()
+        // TODO asset.RequestAsset()?
+        var prefabAsset = asset.FindAsset(this.prefabRef);
+        if (!prefabAsset)
+        {
+            LogError("createUserPresence: could not find prefab by ref '" + this.prefabRef + "'.");
+            return;
+        }
+
         var prefabSource = asset.FindAsset(this.prefabRef).DiskSource();
         var entities = scene.LoadSceneXML(prefabSource, false, false, 0);
         var userPresence = entities.length > 0 ? entities[0] : null;
         if (!userPresence)
         {
-            LogError("createUserPresence: could not find prefab by ref " + this.prefabRef);
+            LogError("createUserPresence: prefab '" + this.prefabRef + "' did not contain any entities.");
             return;
         }
 
@@ -124,3 +131,5 @@ function OnScriptDestroyed()
 
 if (IsServer())
     new UserPresenceServer();
+
+if (false) OnScriptDestroyed(); // silence JSHint
