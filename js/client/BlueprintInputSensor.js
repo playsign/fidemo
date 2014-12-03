@@ -42,7 +42,7 @@
 
     // Request data
     $.getJSON(self.options.path, function(data) {
-      // Santander json hack
+      // JSON to array
 
       function json2array(json) {
         var result = [];
@@ -66,6 +66,7 @@
       var arr = json2array(data[rootObj]);
       data.sensors = arr;
 
+      console.log("Data received: ");
       console.log(data);
       self.emit("dataReceived", data);
     });
