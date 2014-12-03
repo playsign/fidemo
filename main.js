@@ -318,7 +318,8 @@ var buildingsConfig = {
   input: {
     type: "BlueprintInputGeoJSON",
     options: {
-      tilePath: "http://vector.mapzen.com/osm/buildings/{z}/{x}/{y}.json"
+        tilePath: "http://vector.mapzen.com/osm/buildings/{z}/{x}/{y}.json",
+        omitBuildings: ["122595198"]
     }
   },
   output: {
