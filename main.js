@@ -280,6 +280,7 @@ switchboardMap.addToWorld(world);
 // SENSOR
 
 if (santanderLatLon !== undefined) {
+  // SANTANDER
   var sensorConfig = {
     input: {
       type: "BlueprintInputSensor",
@@ -392,6 +393,8 @@ if (santanderLatLon !== undefined) {
   var switchboardHeatmap = new VIZI.BlueprintSwitchboard(heatmapConfig);
   switchboardHeatmap.addToWorld(world);
 } else if(helsinkiLatLon){
+  // HELSINKI
+
   var sensorConfig = {
     input: {
       type: "BlueprintInputSensor",
@@ -431,12 +434,9 @@ if (santanderLatLon !== undefined) {
             // Return a new object for each document.placemark item with the given propertiea
             transformation: { // Object with a property for each action argument name and a string representation of the hierarchy to get from itemsProperties to the specific piece of data you require.
               // Eg. document.placemark[n].point.coordinates
-              coordinates: ["geopos[0]", "geopos[1]"], // get coordinates from properties of the JSON          
-              battery: "data.Battery",
-              date: "data.Last update",
-              light: "data.Light",
+              coordinates: ["location.wgs84.latitude", "location.wgs84.longitude"], // get coordinates from properties of the JSON          
               node: "data.Node",
-              temperature: "data.Temperature"
+              vehicle : "hsl joq"
             }
           }
         }

@@ -44,17 +44,27 @@
     $.getJSON(self.options.path, function(data) {
       // Santander json hack
 
-      // function json2array(json) {
-      //   var result = [];
-      //   var keys = Object.keys(json);
-      //   keys.forEach(function(key) {
-      //     result.push(json[key]);
-      //   });
-      //   return result;
-      // }
+      function json2array(json) {
+        var result = [];
+        var keys = Object.keys(json);
+        keys.forEach(function(key) {
+          result.push(json[key]);
+        });
+        return result;
+      }
 
-      // var arr = json2array(data.sensors);
-      // data.sensors = arr;
+      var rootObj;
+      for (var first in data) {
+        rootObj = first;
+        break;
+      }
+
+      if (rootObj === undefined) {
+        throw new Error("JSON doesn't have a data object");
+      }
+
+      var arr = json2array(data[rootObj]);
+      data.sensors = arr;
 
       console.log(data);
       self.emit("dataReceived", data);
