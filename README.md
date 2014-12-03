@@ -31,4 +31,6 @@ You now have a HTTP server hosting the repository directory. To start the Tundra
 1. Open a shell/windows cmd prompt
 2. nagivate to the Tundra installation folder `cd <tundra-install-dir>` (if Tundra is not installed to the system/PATH)
  * For Windows users the default directory is `C:\Program Files (x86)\realXtend Tundra` or `Meshmoon\Rocket`
-3. Run `TundraConsole.exe --headless --server --file http://localhost:8085/scene.txml`
+3. Run 
+ * Windows: `TundraConsole.exe --headless --server --file http://localhost:8085/scene.txml`
+ * Linux/Mac: `./Tundra --headless --server --file http://localhost:8085/scene.txml`
