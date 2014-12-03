@@ -15,6 +15,7 @@ try
 
   var freecamera = undefined;
   var demoapp = undefined;
+  var cbclient = undefined;
 
   // Free camera application
   $.getScript("build/webtundra/application/freecamera.js")
@@ -36,13 +37,25 @@ try
     }
   );
 
+  // Context broker lib
+  $.getScript("js/client/context-broker.js")
+    .done(function(script, textStatus) {
+      cbclient = new ContextBrokerClient();
+      cbclient.runTests();
+
+    })
+    .fail(function(jqxhr, settings, exception) {
+      console.error(exception);
+    }
+  );
+
     // Connected to server
     client.onConnected(null, function() {
         // Setup initial camera position
         if (freecamera && freecamera.cameraEntity)
             freecamera.cameraEntity.placeable.setPosition(0, 8.50, 28.50);
 
-        instructions = $("<div/>", { 
+        instructions = $("<div/>", {
             text : "Click anywhere to jump the big plane up & down",
             css : {
                 "position": "absolute",
@@ -394,7 +407,7 @@ function addLights(scene) {
     directionalLight2.position.x = -1;
     directionalLight2.position.y = 1;
     directionalLight2.position.z = -1;
-    
+
     scene.add(directionalLight2);
 }
 addLights(world.scene.scene);
@@ -408,7 +421,7 @@ var update = function() {
     //world.render();
     //render ourself now that we create (or pass) the scene & renderer
     threejs.renderer.render(threejs.scene, world.camera.camera);
-    
+
     window.requestAnimationFrame(update); //is this really best as first like a rumour says?
 };
 
