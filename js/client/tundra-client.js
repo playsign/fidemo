@@ -10,7 +10,7 @@ var FiwareDemo = ICameraApplication.$extend(
         this.subscribeEvent(TundraSDK.framework.client.onDisconnected(this, this.onDisconnected));
         this.subscribeEvent(TundraSDK.framework.frame.onUpdate(this, this.onUpdate));
 
-        /* red test pilar with three.js code directly */
+        /* red test pilar with three.js code directly
         var dmat = new THREE.MeshBasicMaterial({color: 0xFF0000});
         var dcubegeom = new THREE.CubeGeometry(3, 8, 3);
         var dcube = new THREE.Mesh(dcubegeom, dmat);
@@ -18,8 +18,9 @@ var FiwareDemo = ICameraApplication.$extend(
         TundraSDK.framework.renderer.scene.add(dcube)
         this.dcube = dcube;
         this.move = 1;
+        */
 
-        /* using tundra apis to create an entity (for networking, but this is local) */
+        /* using tundra apis to create an entity (for networking, but this is local)
         var scene = TundraSDK.framework.scene;
         var ECEnt = scene.createLocalEntity(); // 100, ["Name"]);
         this.log.debug("Created entity", ECEnt);
@@ -30,19 +31,10 @@ var FiwareDemo = ICameraApplication.$extend(
         mesh.meshRef = "suzanne.js";
         scene.addEntity(ECEnt);
         this.ECEnt = ECEnt
+        */
 
-        /* and the same with using three directly, as a json load test & example */
+        //and the same with using three json loading directly
         var loader = new THREE.JSONLoader();
-        this.mesh = null;
-		var callbackThreeJSON = function ( geometry, materials ) {
-            var mesh = new THREE.Mesh( geometry, new THREE.MeshFaceMaterial( materials ) );
-			mesh.position.set( 0, 50, 0 );
-			mesh.scale.set( 33, 33, 33 );
-			TundraSDK.framework.renderer.scene.add( mesh );
-				this.mesh = mesh;
-        }.bind(this);
-		loader.load( "build/webtundra/suzanne.js", callbackThreeJSON ); //WT wanted to load from there
-		
 		var buildings = ["data/3d/rautatieasema.js", "data/3d/tuomiokirkko.js"];
 		var building = null;
 		for(var index in buildings)
@@ -70,6 +62,7 @@ var FiwareDemo = ICameraApplication.$extend(
 
     onUpdate : function(frametime)
     {
+        /*
         var x = this.dcube.position.x;
         if (Math.abs(this.dcube.position.x) > 150) { //stupid simple bounce
             this.move = -this.move;
@@ -85,6 +78,7 @@ var FiwareDemo = ICameraApplication.$extend(
         if (this.ECEnt) {
             this.ECEnt.placeable.setPosition(0, 0, -this.dcube.position.x);
         }
+        */
     },
 
     onKeyEvent : function(event)

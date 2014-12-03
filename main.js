@@ -388,9 +388,11 @@ var choroplethConfig = {
 var switchboardChoropleth = new VIZI.BlueprintSwitchboard(choroplethConfig);
 switchboardChoropleth.addToWorld(world);
 
+/* geopositioned -> scene converted positions for test/reference
 debugObject(60.17096119799872, 24.94066956044796); //Helsinki start center
 debugObject(60.170040, 24.936350); //Lasipalatsinaukion tötsä
 debugObject(60.171680, 24.943881); //Rautatientorin patsas
+*/
 
 //lights
 function addLights(scene) {
