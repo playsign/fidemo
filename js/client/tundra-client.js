@@ -34,14 +34,28 @@ var FiwareDemo = ICameraApplication.$extend(
         /* and the same with using three directly, as a json load test & example */
         var loader = new THREE.JSONLoader();
         this.mesh = null;
-	var callbackThreeJSON = function ( geometry, materials ) {
+		var callbackThreeJSON = function ( geometry, materials ) {
             var mesh = new THREE.Mesh( geometry, new THREE.MeshFaceMaterial( materials ) );
-	    mesh.position.set( 0, 50, 0 );
-	    mesh.scale.set( 33, 33, 33 );
-	    TundraSDK.framework.renderer.scene.add( mesh );
-            this.mesh = mesh;
+			mesh.position.set( 0, 50, 0 );
+			mesh.scale.set( 33, 33, 33 );
+			TundraSDK.framework.renderer.scene.add( mesh );
+				this.mesh = mesh;
         }.bind(this);
-	loader.load( "build/webtundra/suzanne.js", callbackThreeJSON ); //WT wanted to load from there
+		loader.load( "build/webtundra/suzanne.js", callbackThreeJSON ); //WT wanted to load from there
+		
+		var buildings = ["data/3d/rautatieasema.js", "data/3d/tuomiokirkko.js"];
+		var building = null;
+		for(var index in buildings)
+		{
+			building = buildings[index];
+			console.log("Loading " + building + " model.");
+			loader.load( building, function(geometry, materials) {
+				console.log(building + " loaded.");
+				var mesh = new THREE.Mesh( geometry, new THREE.MeshFaceMaterial( materials ) );
+				mesh.scale.set( 0.008, 0.008, 0.008 );
+				TundraSDK.framework.renderer.scene.add( mesh );
+			});
+		}
     },
 
     onConnected : function()
