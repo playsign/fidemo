@@ -127,10 +127,61 @@ var ContextBrokerClient = ICameraApplication.$extend({
 
     },
 
+    //NOTE: untested function. Once there is real POI data with these values this can be tested or tweaked to POI purpose.
+    getContextBrokerItemsNear : function (type, lat, lng, radius)
+    {
+
+        if (type === undefined || type === null || type === "") {
+            console.log("Please give type for the context element.");
+            return;
+        }
+        if (lat === undefined || lat === null || lat === "") {
+            console.log("Please give lat for the context element.");
+            return;
+        }
+        if (lng === undefined || lng === null || lng === "") {
+            console.log("Please give lng for the context element.");
+            return;
+        }
+        if (radius === undefined || radius === null || radius === "") {
+            console.log("Please give radius for the context element.");
+            return;
+        }
+
+        var json = "{\"entities\": [{\"type\": \""+type+"\",\"isPattern\": \"true\",\"id\": \".*\"}], \
+                   \"restriction\": { \"scopes\": [{\"type\" : \"FIWARE_Location\",\"value\" : { \
+                   \"circle\": {\"centerLatitude\": \""+lat+"\",\"centerLongitude\": \""+lng+"\",\"radius\": \""+radius+"\"}}}]}";
+
+
+        var xhr = new XMLHttpRequest();
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    console.log("Get context broker items with longitude, latitude and radius succeeded!");
+                    //var json = JSON.parse(xhr.responseText);
+                    console.log(xhr.responseText);
+                } else if (xhr.status === 404) {
+                    console.log("Get context broker item with longitude, latitude and radius failed: " + xhr.responseText);
+                }
+            }
+        }
+        xhr.onerror = function (e) {
+            console.log("Failed to get context broker item with longitude, latitude and radius: " + e.error);
+        };
+
+        xhr.open("POST", _cburl + "/ngsi10/queryContext?limit=1000", true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.setRequestHeader("Accept", "application/json");
+        xhr.setRequestHeader("X-Auth-Token", _cbtoken);
+        xhr.send(json);
+
+
+    },
+
     runTests : function() {
 
       console.log("ContextBrokerClient runTests(): Find examples here.");
-
       // Testing
       /*cbclient.getContextBrokerItems("TESTPOI", ".*"); //Get all context elements with type TESTPOI
       cbclient.getContextBrokerItems("TESTPOI", "PO.*"); //Get all context elements with type TESTPOI which id starts with PO
