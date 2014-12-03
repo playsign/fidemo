@@ -38,9 +38,9 @@ function getHelsinkiConfig(){
             // Return a new object for each document.placemark item with the given propertiea
             transformation: { // Object with a property for each action argument name and a string representation of the hierarchy to get from itemsProperties to the specific piece of data you require.
               // Eg. document.placemark[n].point.coordinates
-              coordinates: ["location.wgs84.latitude", "location.wgs84.longitude"], // get coordinates from properties of the JSON          
+              coordinates: ["fw_core.location.wgs84.latitude", "fw_core.location.wgs84.longitude"], // get coordinates from properties of the JSON          
               node: "data.Node",
-              vehicle : "hsl joq"
+              categories : "fw_core.categories"
             }
           }
         }

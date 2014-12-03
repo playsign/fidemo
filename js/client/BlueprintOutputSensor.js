@@ -44,9 +44,9 @@
     document.addEventListener('mouseup', self.onDocumentMouseUp.bind(self), false);
     document.addEventListener('mousewheel', self.updateDialogs.bind(self), false);
 
-    // MODELS
+    // MODELS & MATERIALS
 
-    self.modelYpos = 10;
+    self.modelYpos = 30;
 
     var jsonLoader = new THREE.JSONLoader();
     
@@ -57,6 +57,10 @@
     // Thermometer model
     self.thermometer;
     jsonLoader.load("models/thermometer.js", self.loadThermometerModel.bind(self));
+
+    // Pin sprite material
+    var pinMap = THREE.ImageUtils.loadTexture( "textures/bussi.png" );
+    self.pinMaterial = new THREE.SpriteMaterial( { map: pinMap, color: 0xffffff, fog: true } );
   };
 
   VIZI.BlueprintOutputSensor.prototype = Object.create( VIZI.BlueprintOutput.prototype );
@@ -89,7 +93,9 @@
       }
       var boxId = data[i].node;
 
-      if (data[i].light) {
+      if (data[i].categories) {
+        self.createPin(boxLatitude, boxLongitude, boxName, boxDescription, boxId);
+      } else if (data[i].light) {
         var lux = parseFloat(data[i].light, 10);
         self.createLightbulb(boxLatitude, boxLongitude, boxName, boxDescription, boxId, lux);
       } else {
@@ -116,6 +122,41 @@
     // self.emit("sensorReceived", data);
 
     };
+
+VIZI.BlueprintOutputSensor.prototype.createPin = function(lat, lon, name, desc, uuid) {
+    var self = this;
+
+    console.log("createPin");
+
+    var pin = new THREE.Sprite(self.pinMaterial);
+
+    pin.scale.set(50, 50, 50);
+
+    pin.name = name;
+    pin.description = desc;
+    pin.uuid = uuid;
+
+    var dgeocoord = new VIZI.LatLon(lat, lon);
+    var dscenepoint = self.world.project(dgeocoord);
+
+    pin.position.x = dscenepoint.x;
+    pin.position.y = self.modelYpos;
+    pin.position.z = dscenepoint.y;
+
+    pin.index = self.pois.length;
+    self.pois.push(pin);
+    self.dialogs.push(undefined);
+
+    self.add(pin);
+    /*
+    VIZI.Layer.add vizi.js:7140
+    function (object) {
+    var self = this;
+    self.object.add(object);
+    }
+    */
+
+};
 
 VIZI.BlueprintOutputSensor.prototype.createThermometer = function(lat, lon, name, desc, uuid) {
     var self = this;
