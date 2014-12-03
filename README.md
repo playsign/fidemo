@@ -18,15 +18,26 @@ index.html is here at root for running locally and for hosting the app on the we
 
 it runs main.js which is also at root for now.
 
-Local development and peview
+Local development and preview
 ----------------------------
+
+The application can be opened locally by just opening index.html with a browser. However, browsers don't allow JS code to load external files that way so you need to start e.g. Chrome with the --allow-file-access-from-files option as described in http://www.chrome-allow-file-access-from-file.com/
+
+Other option is to use a Web server locally to provide the files for your browser. This way you can use the browser normally, no extra start flags are required. An easy to install Web server is node.js:
 
 1. Install [node.js](http://nodejs.org/)
 2. Run `npm install` on the repo root folder to fetch dependencies.
 3. Run `npm install -g grunt-cli` to install the grunt executable as a global tool (only have to do this once per computer)
 4. Run `grunt dev`. This will open the index.html in the default OS web browser.
 
-You now have a HTTP server hosting the repository directory. To start the Tundra do the following. Note that any Tundra recently new distribution with WebSocketServerModule will work eg. Meshmoon Rocket, realXtend Tundra or the FIWARE Synchronization GE Tundra distribution.
+You now have a HTTP server hosting the repository directory. This works to work on the scene: add meshes, configure lights, work on the Javascript code etc.
+
+Running Tundra server for realtime multiuser functionality
+----------------------------------------------------------
+
+To work on multiuser features in the application you need to run the Tundra server as well.
+
+To start the Tundra do the following. Note that any Tundra recently new distribution with WebSocketServerModule will work eg. Meshmoon Rocket, realXtend Tundra or the FIWARE Synchronization GE Tundra distribution.
 
 1. Open a shell/windows cmd prompt
 2. nagivate to the Tundra installation folder `cd <tundra-install-dir>` (if Tundra is not installed to the system/PATH)
