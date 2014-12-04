@@ -1,7 +1,7 @@
 var _cburl = "http://orion.lab.fi-ware.org:1026";
 var _cbtoken = "4wUdbVliV55X5zI68DfDZgVI-by2MBR0s3QhJF7WwwOU0u5AO3f85ycMouzxr3UWGfbCjO3ODcaM6ybtHLcJPA";
 
-var ContextBrokerClient = ICameraApplication.$extend({
+var ContextBrokerClient = IApplication.$extend({
 
     __init__ : function()
     {
@@ -26,7 +26,7 @@ var ContextBrokerClient = ICameraApplication.$extend({
                     console.log("Get context broker item failed: " + xhr.responseText);
                 }
             }
-        }
+        };
         xhr.onerror = function (e) {
             console.log("Failed to get context broker item: " + e.error);
         };
@@ -56,7 +56,7 @@ var ContextBrokerClient = ICameraApplication.$extend({
                     console.log("Get context broker item failed: " + xhr.responseText);
                 }
             }
-        }
+        };
         xhr.onerror = function (e) {
             console.log("Failed to get context broker item: "+e.error);
         };
@@ -114,7 +114,7 @@ var ContextBrokerClient = ICameraApplication.$extend({
                     console.log("Creating/updating context broker item failed: " + xhr.responseText);
                 }
             }
-        }
+        };
         xhr.onerror = function (e) {
             console.log("Failed to create/update context broker item: "+e.error);
         };
@@ -148,9 +148,9 @@ var ContextBrokerClient = ICameraApplication.$extend({
             return;
         }
 
-        var json = "{\"entities\": [{\"type\": \""+type+"\",\"isPattern\": \"true\",\"id\": \".*\"}], \
-                   \"restriction\": { \"scopes\": [{\"type\" : \"FIWARE_Location\",\"value\" : { \
-                   \"circle\": {\"centerLatitude\": \""+lat+"\",\"centerLongitude\": \""+lng+"\",\"radius\": \""+radius+"\"}}}]}";
+        var json = "{\"entities\": [{\"type\": \""+type+"\",\"isPattern\": \"true\",\"id\": \".*\"}], " +
+                   "\"restriction\": { \"scopes\": [{\"type\" : \"FIWARE_Location\",\"value\" : { " +
+                   "\"circle\": {\"centerLatitude\": \""+lat+"\",\"centerLongitude\": \""+lng+"\",\"radius\": \""+radius+"\"}}}]}";
 
 
         var xhr = new XMLHttpRequest();
@@ -165,7 +165,7 @@ var ContextBrokerClient = ICameraApplication.$extend({
                     console.log("Get context broker item with longitude, latitude and radius failed: " + xhr.responseText);
                 }
             }
-        }
+        };
         xhr.onerror = function (e) {
             console.log("Failed to get context broker item with longitude, latitude and radius: " + e.error);
         };
@@ -175,8 +175,6 @@ var ContextBrokerClient = ICameraApplication.$extend({
         xhr.setRequestHeader("Accept", "application/json");
         xhr.setRequestHeader("X-Auth-Token", _cbtoken);
         xhr.send(json);
-
-
     },
 
     runTests : function() {
@@ -202,4 +200,4 @@ var ContextBrokerClient = ICameraApplication.$extend({
       */
     }
 
-})
+});

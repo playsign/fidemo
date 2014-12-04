@@ -1,12 +1,12 @@
 
-var FiwareDemo = ICameraApplication.$extend(
+var FiwareDemo = IApplication.$extend(
 {
     __init__ : function()
     {
         console.log("FIWARE Demo");
         this.$super("FIWARE Demo");
 
-      	this.subscribeEvent(TundraSDK.framework.client.onConnected(this, this.onConnected));
+        this.subscribeEvent(TundraSDK.framework.client.onConnected(this, this.onConnected));
         this.subscribeEvent(TundraSDK.framework.client.onDisconnected(this, this.onDisconnected));
         this.subscribeEvent(TundraSDK.framework.frame.onUpdate(this, this.onUpdate));
 
@@ -35,19 +35,20 @@ var FiwareDemo = ICameraApplication.$extend(
 
         //and the same with using three json loading directly
         var loader = new THREE.JSONLoader();
-		var buildings = ["data/3d/rautatieasema.js", "data/3d/tuomiokirkko.js"];
-		var building = null;
-		for(var index in buildings)
-		{
-			building = buildings[index];
-			console.log("Loading " + building + " model.");
-			loader.load( building, function(geometry, materials) {
-				console.log(building + " loaded.");
-				var mesh = new THREE.Mesh( geometry, new THREE.MeshFaceMaterial( materials ) );
-				mesh.scale.set( 0.8582932963847628, 0.8582932963847628, 0.8582932963847628 );
-				TundraSDK.framework.renderer.scene.add( mesh );
-			});
-		}
+        var buildings = ["data/3d/rautatieasema.js", "data/3d/tuomiokirkko.js"];
+        var building = null;
+        for(var index in buildings)
+        {
+            building = buildings[index];
+            console.log("Loading " + building + " model.");
+            // TODO Making functions within loop is bad.
+            loader.load( building, function(geometry, materials) {
+                console.log(building + " loaded.");
+                var mesh = new THREE.Mesh( geometry, new THREE.MeshFaceMaterial( materials ) );
+                mesh.scale.set( 0.8582932963847628, 0.8582932963847628, 0.8582932963847628 );
+                TundraSDK.framework.renderer.scene.add( mesh );
+            });
+        }
     },
 
     onConnected : function()
@@ -57,7 +58,7 @@ var FiwareDemo = ICameraApplication.$extend(
 
     onDisconnected : function()
     {
-	this.log.debug("Disconnected from server"); 
+        this.log.debug("Disconnected from server"); 
     },
 
     onUpdate : function(frametime)

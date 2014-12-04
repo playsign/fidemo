@@ -9,6 +9,6 @@ function debugObject(lat, lng) {
     dcube.position.y = dscenepoint.z; 
     dcube.position.z = dscenepoint.y; //defaults to 0 when no altitude
     dcube.scale.set(4, 18, 4);
-    world.scene.add(dcube)
+    world.scene.add(dcube);
     return dcube;
 }
