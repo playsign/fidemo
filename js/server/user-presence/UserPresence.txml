@@ -16,22 +16,22 @@
   </component>
   <component temporary="true" typeId="17" type="Mesh" sync="true">
    <attribute value="0,0,0,0,0,0,1,1,1" type="Transform" id="nodeTransformation" name="Transform"/>
-   <attribute value="Avatar.mesh" type="AssetReference" id="meshRef" name="Mesh ref"/>
+   <attribute value="js/server/user-presence/Avatar.mesh" type="AssetReference" id="meshRef" name="Mesh ref"/>
    <attribute value="" type="AssetReference" id="skeletonRef" name="Skeleton ref"/>
-   <attribute value="Avatar01.material" type="AssetReferenceList" id="materialRefs" name="Mesh materials"/>
+   <attribute value="js/server/user-presence/Avatar01.material" type="AssetReferenceList" id="materialRefs" name="Mesh materials"/>
    <attribute value="0" type="real" id="drawDistance" name="Draw distance"/>
    <attribute value="true" type="bool" id="castShadows" name="Cast shadows"/>
    <attribute value="false" type="bool" id="useInstancing" name="Use instancing"/>
   </component>
   <component temporary="true" typeId="5" type="Script" sync="true">
-   <attribute value="RandomMaterial.js" type="AssetReferenceList" id="scriptRef" name="Script ref"/>
+   <attribute value="js/server/user-presence/RandomMaterial.js" type="AssetReferenceList" id="scriptRef" name="Script ref"/>
    <attribute value="true" type="bool" id="runOnLoad" name="Run on load"/>
    <attribute value="2" type="int" id="runMode" name="Run mode"/>
    <attribute value="" type="string" id="applicationName" name="Script application name"/>
    <attribute value="" type="string" id="className" name="Script class name"/>
   </component>
   <component temporary="true" typeId="25" type="DynamicComponent" sync="true" name="AvatarAssets">
-   <attribute value="Avatar01.material;Avatar02.material;Avatar03.material;Avatar04.material;Avatar05.material" type="AssetReferenceList" id="materialRefs" name="materialRefs"/>
+   <attribute value="js/server/user-presence/Avatar01.material;js/server/user-presence/Avatar02.material;js/server/user-presence/Avatar03.material;js/server/user-presence/Avatar04.material;js/server/user-presence/Avatar05.material" type="AssetReferenceList" id="materialRefs" name="materialRefs"/>
   </component>
  </entity>
 </scene>

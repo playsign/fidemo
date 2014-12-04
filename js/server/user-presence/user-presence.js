@@ -2,6 +2,7 @@
 // !ref: http://meshmoon.data.s3.amazonaws.com/app/lib/class.js, Script
 // !ref: http://meshmoon.data.s3.amazonaws.com/app/lib/json2.js, Script
 // !ref: http://meshmoon.data.s3.amazonaws.com/app/lib/admino-utils-common-deploy.js, Script
+// !ref: UserPresence.txml, Binary
 
 engine.IncludeFile("http://meshmoon.data.s3.amazonaws.com/app/lib/class.js");
 engine.IncludeFile("http://meshmoon.data.s3.amazonaws.com/app/lib/json2.js");
@@ -11,7 +12,7 @@ engine.IncludeFile("http://meshmoon.data.s3.amazonaws.com/app/lib/admino-utils-c
 // Each of the values are optional, and only defined values are updated.
 var cUserPresencePositionUpdate = "UserPresencePositionUpdate";
 
-var cDefaultUserPresencePrefab = "UserPresence.txml"; // TODO abs ref?
+var cDefaultUserPresencePrefab = "js/server/user-presence/UserPresence.txml";
 
 SetLogChannelName(me.name);
 
@@ -29,10 +30,17 @@ var UserPresenceServer = Class.extend(
         this.userPresences = {};
 
         // Settings
-        // TODO Read these from DynamicComponent
         this.prefabRef = cDefaultUserPresencePrefab;
         this.positionOffset = float3.inf;
         // TODO Selection layer setting for the user presence entity?
+        var settings = me.Component(25, "Settings");
+        if (settings)
+        {
+            if (settings.prefabRef !== undefined)
+                this.prefabRef = settings.prefabRef;
+            if (settings.positionOffset !== undefined)
+                this.positionOffset = prefabRef;
+        }
 
         server.UserConnected.connect(this, this.createUserPresence);
         server.UserDisconnected.connect(this, this.removeUserPresence);
@@ -62,7 +70,7 @@ var UserPresenceServer = Class.extend(
             this.removeUserPresence(id, user);
         }
 
-        // TODO asset.RequestAsset()?
+        // TODO asset.RequestAsset() if wanting to use custom user presences
         var prefabAsset = asset.GetAsset/*FindAsset*/(this.prefabRef);
         if (!prefabAsset)
         {
