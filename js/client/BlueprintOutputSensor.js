@@ -36,11 +36,14 @@
         y: 0
       };
 
+    self.intersectedObject;
+
     self.pois = [];
     self.dialogs = [];
 
     // listeners
     document.addEventListener('mousemove', self.onDocumentMouseMove.bind(self), false);
+    document.addEventListener('mousedown', self.onDocumentMouseDown.bind(self), false);
     document.addEventListener('mouseup', self.onDocumentMouseUp.bind(self), false);
     document.addEventListener('mousewheel', self.updateDialogs.bind(self), false);
 
@@ -282,6 +285,39 @@ VIZI.BlueprintOutputSensor.prototype.createThermometer = function(lat, lon, name
 
   };
 
+  VIZI.BlueprintOutputSensor.prototype.onDocumentMouseDown = function(event) {
+    var self = this;
+
+    // the following line would stop any other event handler from firing
+    // (such as the mouse's TrackballControls)
+    // event.preventDefault();
+
+
+    // update the mouse variable
+    self.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    self.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    // find intersections
+
+    // create a Ray with origin at the mouse position
+    // and direction into the scene (camera direction)
+    var vector = new THREE.Vector3(self.mouse.x, self.mouse.y, 1);
+    vector.unproject(self.world.camera.camera);
+    var pLocal = new THREE.Vector3(0, 0, -1);
+    var pWorld = pLocal.applyMatrix4(self.world.camera.camera.matrixWorld);
+    var ray = new THREE.Raycaster(pWorld, vector.sub(pWorld).normalize());
+
+    // create an array containing all objects in the scene with which the ray intersects
+    var intersects = ray.intersectObjects(self.pois);
+
+    // if there is one (or more) intersections
+    if (intersects.length > 0) {
+      console.log(intersects[0]);
+      self.intersectedObject = intersects[0].object;
+    }
+  };
+
+
   VIZI.BlueprintOutputSensor.prototype.onDocumentMouseUp = function(event) {
     var self = this;
 
@@ -312,7 +348,7 @@ VIZI.BlueprintOutputSensor.prototype.createThermometer = function(lat, lon, name
       console.log(intersects[0]);
       var selectedObject = intersects[0].object;
 
-      if (self.dialogs[selectedObject.index] === undefined) {
+      if (self.dialogs[selectedObject.index] === undefined && selectedObject == self.intersectedObject) {
 
         // jQuery dialog
         var newDialog = selectedObject.uuid;
@@ -326,20 +362,21 @@ VIZI.BlueprintOutputSensor.prototype.createThermometer = function(lat, lon, name
           height: "auto",
           ind: selectedObject.index,
           close: function(ev, ui) {
-            console.log("destroy dialog");
+            console.log("close dialog");
             var customAttrValue = $("#" + this.id).dialog("option", "ind");
             self.dialogs[customAttrValue].remove();
             self.dialogs[customAttrValue] = undefined;
-          }
+          },
         });
 
         self.setDialogPosition(selectedObject.index);
-      } else {
+      } else if(self.dialogs[selectedObject.index]) {
         self.dialogs[selectedObject.index].remove();
         self.dialogs[selectedObject.index] = undefined;
       }
-
     }
+
+    self.intersectedObject = undefined;
 
   };
 
@@ -362,6 +399,7 @@ VIZI.BlueprintOutputSensor.prototype.setDialogPosition  = function(i) {
   var forward = pWorld.sub(self.world.camera.camera.position).normalize();
   var toOther = self.pois[i].position.clone();
   toOther.sub(self.world.camera.camera.position);
+  // console.log(forward.dot(toOther));
 
   if (forward.dot(toOther) < 0) {
     self.dialogs[i].remove();
