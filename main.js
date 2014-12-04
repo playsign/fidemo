@@ -13,13 +13,13 @@ try
     console : true
   });
 
-  var freecamera = undefined;
-  var demoapp = undefined;
-  var cbclient = undefined;
+  var freecamera;
+  var demoapp;
+  var cbclient;
 
   // Free camera application
   $.getScript("build/webtundra/application/freecamera.js")
-    .done(function(script, textStatus) {
+    .done(function(/*script, textStatus*/) {
       freecamera = new FreeCameraApplication();
     })
     .fail(function(jqxhr, settings, exception) {
@@ -29,7 +29,7 @@ try
 
   // Fiware demo application
   $.getScript("js/client/tundra-client.js")
-    .done(function(script, textStatus) {
+    .done(function(/*script, textStatus*/) {
       demoapp = new FiwareDemo();
     })
     .fail(function(jqxhr, settings, exception) {
@@ -39,7 +39,7 @@ try
 
   // Context broker lib
   $.getScript("js/client/context-broker.js")
-    .done(function(script, textStatus) {
+    .done(function(/*script, textStatus*/) {
       cbclient = new ContextBrokerClient();
       cbclient.runTests();
 
@@ -50,6 +50,7 @@ try
   );
 
     // Connected to server
+    var instructions;
     client.onConnected(null, function() {
         // Setup initial camera position
         if (freecamera && freecamera.cameraEntity)
@@ -79,22 +80,22 @@ try
     // Disconnected from server
     client.onDisconnected(null, function() {
         if (instructions)
-            instructions.remove()
+            instructions.remove();
         instructions = null;
     });
 
     // Mouse pressed
     client.input.onMousePress(null, function(mouse) {
-	console.log("onMousePress");
+        console.log("onMousePress");
         if (!mouse.leftDown)
             return;
 
-	var serverEnt = client.scene.entityByName("FIWARE Demo Application"); //"Test Cube");
-	serverEnt.exec(EntityAction.Server, "TestAction");
+        var serverEnt = client.scene.entityByName("FIWARE Demo Application"); //"Test Cube");
+        serverEnt.exec(EntityAction.Server, "TestAction");
 
         var result = client.renderer.raycast();
-	console.log(result);
-        if (result.entity != null) //&& result.entity.name === "Boulder")
+        console.log(result);
+        if (result.entity) //&& result.entity.name === "Boulder")
         {
             result.entity.exec(EntityAction.Server, "MousePress");
         }
@@ -173,7 +174,7 @@ function createRenderer(viewport, scene) {
 threejs = {
     scene: TundraSDK.framework.renderer.scene,
     renderer: TundraSDK.framework.renderer.renderer
-}
+};
 
 /* use the local code here to create for this app
 var fidemo_scene = createScene() //need to pass to renderer so can't be in same decl below
