@@ -78,6 +78,13 @@
       color: 0xffffff,
       fog: true
     });
+
+    pinMap = THREE.ImageUtils.loadTexture("data/2d/jokujuna.png");
+    self.pinMaterialMetro = new THREE.SpriteMaterial({
+      map: pinMap,
+      color: 0xffffff,
+      fog: true
+    });
   };
 
   VIZI.BlueprintOutputSensor.prototype = Object.create(VIZI.BlueprintOutput.prototype);
@@ -150,13 +157,13 @@
 
     if(name.indexOf('RHKL') > -1){
       pin = new THREE.Sprite(self.pinMaterialTram);
+    } else if(name.indexOf('metro') > -1){
+      pin = new THREE.Sprite(self.pinMaterialMetro);
     } else {
       pin = new THREE.Sprite(self.pinMaterialBus);
-    }
+    }    
 
-    
-
-    pin.scale.set(50, 50, 50);
+    pin.scale.set(40, 40, 40);
 
     pin.name = name;
     pin.description = desc;
