@@ -104,6 +104,7 @@
       var boxId = data[i].node;
 
       if (data[i].categories) {
+        boxName = data[i].name;
         self.createPin(boxLatitude, boxLongitude, boxName, boxDescription, boxId);
       } else if (data[i].light) {
         var lux = parseFloat(data[i].light, 10);
