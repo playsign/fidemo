@@ -66,7 +66,14 @@
 
     // Pin sprite material
     var pinMap = THREE.ImageUtils.loadTexture("data/2d/bussi.png");
-    self.pinMaterial = new THREE.SpriteMaterial({
+    self.pinMaterialBus = new THREE.SpriteMaterial({
+      map: pinMap,
+      color: 0xffffff,
+      fog: true
+    });
+
+    pinMap = THREE.ImageUtils.loadTexture("data/2d/ratikka.png");
+    self.pinMaterialTram = new THREE.SpriteMaterial({
       map: pinMap,
       color: 0xffffff,
       fog: true
@@ -139,7 +146,15 @@
 
     console.log("createPin");
 
-    var pin = new THREE.Sprite(self.pinMaterial);
+    var pin;
+
+    if(name.indexOf('RHKL') > -1){
+      pin = new THREE.Sprite(self.pinMaterialTram);
+    } else {
+      pin = new THREE.Sprite(self.pinMaterialBus);
+    }
+
+    
 
     pin.scale.set(50, 50, 50);
 
