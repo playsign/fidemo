@@ -1,0 +1,14 @@
+material
+{
+    technique
+    {
+        pass Material
+        {
+            lighting on
+            emissive 0 0 0 0
+            diffuse 0 1 0 1
+            ambient 0 0 0 0
+            specular 0 0 0 0
+        }
+    }
+}

@@ -28,23 +28,27 @@
     }
 
     #vizicities-viewport {
-      height: 720px;
-      left: 50%;
-      margin: -360px 0 0 -640px;
+      height: 100%;
       position: absolute;
-      top: 50%;
-width: 1280px;
-display: none;
+      width: 100%;
+	  display: none;
     }
+        #heatmapContainerWrapper { width:100%; height:100%; position:absolute; background:rgba(0,0,0,.1); }
+    #heatmapContainer { width:100%; height:100%; ; visibility: hidden;}
   </style>
 
   <link rel="stylesheet" type="text/css" href="build/vizicities/vizi.css">
   <!-- includes three.js r69 which is used in this app. -->
   <script src="build/vizicities/vizi.js"></script>
 
+  <!--Dialog-->
+  <script src="js/client/jquery-2.1.1.min.js"></script>
+<script src="js/client/jquery-ui.js"></script>
+<link rel=stylesheet href="css/jquery-ui.css" />
+<link rel=stylesheet href="css/info.css"/>
+<!--      -->
+
   <!-- three using codes here may or may not work - networking should -->
-  <script src="build/webtundra/lib/jquery.js"></script>
-  <script src="build/webtundra/lib/jquery-ui.js"></script>
   <script src="build/webtundra/lib/loglevel.js"></script>
   <script src="build/webtundra/lib/signals.js"></script>
   <script src="build/webtundra/lib/jquery.mousewheel.js"></script>
@@ -58,7 +62,24 @@ display: none;
   <div id="webtundra-container"></div>
   <div id="vizicities-viewport"></div>
 
+    <div id="heatmapContainerWrapper">
+      <div id="heatmapContainer">
+      </div>
+  </div>
+
+  <script src="js/client/BlueprintInputSensor.js"></script>
+  <script src="js/client/BlueprintOutputSensor.js"></script>
+  <script src="js/client/BlueprintOutputHeatmap.js"></script>
+  <script src="js/client/heatmap.min.js"></script>
   <script src="js/client/debugObject.js"></script>
+  <script src="js/client/santanderConfig.js"></script>
+  <script src="js/client/heatmapConfig.js"></script>
+  <script src="js/client/helsinkiConfig.js"></script>
   <script src="main.js"></script>
+
+    <script>
+    // Debug output
+    // VIZI.DEBUG = true;
+    </script>
 </body>
 </html>

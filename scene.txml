@@ -147,4 +147,32 @@
    <attribute value="true" type="bool" id="active" name="Active"/>
   </component>
  </entity>
+ <entity id="5" sync="true">
+  <component typeId="26" type="Name" sync="true">
+   <attribute value="ChatApplication" type="string" id="name" name="Name"/>
+   <attribute value="" type="string" id="description" name="Description"/>
+   <attribute value="" type="string" id="group" name="Group"/>
+  </component>
+  <component typeId="5" type="Script" sync="true" name="ChatApplication">
+   <attribute value="js/server/chat.js" type="AssetReferenceList" id="scriptRef" name="Script ref"/>
+   <attribute value="true" type="bool" id="runOnLoad" name="Run on load"/>
+   <attribute value="2" type="int" id="runMode" name="Run mode"/>
+   <attribute value="" type="string" id="applicationName" name="Script application name"/>
+   <attribute value="" type="string" id="className" name="Script class name"/>
+  </component>
+ </entity>
+ <entity id="6" sync="true">
+  <component typeId="26" type="Name" sync="true">
+   <attribute value="UserPresenceApplication" type="string" id="name" name="Name"/>
+   <attribute value="" type="string" id="description" name="Description"/>
+   <attribute value="" type="string" id="group" name="Group"/>
+  </component>
+  <component typeId="6" type="Script" sync="true" name="UserPresenceApplication">
+   <attribute value="js/server/user-presence.js" type="AssetReferenceList" id="scriptRef" name="Script ref"/>
+   <attribute value="true" type="bool" id="runOnLoad" name="Run on load"/>
+   <attribute value="2" type="int" id="runMode" name="Run mode"/>
+   <attribute value="" type="string" id="applicationName" name="Script application name"/>
+   <attribute value="" type="string" id="className" name="Script class name"/>
+  </component>
+ </entity>
 </scene>
