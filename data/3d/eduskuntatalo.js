@@ -2,7 +2,7 @@
 
 "metadata":
 {
-"sourceFile": "kiasma_alue003flat.max",
+"sourceFile": "keybuildings_1.max",
 "generatedBy": "3ds max ThreeJSExporter",
 "formatVersion": 3.1,
 "vertices": 484,
