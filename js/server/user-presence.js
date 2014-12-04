@@ -63,7 +63,7 @@ var UserPresenceServer = Class.extend(
         }
 
         // TODO asset.RequestAsset()?
-        var prefabAsset = asset.FindAsset(this.prefabRef);
+        var prefabAsset = asset.GetAsset/*FindAsset*/(this.prefabRef);
         if (!prefabAsset)
         {
             LogError("createUserPresence: could not find prefab by ref '" + this.prefabRef + "'.");

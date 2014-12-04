@@ -35,7 +35,7 @@ ServerControl.prototype.OnUserConnected = function(cid, connection)
 {
     Noop(cid);
     var msg = UsernameForClient(connection) + " connected.";
-    me.Exec(EntityAction.Peers, Msg.ServerSendMessage, msg);
+    me.Exec(4/*EntityAction.Peers*/, Msg.ServerSendMessage, msg);
 };
 
 ServerControl.prototype.OnUserDisconnected = function(cid, connection)
@@ -43,8 +43,8 @@ ServerControl.prototype.OnUserDisconnected = function(cid, connection)
     Noop(cid);
     var msg = UsernameForClient(connection) + " disconnected.";
 
-    me.Exec(EntityAction.Peers, Msg.ServerSendMessage, msg);
-    me.Exec(EntityAction.Peers, Msg.RemoveUserFromList, UsernameForClient(connection));
+    me.Exec(4/*EntityAction.Peers*/, Msg.ServerSendMessage, msg);
+    me.Exec(4/*EntityAction.Peers*/, Msg.RemoveUserFromList, UsernameForClient(connection));
 };
 
 // Receive incoming messages from client 
@@ -54,7 +54,7 @@ ServerControl.prototype.OnClientMessage = function(senderName, msg)
     if (msg.length > 0)
     {
         var message = (senderName + ": " + msg);
-        me.Exec(EntityAction.Peers, Msg.ServerSendMessage, message);
+        me.Exec(4/*EntityAction.Peers*/, Msg.ServerSendMessage, message);
     }
 };
 
@@ -71,7 +71,7 @@ ServerControl.prototype.OnPrivateOnClientMessage = function(senderName, receiver
 
 ServerControl.prototype.ServerUpdateUserList = function(user)
 {
-    me.Exec(EntityAction.Peers, Msg.UpdateUserList, user);
+    me.Exec(4/*EntityAction.Peers*/, Msg.UpdateUserList, user);
 };
 
 if (server.IsRunning())
