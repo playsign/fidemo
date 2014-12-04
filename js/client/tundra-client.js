@@ -44,7 +44,7 @@ var FiwareDemo = ICameraApplication.$extend(
 			loader.load( building, function(geometry, materials) {
 				console.log(building + " loaded.");
 				var mesh = new THREE.Mesh( geometry, new THREE.MeshFaceMaterial( materials ) );
-				mesh.scale.set( 0.008, 0.008, 0.008 );
+				mesh.scale.set( 0.8582932963847628, 0.8582932963847628, 0.8582932963847628 );
 				TundraSDK.framework.renderer.scene.add( mesh );
 			});
 		}
