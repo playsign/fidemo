@@ -6,6 +6,8 @@ var Msg =
     ClientSendMessage : "ClientSendMessage",
     ClientSendPrivateMessage : "ClientSendPrivateMessage",
     ServerUpdateUserList : "ServerUpdateUserList",
+    // client -> peers
+    NewUserConnected : "NewUserConnected",
     // server -> clients
     ServerSendMessage : "ServerSendMessage",
     RemoveUserFromList : "RemoveUserFromList",
@@ -44,7 +46,7 @@ ServerControl.prototype.OnUserDisconnected = function(cid, connection)
     var msg = UsernameForClient(connection) + " disconnected.";
 
     me.Exec(4/*EntityAction.Peers*/, Msg.ServerSendMessage, msg);
-    me.Exec(4/*EntityAction.Peers*/, Msg.RemoveUserFromList, UsernameForClient(connection));
+    me.Exec(4/*EntityAction.Peers*/, Msg.RemoveUserFromList, UsernameForClient(connection), connection.id); // NOTE Connection ID new addition
 };
 
 // Receive incoming messages from client 
