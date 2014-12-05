@@ -317,6 +317,10 @@ if (santanderLatLon !== undefined) {
 
   var switchboardSensor = new VIZI.BlueprintSwitchboard(config);
   switchboardSensor.addToWorld(world);
+  
+  var streetLabelsConfig = getStreetLabelsConfig();
+  var switchboardStreets = new VIZI.BlueprintSwitchboard(streetLabelsConfig);
+  switchboardStreets.addToWorld(world);
 }
 
 // BUILDINGS
