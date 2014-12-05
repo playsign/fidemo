@@ -243,10 +243,6 @@ var ChatApplication = IApplication.$extend(
 
     onUpdate : function(frametime)
     {
-        // TODO Hackish
-        if (!this.entity && this.fw.client.isConnected() && this.fw.asset.numCurrentTransfers() === 0)
-            this.initialize();
-
         if (this.ui.floatingMessages && this.ui.floatingMessages.length > 0)
         {
             this.ui.floatingTime += frametime;
@@ -349,7 +345,6 @@ var ChatApplication = IApplication.$extend(
 
     toggleChatLog : function()
     {
-        this.onWindowResize();
         var isVisible = this.ui.chatLog.is(":visible");
         if (!isVisible)
         {

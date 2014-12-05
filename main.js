@@ -3,57 +3,65 @@
 // NOW: removed the three r62 from WTs deps and index.html has vizi, for three, first now
 try
 {
-  var client = tundra.createWebTundraClient({
-    container    : "#webtundra-container",
-    renderSystem : ThreeJsRenderer,
-    asset : {
-      localStoragePath : "build/webtundra"
-    },
-    taskbar : false,
-    console : true
-  });
+    var client = tundra.createWebTundraClient(
+    {
+        container    : "#webtundra-container",
+        renderSystem : ThreeJsRenderer,
+        asset : {
+            localStoragePath : "build/webtundra"
+        },
+            taskbar : false,
+            console : true
+    });
 
-  /* TundraClient onWebSocketConnectionClosed calls 'that.reset()' which clears scene
-  -- we don't want that here, at least to support standalone dev, but probably not for prod either */
-  client.reset = function() {
-      client.log.infoC("client reset is a no-op now.");
-  }
-    
-  var freecamera;
-  var demoapp;
-  var cbclient;
+    /* TundraClient onWebSocketConnectionClosed calls 'that.reset()' which clears scene
+    -- we don't want that here, at least to support standalone dev, but probably not for prod either */
+    client.reset = function() {
+        client.log.infoC("client reset is a no-op now.");
+    };
 
-  // Free camera application
-  $.getScript("build/webtundra/application/freecamera.js")
-    .done(function(/*script, textStatus*/) {
-      freecamera = new FreeCameraApplication();
-    })
-    .fail(function(jqxhr, settings, exception) {
-      console.error(exception);
-    }
-  );
+    var freecamera;
+    var demoapp;
+    var cbclient;
+    var chat;
 
-  // Fiware demo application
-  $.getScript("js/client/tundra-client.js")
-    .done(function(/*script, textStatus*/) {
-      demoapp = new FiwareDemo();
-    })
-    .fail(function(jqxhr, settings, exception) {
-      console.error(exception);
-    }
-  );
+    // Free camera application
+    $.getScript("build/webtundra/application/freecamera.js")
+        .done(function(/*script, textStatus*/) {
+            freecamera = new FreeCameraApplication();
+        })
+        .fail(function(jqxhr, settings, exception) {
+            console.error(exception);
+        });
 
-  // Context broker lib
-  $.getScript("js/client/context-broker.js")
-    .done(function(/*script, textStatus*/) {
-      cbclient = new ContextBrokerClient();
-      cbclient.runTests();
+    // Fiware demo application
+    $.getScript("js/client/tundra-client.js")
+        .done(function(/*script, textStatus*/) {
+            demoapp = new FiwareDemo();
+        })
+        .fail(function(jqxhr, settings, exception) {
+            console.error(exception);
+        });
 
-    })
-    .fail(function(jqxhr, settings, exception) {
-      console.error(exception);
-    }
-  );
+    // Context broker lib
+    $.getScript("js/client/context-broker.js")
+        .done(function(/*script, textStatus*/) {
+            cbclient = new ContextBrokerClient();
+            cbclient.runTests();
+        })
+        .fail(function(jqxhr, settings, exception) {
+            console.error(exception);
+        });
+
+    // Chat
+    // $.getScript("js/client/chat.js")
+        // .done(function(/*script, textStatus*/) {
+            // chat = new ChatApplication();
+            // Note that chat is not initialized fully until we're connected to the server.
+        // })
+        // .fail(function(jqxhr, settings, exception) {
+            // console.error(exception);
+        // });
 
     // Connected to server
     var instructions;
@@ -88,11 +96,12 @@ try
         if (instructions)
             instructions.remove();
         instructions = null;
+        if (chat)
+            chat.removeUi();
     });
 
     // Mouse pressed
     client.input.onMousePress(null, function(mouse) {
-        console.log("onMousePress");
         if (!mouse.leftDown)
             return;
 
@@ -101,7 +110,7 @@ try
             serverEnt.exec(EntityAction.Server, "TestAction");
 
         var result = client.renderer.raycast();
-        console.log(result);
+        // console.log(result);
         if (result.entity) //&& result.entity.name === "Boulder")
         {
             result.entity.exec(EntityAction.Server, "MousePress");
@@ -110,8 +119,8 @@ try
 }
 catch(e)
 {
-  console.error("WebTundra initialization failed");
-  console.error(e.stack);
+    console.error("WebTundra initialization failed");
+    console.error(e.stack);
 }
 
 console.log("Client inited:" + client);
