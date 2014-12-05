@@ -13,6 +13,12 @@ try
     console : true
   });
 
+  /* TundraClient onWebSocketConnectionClosed calls 'that.reset()' which clears scene
+  -- we don't want that here, at least to support standalone dev, but probably not for prod either */
+  client.reset = function() {
+      client.log.infoC("client reset is a no-op now.");
+  }
+    
   var freecamera;
   var demoapp;
   var cbclient;
