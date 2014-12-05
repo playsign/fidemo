@@ -31,6 +31,10 @@ var LollipopMenu = function(owner) {
   for (var i = 0; i < iconTexNames.length; ++i) {
     this.iconAngles.push((this.minAngle + i * angleRange/(iconTexNames.length-1)) * (Math.PI/180));
   }
+  this.iconDist = 35;
+  this.iconHeight = 10;
+
+
   this.mouseDownX = 0;
   this.mouseDownY = 0;
 };
@@ -42,16 +46,23 @@ LollipopMenu.prototype = {
   },
 
   onMouseUp : function(x, y) {
-    // Only show menu if this is not a drag
-    if (!this.isShowing() && x == this.mouseDownX && y == this.mouseDownY) {
-      var pos = this.planeRaycast(x, y);
-      if (pos) {
-        this.createMenu(pos);
+    // Only show/hide menu if this is not a drag
+    if (x == this.mouseDownX && y == this.mouseDownY) {
+      if (!this.isShowing()) {
+        var pos = this.planeRaycast(x, y);
+        if (pos) {
+          this.createMenu(pos);
+        }
+      }
+      else {
+        this.hideMenu();
       }
     }
-    else {
-      this.hideMenu();
-    }
+  },
+  
+  onMouseMove : function() {
+    if (this.isShowing())
+      this.updateIconPositions();
   },
 
   planeRaycast : function(x, y) {
@@ -77,21 +88,14 @@ LollipopMenu.prototype = {
     this.owner.add(spr);
     this.lollipopSprite = spr;
 
-    var iconDist = 35;
-    var iconHeight = 10;
-    for (var i = 0; i < this.iconMats.length; ++i)
-    {
-      var iconPosWorld = new THREE.Vector3(Math.sin(this.iconAngles[i])*iconDist, iconHeight + Math.cos(this.iconAngles[i])*iconDist, 0);
-      iconPosWorld.applyQuaternion(this.owner.world.camera.camera.getWorldQuaternion());
-      iconPosWorld.add(spr.position);
-
+    for (var i = 0; i < this.iconMats.length; ++i) {
       var spr2 = new THREE.Sprite(this.iconMats[i]);
       spr2.scale.set(30,30,30);
-      spr2.position.copy(iconPosWorld);
+      spr2.position.copy(this.calculateIconPosition(i));
+
       this.owner.add(spr2);
       this.iconSprites.push(spr2);
     }
-
 
     this.shown.dispatch();
   },
@@ -112,5 +116,19 @@ LollipopMenu.prototype = {
   
   isShowing : function() {
     return this.lollipopSprite != null;
+  },
+  
+  calculateIconPosition : function(i) {
+    var iconPosWorld = new THREE.Vector3(Math.sin(this.iconAngles[i])*this.iconDist, 
+      this.iconHeight + Math.cos(this.iconAngles[i])*this.iconDist, 0);
+    iconPosWorld.applyQuaternion(this.owner.world.camera.camera.getWorldQuaternion());
+    iconPosWorld.add(this.lollipopSprite.position);
+    return iconPosWorld;
+  },
+  
+  updateIconPositions : function() {
+    for (var i = 0; i < this.iconSprites.length; ++i) {
+      this.iconSprites[i].position.copy(this.calculateIconPosition(i));
+    }
   }
 }
