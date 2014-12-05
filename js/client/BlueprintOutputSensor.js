@@ -155,31 +155,47 @@
 
     var pin;
 
-    if(name.indexOf('RHKL') > -1){
-      pin = new THREE.Sprite(self.pinMaterialTram);
-    } else if(name.indexOf('metro') > -1){
-      pin = new THREE.Sprite(self.pinMaterialMetro);
+    if (self.pois[name]) {
+      // UPDATE
+
+      var dgeocoord = new VIZI.LatLon(lat, lon);
+      var dscenepoint = self.world.project(dgeocoord);
+
+      self.pois[name].position.x = dscenepoint.x;
+      self.pois[name].position.y = self.spriteYpos;
+      self.pois[name].position.z = dscenepoint.y;
     } else {
-      pin = new THREE.Sprite(self.pinMaterialBus);
-    }    
+      // CREATE NEW
 
-    pin.scale.set(40, 40, 40);
+      if (name.indexOf('RHKL') > -1) {
+        pin = new THREE.Sprite(self.pinMaterialTram);
+      } else if (name.indexOf('metro') > -1) {
+        pin = new THREE.Sprite(self.pinMaterialMetro);
+      } else {
+        pin = new THREE.Sprite(self.pinMaterialBus);
+      }
 
-    pin.name = name;
-    pin.description = desc;
-    pin.uuid = uuid;
+      pin.scale.set(40, 40, 40);
 
-    var dgeocoord = new VIZI.LatLon(lat, lon);
-    var dscenepoint = self.world.project(dgeocoord);
+      pin.name = name;
+      pin.description = desc;
+      pin.uuid = uuid;
 
-    pin.position.x = dscenepoint.x;
-    pin.position.y = self.spriteYpos;
-    pin.position.z = dscenepoint.y;
+      var dgeocoord = new VIZI.LatLon(lat, lon);
+      var dscenepoint = self.world.project(dgeocoord);
 
-    pin.index = self.pois.length;
-    self.pois.push(pin);
+      pin.position.x = dscenepoint.x;
+      pin.position.y = self.spriteYpos;
+      pin.position.z = dscenepoint.y;
 
-    self.add(pin);
+      pin.index = self.pois.length;
+
+      self.pois[name] = pin;
+
+      self.add(pin);
+    }
+
+
     /*
     VIZI.Layer.add vizi.js:7140
     function (object) {

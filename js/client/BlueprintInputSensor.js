@@ -69,6 +69,13 @@
       console.log("Data received: ");
       console.log(data);
       self.emit("dataReceived", data);
+
+      // Repeat
+      if (self.options.repeat) {
+        window.setTimeout(function() {
+          self.emit("requestData", "repeat");
+        }, 3000);
+      }
     });
   };
 

@@ -1,20 +1,31 @@
-function getHelsinkiConfig(){
+function getHelsinkiConfig() {
   return {
     input: {
       type: "BlueprintInputSensor",
       options: {
-        path: "http://dev.cie.fi/FI-WARE/mlevanto/dynpoi/server/radial_search"
+        path: "http://dev.cie.fi/FI-WARE/mlevanto/dynpoi/server/radial_search",
+        repeat: false
       }
     },
     output: {
       type: "BlueprintOutputSensor",
       options: {
-        // modelPathPrefix: "./data/"
+
       }
     },
     triggers: [{
         triggerObject: "output",
         triggerName: "initialised",
+        triggerArguments: [],
+        actionObject: "input",
+        actionName: "requestData",
+        actionArguments: [],
+        actionOutput: {}
+      },
+      // chain data requests
+      {
+        triggerObject: "input",
+        triggerName: "requestData",
         triggerArguments: [],
         actionObject: "input",
         actionName: "requestData",
@@ -40,7 +51,7 @@ function getHelsinkiConfig(){
               // Eg. document.placemark[n].point.coordinates
               coordinates: ["fw_core.location.wgs84.latitude", "fw_core.location.wgs84.longitude"], // get coordinates from properties of the JSON          
               node: "data.Node",
-              categories : "fw_core.categories",
+              categories: "fw_core.categories",
               name: "fw_core.name." // name. with the dot because for some reason in a json name object keys are empty e.g "":"HSLsomething"
             }
           }
@@ -49,4 +60,3 @@ function getHelsinkiConfig(){
     ]
   };
 }
-
