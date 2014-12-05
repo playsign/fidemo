@@ -97,7 +97,8 @@ try
             return;
 
         var serverEnt = client.scene.entityByName("FIWARE Demo Application"); //"Test Cube");
-        serverEnt.exec(EntityAction.Server, "TestAction");
+        if (serverEnt)
+            serverEnt.exec(EntityAction.Server, "TestAction");
 
         var result = client.renderer.raycast();
         console.log(result);
