@@ -2,9 +2,9 @@
 var LollipopMenu = function(owner) {
   this.owner = owner
   this.worldPlane = new THREE.Plane(new THREE.Vector3(0,1,0),-this.owner.spriteYpos);
-  this.iconSelected = new signals.Signal();
-  this.shown = new signals.Signal;
-  this.hidden = new signals.Signal;
+  this.selectionChanged = new signals.Signal(); // User selected icon (1-4) or deselected (0)
+  this.shown = new signals.Signal; // Menu was shown
+  this.hidden = new signals.Signal; // Menu was hidden
 
   this.lollipopSprite = null;
   this.iconSprites = [];
@@ -21,7 +21,8 @@ var LollipopMenu = function(owner) {
     this.iconMats.push(new THREE.SpriteMaterial({
       map: THREE.ImageUtils.loadTexture(iconTexNames[i]),
       color: 0x000000, // Images black for now to make them stand out from totally white city
-      fog: true
+      fog: true,
+      depthWrite : false
     }));
   }
   this.iconAngles = [];
@@ -33,10 +34,13 @@ var LollipopMenu = function(owner) {
   }
   this.iconDist = 35;
   this.iconHeight = 10;
-
+  this.iconScale = 30;
+  this.iconSelectedScale = 40;
 
   this.mouseDownX = 0;
   this.mouseDownY = 0;
+
+  this.selection = 0; // 0 = none, 1 = photos, 2 = properties etc.
 };
 
 LollipopMenu.prototype = {
@@ -55,7 +59,10 @@ LollipopMenu.prototype = {
         }
       }
       else {
-        this.hideMenu();
+        // Raycast to icons and perform selection, hide menu if none hit
+        if (!this.doSelectionRaycast(x, y)) {
+          this.hideMenu();
+        }
       }
     }
   },
@@ -81,7 +88,7 @@ LollipopMenu.prototype = {
     }
 
     var spr = new THREE.Sprite(this.lollipopMat);
-    spr.scale.set(40,40,40);
+    spr.scale.set(this.iconScale, this.iconScale, this.iconScale);
     spr.position.x = pos.x;
     spr.position.y = this.owner.spriteYpos;
     spr.position.z = pos.z;
@@ -90,12 +97,14 @@ LollipopMenu.prototype = {
 
     for (var i = 0; i < this.iconMats.length; ++i) {
       var spr2 = new THREE.Sprite(this.iconMats[i]);
-      spr2.scale.set(30,30,30);
+      spr2.scale.set(this.iconScale,this.iconScale,this.iconScale);
       spr2.position.copy(this.calculateIconPosition(i));
+      spr2.selectionNumber = i+1;
 
       this.owner.add(spr2);
       this.iconSprites.push(spr2);
     }
+    this.setSelection(0);
 
     this.shown.dispatch();
   },
@@ -110,6 +119,7 @@ LollipopMenu.prototype = {
       this.owner.remove(this.iconSprites[i]);
     this.lollipopSprite = null;
     this.iconSprites = [];
+    this.setSelection(0);
 
     this.hidden.dispatch();
   },
@@ -130,5 +140,39 @@ LollipopMenu.prototype = {
     for (var i = 0; i < this.iconSprites.length; ++i) {
       this.iconSprites[i].position.copy(this.calculateIconPosition(i));
     }
+  },
+  
+  doSelectionRaycast : function(x, y) {
+    var intersections = this.owner.doRaycast(x, y, this.iconSprites);
+    for (var i = 0; i < intersections.length; ++i)
+    {
+      // If we raycast to already hit object, rather use the one that is unselected
+      if (this.selection != intersections[i].object.selectionNumber) {
+        this.setSelection(intersections[i].object.selectionNumber);
+        break;
+      }
+    }
+    return intersections.length > 0;
+  },
+  
+  setSelection : function(newSel) {
+    if (newSel != this.selection) {
+      this.selection = newSel;
+      console.log("Selection: " + newSel);
+      // Update icon scales
+      for (var i = 0; i < this.iconSprites.length; ++i) {
+        if (this.iconSprites[i].selectionNumber == newSel) {
+          this.iconSprites[i].scale.set(this.iconSelectedScale,this.iconSelectedScale,this.iconSelectedScale);
+        }
+        else {
+          this.iconSprites[i].scale.set(this.iconScale,this.iconScale,this.iconScale);
+        }
+      }
+      this.selectionChanged.dispatch(this.selection);
+    }
+  },
+  
+  getSelection : function() {
+    return this.selection;
   }
 }
