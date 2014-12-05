@@ -32,10 +32,15 @@ var LollipopMenu = function(owner) {
   for (var i = 0; i < iconTexNames.length; ++i) {
     this.iconAngles.push((this.minAngle + i * angleRange/(iconTexNames.length-1)) * (Math.PI/180));
   }
-  this.iconDist = 35;
-  this.iconHeight = 10;
+  this.iconDist = 0.9;
+  this.iconHeight = 0.2;
+  this.lollipopScale = 40;
   this.iconScale = 30;
-  this.iconSelectedScale = 40;
+  this.iconSelectedScale = 35;
+  
+  this.scaleTween = 0;
+  this.scaleTweenDir = 0;
+  this.scaleTweenSpeed = 2.5;
 
   this.mouseDownX = 0;
   this.mouseDownY = 0;
@@ -61,7 +66,7 @@ LollipopMenu.prototype = {
       else {
         // Raycast to icons and perform selection, hide menu if none hit
         if (!this.doSelectionRaycast(x, y)) {
-          this.hideMenu();
+          this.startHideMenu();
         }
       }
     }
@@ -88,7 +93,6 @@ LollipopMenu.prototype = {
     }
 
     var spr = new THREE.Sprite(this.lollipopMat);
-    spr.scale.set(this.iconScale, this.iconScale, this.iconScale);
     spr.position.x = pos.x;
     spr.position.y = this.owner.spriteYpos;
     spr.position.z = pos.z;
@@ -101,24 +105,31 @@ LollipopMenu.prototype = {
       spr2.position.copy(this.calculateIconPosition(i));
       spr2.selectionNumber = i+1;
 
-      this.owner.add(spr2);
+      this.lollipopSprite.add(spr2);
       this.iconSprites.push(spr2);
     }
     this.setSelection(0);
+    this.scaleTween = 0.1;
+    this.scaleTweenDir = 1;
+    this.updateScale(); // Set initial lollipop scale
 
     this.shown.dispatch();
+  },
+
+  startHideMenu : function() {
+    this.scaleTweenDir = -1;
   },
 
   hideMenu : function() {
     if (!this.isShowing()) {
       return; // Not showing
     }
-    
-    this.owner.remove(this.lollipopSprite);
+
     for (var i = 0; i < this.iconSprites.length; ++i)
-      this.owner.remove(this.iconSprites[i]);
-    this.lollipopSprite = null;
+      this.lollipopSprite.remove(this.iconSprites[i]);
     this.iconSprites = [];
+    this.owner.remove(this.lollipopSprite);
+    this.lollipopSprite = null;
     this.setSelection(0);
 
     this.hidden.dispatch();
@@ -129,11 +140,10 @@ LollipopMenu.prototype = {
   },
   
   calculateIconPosition : function(i) {
-    var iconPosWorld = new THREE.Vector3(Math.sin(this.iconAngles[i])*this.iconDist, 
+    var iconPos = new THREE.Vector3(Math.sin(this.iconAngles[i])*this.iconDist,
       this.iconHeight + Math.cos(this.iconAngles[i])*this.iconDist, 0);
-    iconPosWorld.applyQuaternion(this.owner.world.camera.camera.getWorldQuaternion());
-    iconPosWorld.add(this.lollipopSprite.position);
-    return iconPosWorld;
+    iconPos.applyQuaternion(this.owner.world.camera.camera.getWorldQuaternion());
+    return iconPos;
   },
   
   updateIconPositions : function() {
@@ -155,19 +165,47 @@ LollipopMenu.prototype = {
     return intersections.length > 0;
   },
   
+  onTick : function(delta) {
+    this.updateTween(delta);
+    this.updateScale();
+  },
+
+  updateTween : function(delta) {
+    if (this.lollipopSprite && this.scaleTweenDir != 0) {
+      this.scaleTween += this.scaleTweenDir * this.scaleTweenSpeed * delta;
+      if (this.scaleTween > 1) {
+        this.scaleTween = 1;
+        this.scaleTweenDir = 0;
+      }
+      if (this.scaleTween < 0) {
+        this.scaleTween = 0;
+        this.scaleTweenDir = 0;
+        this.hideMenu();
+      }
+    }
+  },
+
+  updateScale : function() {
+    if (this.lollipopSprite) {
+      var s = this.lollipopScale * this.scaleTween;
+      this.lollipopSprite.scale.set(s, s, s);
+      // Update icon scales
+      for (var i = 0; i < this.iconSprites.length; ++i) {
+        if (this.iconSprites[i].selectionNumber == this.selection) {
+          s = this.iconSelectedScale * this.scaleTween;
+        }
+        else {
+          s = this.iconScale * this.scaleTween;
+        }
+        this.iconSprites[i].scale.set(s, s, s);
+      }
+    }
+  },
+
   setSelection : function(newSel) {
     if (newSel != this.selection) {
       this.selection = newSel;
-      console.log("Selection: " + newSel);
-      // Update icon scales
-      for (var i = 0; i < this.iconSprites.length; ++i) {
-        if (this.iconSprites[i].selectionNumber == newSel) {
-          this.iconSprites[i].scale.set(this.iconSelectedScale,this.iconSelectedScale,this.iconSelectedScale);
-        }
-        else {
-          this.iconSprites[i].scale.set(this.iconScale,this.iconScale,this.iconScale);
-        }
-      }
+      this.updateScale();
       this.selectionChanged.dispatch(this.selection);
     }
   },

@@ -497,5 +497,11 @@
 
     self.currentDialog.dialog("option", "position", [x, y]);
   };
+  
+  // Tick handler
+  VIZI.BlueprintOutputSensor.prototype.onTick = function(delta) {
+    var self = this;
+    self.lollipopMenu.onTick(delta);
+  }
 
 }());
