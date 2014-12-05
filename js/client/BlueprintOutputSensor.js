@@ -94,6 +94,9 @@
     var self = this;
 
     self.emit("initialised");
+
+    // Lollipop menu
+    self.lollipopMenu = new LollipopMenu(self);
   };
 
   VIZI.BlueprintOutputSensor.prototype.outputSensor = function(data) {
@@ -351,6 +354,10 @@
       console.log(intersects[0]);
       self.intersectedObject = intersects[0].object;
     }
+    else {
+      // If no ray hits, pass on to lollipopmenu
+      self.lollipopMenu.onMouseDown(self.mouse.x, self.mouse.y);
+    }
   };
 
 
@@ -419,6 +426,10 @@
 
         self.setDialogPosition();
       }
+    }
+    else {
+      // If no ray hits, pass on to lollipopmenu
+      self.lollipopMenu.onMouseUp(self.mouse.x, self.mouse.y);
     }
 
     self.intersectedObject = undefined;
