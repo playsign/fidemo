@@ -44,7 +44,8 @@ var ChatApplication = IApplication.$extend(
             this.eventSubscriptions.push(this.fw.frame.onUpdate(this, this.onUpdate));
             this.eventSubscriptions.push(this.fw.ui.onClearFocus(this, this.onClearFocus));
             this.eventSubscriptions.push(this.entity.onEntityAction(this, this.onEntityAction));
-            this.entity.exec(EntityAction.Peers, Msg.NewUserConnected, this.username);
+            this.entity.exec(EntityAction.Peers, Msg.NewUserConnected, this.username, this.fw.client.connectionId);
+            this.addUser(this.username, this.fw.client.connectionId);
         }
     },
 
@@ -97,6 +98,9 @@ var ChatApplication = IApplication.$extend(
                 e.stopPropagation();
             }
         });
+        // Workaround for other scripts stealing the clicks to line edit.
+        this.ui.textField.mousedown(function(e) { e.preventDefault(); e.stopPropagation(); });
+        this.ui.textField.mouseup(function(e) { that.ui.textField.focus(); e.preventDefault(); e.stopPropagation(); });
 
         // Toggle chat log button
         this.ui.buttonLog = $("<button/>", {
@@ -419,14 +423,14 @@ var ChatApplication = IApplication.$extend(
     onEntityAction : function(entityAction)
     {
         if (entityAction.name === Msg.ServerSendMessage)
-            this.onServerMessage(entityAction.parameters[0]);
+            this.showServerMessage(entityAction.parameters[0]);
         else if (entityAction.name == Msg.NewUserConnected)
-            this.onAddUser(entityAction.parameters[0], parseInt(entityAction.parameters[1]));
+            this.addUser(entityAction.parameters[0], parseInt(entityAction.parameters[1]));
         else if (entityAction.name == Msg.RemoveUserFromList)
-            this.onRemoveUser(entityAction.parameters[0], parseInt(entityAction.parameters[1]));
+            this.removeUser(entityAction.parameters[0], parseInt(entityAction.parameters[1]));
     },
 
-    onAddUser : function(username, connId)
+    addUser : function(username, connId)
     {
         var item = $("<div/>", {
             id : "chat-useritem-" + connId,
@@ -451,7 +455,7 @@ var ChatApplication = IApplication.$extend(
             this.ui.userlist.append(item);
     },
 
-    onRemoveUser : function(username, connId)
+    removeUser : function(username, connId)
     {
         noop(username);
         this.ui.userlist.children().each(function()
@@ -471,29 +475,38 @@ var ChatApplication = IApplication.$extend(
         return (num > 10 ? num.toString() : "0" + num.toString());
     },
 
-    onServerMessage : function(msg)
+    showServerMessage : function(msg)
     {
-        console.log("onServerMessage: " + msg);
         var currentdate = new Date();
         var dateStr = this.checkTimeFormat(currentdate.getHours()) + ":" + this.checkTimeFormat(currentdate.getMinutes()) + ":" + this.checkTimeFormat(currentdate.getSeconds());
         dateStr = "<span style=\"font-family:Courier New;font-size:9pt;color:rgb(20,20,20);\">[" + dateStr + "] </span>";
 
-        // var username = msg.split(":")[0];
+        var username = (msg.indexOf(":") !== -1 ? msg.split(":")[0] : "server");
+        var message = (msg.indexOf(":") !== -1 ? msg.split(":")[1] : msg);
         // var username = msg.split(" ")[0];
         // var username = msg.split(":")[0];
         // var message = unescape(msg.split(":")[1]);
-        message = unescape(msg);
+        message = unescape(message);
         // var prefix;
         // if (username == this.username)
             // prefix = dateStr + "<span style=\"font-weight:bold;color:#3251FF;\">" + username + "</span> ";
         // else
             // prefix = dateStr + "<span style=\"font-weight:bold;color:#FF1C14;\">" + username + "</span> ";
 
+        // var fullMessage = "";
+        // if (username != this.lastSender)
+        // {
+            // fullMessage = prefix + message;
+            // this.lastSender = username;
+        // }
+        // else
+            // fullMessage = dateStr + message;
+
         fullMessage = dateStr + msg;
 
         this.ui.chatLog.html(this.ui.chatLog.html() + fullMessage + "<br>");
 
-        this.createFloatie("server"/*username*/, message, true);
+        this.createFloatie(username, message, true);
 
         this.ui.chatLog.animate({ scrollTop: this.ui.chatLog.prop("scrollHeight") }, 350);
     },

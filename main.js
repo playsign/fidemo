@@ -54,14 +54,15 @@ try
         });
 
     // Chat
-    // $.getScript("js/client/chat.js")
-        // .done(function(/*script, textStatus*/) {
-            // chat = new ChatApplication();
+    $.getScript("js/client/chat.js")
+        .done(function(/*script, textStatus*/) {
             // Note that chat is not initialized fully until we're connected to the server.
-        // })
-        // .fail(function(jqxhr, settings, exception) {
-            // console.error(exception);
-        // });
+            chat = new ChatApplication();
+            // chat.initUi(); // Uncomment to test chat UI in standalone mode
+        })
+        .fail(function(jqxhr, settings, exception) {
+            console.error(exception);
+        });
 
     // Connected to server
     var instructions;
@@ -123,11 +124,11 @@ catch(e)
     console.error(e.stack);
 }
 
-console.log("Client inited:" + client);
+console.log("Client initialized:" + client);
 T = TundraSDK.framework;
 
 var loginProperties = {};
-loginProperties.username = "fidemo-user";
+loginProperties.username = "fidemo-user" + Math.ceil(Math.random() * 100);
 var loginHost = "ws://127.0.0.1:2345";
 client.connect(loginHost, loginProperties);
 
@@ -207,10 +208,10 @@ var santanderLatLon;
 var helsinkiLatLon;
 
 var world = new VIZI.World({
-  viewport: viewport,
-  // center: new VIZI.LatLon(40.01000594412381, -105.2727379358738), // Collada
-  // center: new VIZI.LatLon(65.0164696, 25.479259499999998), // Oulu
-  // center: santanderLatLon = new VIZI.LatLon(43.47195, -3.79909),
+    viewport: viewport,
+    // center: new VIZI.LatLon(40.01000594412381, -105.2727379358738), // Collada
+    // center: new VIZI.LatLon(65.0164696, 25.479259499999998), // Oulu
+    // center: santanderLatLon = new VIZI.LatLon(43.47195, -3.79909),
     center: helsinkiLatLon = new VIZI.LatLon(60.17096119799872, 24.94066956044796), // Helsinki
     threejs: threejs
 });
