@@ -51,11 +51,8 @@
         var name = data[i].name;
 
         var		height = 0,
-			size = 40,
-		//	hover = 30,
-
+			size = 20,
 			curveSegments = 4,
-
 			bevelThickness = 2,
 			bevelSize = 1.5,
 			bevelSegments = 3,

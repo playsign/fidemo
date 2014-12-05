@@ -53,5 +53,75 @@
     "Lon":25.0276460,
     "Lat":60.2825285,
     "Name":"Kehä III"
+  },
+  {
+    "Lon":24.8905703,
+    "Lat":60.1612921,
+    "Name":"Lauttasaarentie"
+  },
+  {
+    "Lon":24.9853030,
+    "Lat":60.2183773,
+    "Name":"Viikintie"
+  },
+  {
+    "Lon":25.054665,
+    "Lat":60.243901,
+    "Name":"E75"
+  },
+  {
+    "Lon":24.782410,
+    "Lat":60.273706,
+    "Name":"E18"
+  },
+  {
+    "Lon":24.868584,
+    "Lat":60.279324,
+    "Name":"E12"
+  },
+  {
+    "Lon":24.927979,
+    "Lat":60.18822,
+    "Name":"Olympiastadion"
+  },
+  {
+    "Lon":24.933584,
+    "Lat":60.168970,
+    "Name":"Kampin keskus"
+  },
+  {
+    "Lon":24.941196,
+    "Lat":60.171766,
+    "Name":"Helsingin rautatieasema"
+  },
+  {
+    "Lon":24.902640,
+    "Lat":60.161932,
+    "Name":"Kaapelitehdas"
+  },
+  {
+    "Lon":24.877682,
+    "Lat":60.157611,
+    "Name":"Lauttasaari"
+  },
+  {
+    "Lon":24.968061,
+    "Lat":60.166322,
+    "Name":"Katajanokka"
+  },
+  {
+    "Lon":24.941067,
+    "Lat":60.187212,
+    "Name":"Linnanmäki"
+  },
+  {
+    "Lon":24.930184,
+    "Lat":60.205274,
+    "Name":"Hartwall Arena"
+  },
+  {
+    "Lon":24.999046,
+    "Lat":60.210657,
+    "Name":"Lammassaari"
   }
 ]
