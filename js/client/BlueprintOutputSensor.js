@@ -39,7 +39,8 @@
     self.intersectedObject;
     self.raycastsEnabled = true;
 
-    self.pois = [];
+    self.pois = {};
+    self.poisArray = [];
     self.currentDialog;
     self.currentPoi;
 
@@ -194,6 +195,8 @@
       pin.index = self.pois.length;
 
       self.pois[name] = pin;
+      // Add also to array for raycast
+      self.poisArray.push(pin);
 
       self.add(pin);
     }
@@ -347,7 +350,7 @@
     self.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
     // find intersections
-    var intersects = self.doRaycast(self.mouse.x, self.mouse.y, self.pois);
+    var intersects = self.doRaycast(self.mouse.x, self.mouse.y, self.poisArray);
 
     // if there is one (or more) intersections
     if (intersects.length > 0) {
@@ -378,7 +381,7 @@
     self.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
     // find intersections
-    var intersects = self.doRaycast(self.mouse.x, self.mouse.y, self.pois);
+    var intersects = self.doRaycast(self.mouse.x, self.mouse.y, self.poisArray);
 
     // if there is one (or more) intersections
     if (intersects.length > 0) {
@@ -446,7 +449,6 @@
     var pWorld = pLocal.applyMatrix4(self.world.camera.camera.matrixWorld);
     var ray = new THREE.Raycaster(pWorld, vector.sub(pWorld).normalize());
 
-    // create an array containing all objects in the scene with which the ray intersects
     return ray.intersectObjects(objects);
   };
 
