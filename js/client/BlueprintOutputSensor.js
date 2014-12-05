@@ -328,17 +328,7 @@
     self.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
     // find intersections
-
-    // create a Ray with origin at the mouse position
-    // and direction into the scene (camera direction)
-    var vector = new THREE.Vector3(self.mouse.x, self.mouse.y, 1);
-    vector.unproject(self.world.camera.camera);
-    var pLocal = new THREE.Vector3(0, 0, -1);
-    var pWorld = pLocal.applyMatrix4(self.world.camera.camera.matrixWorld);
-    var ray = new THREE.Raycaster(pWorld, vector.sub(pWorld).normalize());
-
-    // create an array containing all objects in the scene with which the ray intersects
-    var intersects = ray.intersectObjects(self.pois);
+    var intersects = self.doRaycast(self.mouse.x, self.mouse.y, self.pois);
 
     // if there is one (or more) intersections
     if (intersects.length > 0) {
@@ -365,17 +355,7 @@
     self.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
     // find intersections
-
-    // create a Ray with origin at the mouse position
-    // and direction into the scene (camera direction)
-    var vector = new THREE.Vector3(self.mouse.x, self.mouse.y, 1);
-    vector.unproject(self.world.camera.camera);
-    var pLocal = new THREE.Vector3(0, 0, -1);
-    var pWorld = pLocal.applyMatrix4(self.world.camera.camera.matrixWorld);
-    var ray = new THREE.Raycaster(pWorld, vector.sub(pWorld).normalize());
-
-    // create an array containing all objects in the scene with which the ray intersects
-    var intersects = ray.intersectObjects(self.pois);
+    var intersects = self.doRaycast(self.mouse.x, self.mouse.y, self.pois);
 
     // if there is one (or more) intersections
     if (intersects.length > 0) {
@@ -427,6 +407,20 @@
 
     self.intersectedObject = undefined;
 
+  };
+
+  VIZI.BlueprintOutputSensor.prototype.doRaycast = function(x, y, objects) {
+    var self = this;
+    // create a Ray with origin at the mouse position
+    // and direction into the scene (camera direction)
+    var vector = new THREE.Vector3(x, y, 1);
+    vector.unproject(self.world.camera.camera);
+    var pLocal = new THREE.Vector3(0, 0, -1);
+    var pWorld = pLocal.applyMatrix4(self.world.camera.camera.matrixWorld);
+    var ray = new THREE.Raycaster(pWorld, vector.sub(pWorld).normalize());
+
+    // create an array containing all objects in the scene with which the ray intersects
+    return ray.intersectObjects(objects);
   };
 
   VIZI.BlueprintOutputSensor.prototype.closeDialog = function() {
