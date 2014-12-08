@@ -20,10 +20,7 @@ try
         client.log.infoC("client reset is a no-op now.");
     };
 
-    var freecamera;
-    var demoapp;
-    var cbclient;
-    var chat;
+    var freecamera, demoapp, cbclient, chat, userPresence;
 
     // Free camera application
     $.getScript("build/webtundra/application/freecamera.js")
@@ -59,6 +56,15 @@ try
             // Note that chat is not initialized fully until we're connected to the server.
             chat = new ChatApplication();
             // chat.initUi(); // Uncomment to test chat UI in standalone mode
+        })
+        .fail(function(jqxhr, settings, exception) {
+            console.error(exception);
+        });
+
+    // User presence (avatar)
+    $.getScript("js/client/user-presence.js")
+        .done(function(/*script, textStatus*/) {
+            userPresence = new UserPresenceApplication();
         })
         .fail(function(jqxhr, settings, exception) {
             console.error(exception);

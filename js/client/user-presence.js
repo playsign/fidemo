@@ -9,6 +9,8 @@ var UserPresenceApplication = IApplication.$extend(
         this.updateSub = null;
         this.camera = null;
         this.lastCamPos = new THREE.Vector3(Infinity, Infinity, Infinity);
+        this.plane = new THREE.Plane(new THREE.Vector3(0,-1,0), 30);
+        this.lookAtRay = new THREE.Ray();
 
         // Wait for UserPresenceApplications's creation.
         this.fw.scene.onEntityCreated(this, this.onEntityCreated);
@@ -26,22 +28,16 @@ var UserPresenceApplication = IApplication.$extend(
 
     sendCameraUpdate : function()
     {
-        // if (!this.camera || !this.camera.placeable)
-            // this.camera = TODO
-        // TODO Use ViziCamera?
-        // TODO Do we want to raycast for real or do ray-plane intersection test instead?
-        if (this.entity && this.camera && this.camera.placeable)
+        if (this.entity && world.camera.camera)
         {
-            var renderer = this.fw.renderer;
-            var hit = renderer.raycast(renderer.windowSize.width/2, renderer.windowSize.height/2 /*TODO Configurable layer?*/);
-            if (hit.entity)
+            this.lookAtRay.origin.copy(world.camera.camera.position);
+            this.lookAtRay.direction.copy(new THREE.Vector3(0, 0, -1).applyQuaternion(world.camera.camera.quaternion));
+            var newPos = this.lookAtRay.intersectPlane(this.plane);
+            if (!this.lastCamPos.equals(newPos))
             {
-                var newPos = hit.pos.clone();
-                if (!this.lastCamPos.equals(newPos))
-                {
-                    this.entity.exec(EntityAction.Server, "UserPresencePositionUpdate", [JSON.stringify({ x : newPos.x, y : newPos.y, z : newPos.z })]);
-                    this.lastCamPos = newPos;
-                }
+                // console.log(newPos);
+                this.entity.exec(EntityAction.Server, "UserPresencePositionUpdate", [JSON.stringify({ x : newPos.x, y : newPos.y, z : newPos.z })]);
+                this.lastCamPos = newPos;
             }
         }
     },
