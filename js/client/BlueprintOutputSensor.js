@@ -98,6 +98,7 @@
 
     // Lollipop menu
     self.lollipopMenu = new LollipopMenu(self);
+    self.lollipopMenu.selectionChanged.add(self.onLollipopSelectionChanged, self);
   };
 
   VIZI.BlueprintOutputSensor.prototype.outputSensor = function(data) {
@@ -193,6 +194,8 @@
       self.pois[name] = pin;
       // Add also to array for raycast
       self.poisArray.push(pin);
+      
+      self.updatePoiVisibility(pin); // Set initial visibility according to lollipopmenu selection mode
 
       self.add(pin);
     }
@@ -347,7 +350,7 @@
     var intersects = self.doRaycast(self.mouse.x, self.mouse.y, self.poisArray);
 
     // if there is one (or more) intersections
-    if (intersects.length > 0) {
+    if (intersects.length > 0 && intersects[0].object.visible) {
       // console.log(intersects[0]);
       self.intersectedObject = intersects[0].object;
     }
@@ -378,7 +381,7 @@
     var intersects = self.doRaycast(self.mouse.x, self.mouse.y, self.poisArray);
 
     // if there is one (or more) intersections
-    if (intersects.length > 0) {
+    if (intersects.length > 0 && intersects[0].object.visible) {
       // console.log(intersects[0]);
 
       self.closeDialog();
@@ -494,6 +497,21 @@
   VIZI.BlueprintOutputSensor.prototype.onTick = function(delta) {
     var self = this;
     self.lollipopMenu.onTick(delta);
-  }
+  };
+
+  VIZI.BlueprintOutputSensor.prototype.onLollipopSelectionChanged = function(newSel) {
+    var self = this;
+    for (var i = 0; i < self.poisArray.length; ++i) {
+      self.updatePoiVisibility(self.poisArray[i]);
+    }
+  };
+  
+  VIZI.BlueprintOutputSensor.prototype.updatePoiVisibility = function(poi) {
+    var self = this;
+    if (!self.lollipopMenu)
+      return;
+    var sel = self.lollipopMenu.getSelection();
+    poi.visible = sel == 0 || sel == 4; // No selection, or Transportation
+  };
 
 }());
