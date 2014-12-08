@@ -7,7 +7,7 @@
    <attribute value="" type="string" id="group" name="Group"/>
   </component>
   <component temporary="true" typeId="20" type="Placeable" sync="true">
-   <attribute value="0,0,0,0,0,0,10,50,10" type="Transform" id="transform" name="Transform"/>
+   <attribute value="0,0,0,0,0,0,10,10,10" type="Transform" id="transform" name="Transform"/>
    <attribute value="false" type="bool" id="drawDebug" name="Show bounding box"/>
    <attribute value="true" type="bool" id="visible" name="Visible"/>
    <attribute value="1" type="int" id="selectionLayer" name="Selection layer"/>
@@ -16,7 +16,7 @@
   </component>
   <component temporary="true" typeId="17" type="Mesh" sync="true">
    <attribute value="0,0,0,0,0,0,1,1,1" type="Transform" id="nodeTransformation" name="Transform"/>
-   <attribute value="data/cube.json" type="AssetReference" id="meshRef" name="Mesh ref"/>
+   <attribute value="data/avatar/avatar.json" type="AssetReference" id="meshRef" name="Mesh ref"/>
    <attribute value="" type="AssetReference" id="skeletonRef" name="Skeleton ref"/>
    <attribute value="" type="AssetReferenceList" id="materialRefs" name="Mesh materials"/>
    <attribute value="0" type="real" id="drawDistance" name="Draw distance"/>
