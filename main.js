@@ -70,8 +70,10 @@ try
 
     // Disconnected from server
     client.onDisconnected(null, function() {
-        if (chat)
-            chat.removeUi();
+		error;
+        if (instructions)
+            instructions.remove();
+        instructions = null;
     });
 
     // Mouse pressed
@@ -310,14 +312,14 @@ if (santanderLatLon !== undefined) {
 
 var buildingsConfig = {
   input: {
-    type: "BlueprintInputGeoJSON",
+    type: "BlueprintInputOverrideGeoJSON",
     options: {
         tilePath: "http://vector.mapzen.com/osm/buildings/{z}/{x}/{y}.json",
-        omitBuildings: ["122595198"]
+        omitBuildings: ["122595198", "4253123", "234872439", "234871242", "234870674"]
     }
   },
   output: {
-    type: "BlueprintOutputBuildingTiles",
+    type: "BlueprintOutputFlatBuildingTiles", //BlueprintOutputBuildingTiles",
     options: {
       grids: [{
         zoom: 15,
