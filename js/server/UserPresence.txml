@@ -7,7 +7,7 @@
    <attribute value="" type="string" id="group" name="Group"/>
   </component>
   <component temporary="true" typeId="20" type="Placeable" sync="true">
-   <attribute value="0,0,0,0,0,0,10,10,10" type="Transform" id="transform" name="Transform"/>
+   <attribute value="0,0,0,0,0,0,5,5,5" type="Transform" id="transform" name="Transform"/>
    <attribute value="false" type="bool" id="drawDebug" name="Show bounding box"/>
    <attribute value="true" type="bool" id="visible" name="Visible"/>
    <attribute value="1" type="int" id="selectionLayer" name="Selection layer"/>

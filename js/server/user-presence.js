@@ -28,6 +28,9 @@ var UserPresenceServer = Class.extend(
         // Connection ID to Entity ID mapping.
         // 0 denotes an invalid connection ID.
         this.userPresences = {};
+        
+        // Ongoing smooth movements by connection ID
+        this.userMovements = {};
 
         // Settings
         this.prefabRef = cDefaultUserPresencePrefab;
@@ -53,6 +56,8 @@ var UserPresenceServer = Class.extend(
         var users = server.AuthenticatedUsers();
         for(var i = 0; i < users.length; ++i)
             this.createUserPresence(users[i].id, users[i]);
+
+        frame.Updated.connect(this, this.updateMovement);
     },
 
     shutDown : function()
@@ -113,17 +118,54 @@ var UserPresenceServer = Class.extend(
             return;
 
         var t = userPresence.placeable.transform;
-        if (pos.x !== undefined)
-            t.pos.x = pos.x;
-        if (pos.y !== undefined)
-            t.pos.y = pos.y;
-        if (pos.x !== undefined)
-            t.pos.z = pos.z;
 
-        if (this.positionOffset.IsFinite())
-            t.pos = t.pos.Add(this.positionOffset);
+        // Simple move
+        if (pos.t === undefined)
+        {
+            if (pos.x !== undefined)
+                t.pos.x = pos.x;
+            if (pos.y !== undefined)
+                t.pos.y = pos.y;
+            if (pos.x !== undefined)
+                t.pos.z = pos.z;
 
-        userPresence.placeable.transform = t;
+            if (this.positionOffset.IsFinite())
+                t.pos = t.pos.Add(this.positionOffset);
+
+            userPresence.placeable.transform = t;
+        }
+        // Time-based move
+        else
+        {
+            this.userMovements[connectionId] = {};
+            this.userMovements[connectionId].startPos = new float3(t.pos.x, t.pos.y, t.pos.z);
+            this.userMovements[connectionId].endPos = new float3(pos.x, pos.y, pos.z);
+            this.userMovements[connectionId].elapsed = 0;
+            this.userMovements[connectionId].duration = pos.t;
+            this.userMovements[connectionId].entityId = userPresenceId;
+        }
+    },
+    
+    updateMovement : function(delta)
+    {
+        for (var key in this.userMovements)
+        {
+            var m = this.userMovements[key];
+            var entity = scene.EntityById(m.entityId);
+            m.elapsed += delta;
+            if (entity)
+            {
+                var t = m.elapsed / m.duration;
+                if (t > 1.0)
+                    t = 1.0;
+                t = Math.sqrt(t); // Movement curve
+                var tr = entity.placeable.transform;
+                tr.pos = m.startPos.Lerp(m.endPos, t);
+                entity.placeable.transform = tr;
+            }
+            if (m.elapsed > m.endPos.t)
+            delete this.userMovements[key];
+        }
     },
 });
 

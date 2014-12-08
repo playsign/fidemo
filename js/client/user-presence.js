@@ -7,10 +7,9 @@ var UserPresenceApplication = IApplication.$extend(
 
         this.fw = TundraSDK.framework;
         this.updateSub = null;
-        this.camera = null;
-        this.lastCamPos = new THREE.Vector3(Infinity, Infinity, Infinity);
         this.plane = new THREE.Plane(new THREE.Vector3(0,-1,0), 30);
         this.lookAtRay = new THREE.Ray();
+        this.lastPos = new THREE.Vector3(Infinity, Infinity, Infinity);
 
         // Wait for UserPresenceApplications's creation.
         this.fw.scene.onEntityCreated(this, this.onEntityCreated);
@@ -22,29 +21,39 @@ var UserPresenceApplication = IApplication.$extend(
         {
             console.log("UserPresenceApplication ready!");
             this.entity = entity;
-            this.updateSub = this.fw.frame.onUpdate(this, this.sendCameraUpdate);
+            /*
+            this.updateSub = this.fw.frame.onUpdate(this, this.sendPositionUpdate);
+            */
         }
     },
 
-    sendCameraUpdate : function()
+    sendPositionUpdate : function(newPos, time)
     {
         if (this.entity && world.camera.camera)
         {
-            this.lookAtRay.origin.copy(world.camera.camera.position);
-            this.lookAtRay.direction.copy(new THREE.Vector3(0, 0, -1).applyQuaternion(world.camera.camera.quaternion));
-            var newPos = this.lookAtRay.intersectPlane(this.plane);
-            if (!this.lastCamPos.equals(newPos))
+            if (!newPos)
+            {
+                this.lookAtRay.origin.copy(world.camera.camera.position);
+                this.lookAtRay.direction.copy(new THREE.Vector3(0, 0, -1).applyQuaternion(world.camera.camera.quaternion));
+                newPos = this.lookAtRay.intersectPlane(this.plane);
+            }
+            if (!this.lastPos.equals(newPos))
             {
                 // console.log(newPos);
-                this.entity.exec(EntityAction.Server, "UserPresencePositionUpdate", [JSON.stringify({ x : newPos.x, y : newPos.y, z : newPos.z })]);
-                this.lastCamPos = newPos;
+                if (time)
+                    this.entity.exec(EntityAction.Server, "UserPresencePositionUpdate", [JSON.stringify({ x : newPos.x, y : newPos.y, z : newPos.z, t : time })]);
+                else
+                    this.entity.exec(EntityAction.Server, "UserPresencePositionUpdate", [JSON.stringify({ x : newPos.x, y : newPos.y, z : newPos.z })]);
+                this.lastPos = newPos;
             }
         }
     },
 
     onScriptDestroyed : function()
     {
+        /*
         if (this.updateSub)
             TundraSDK.framework.events.unsubscribe(this.updateSub);
+        */
     },
 });

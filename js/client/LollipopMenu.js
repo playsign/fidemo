@@ -1,6 +1,10 @@
 // todo: proper namespacing
+
+var lollipopMenu;
+
 var LollipopMenu = function(owner) {
-  this.owner = owner
+  lollipopMenu = this;
+  this.owner = owner;
   this.worldPlane = new THREE.Plane(new THREE.Vector3(0,1,0),-this.owner.spriteYpos);
   this.selectionChanged = new signals.Signal(); // User selected icon (1-4) or deselected (0)
   this.shown = new signals.Signal; // Menu was shown
@@ -33,7 +37,7 @@ var LollipopMenu = function(owner) {
     this.iconAngles.push((this.minAngle + i * angleRange/(iconTexNames.length-1)) * (Math.PI/180));
   }
   this.iconDist = 0.9;
-  this.iconHeight = 0.2;
+  this.iconHeight = 0.5;
   this.lollipopScale = 40;
   this.iconScale = 30;
   this.iconSelectedScale = 35;
@@ -44,6 +48,8 @@ var LollipopMenu = function(owner) {
 
   this.mouseDownX = 0;
   this.mouseDownY = 0;
+  
+  this.avatarMoveDelay = 2.0;
 
   this.selection = 0; // 0 = none, 1 = photos, 2 = properties etc.
 };
@@ -91,6 +97,10 @@ LollipopMenu.prototype = {
     if (this.isShowing()) {
       return; // Already showing
     }
+
+    // Move user's avatar to the position where the menu is going to open
+    if (userPresence)
+      userPresence.sendPositionUpdate(pos, this.avatarMoveDelay);
 
     var spr = new THREE.Sprite(this.lollipopMat);
     spr.position.x = pos.x;
