@@ -13,6 +13,8 @@ var UserPresenceApplication = IApplication.$extend(
 
         // Wait for UserPresenceApplications's creation.
         this.fw.scene.onEntityCreated(this, this.onEntityCreated);
+        // Monitor for UserPresence (entity with "AvatarData" DC) creations.
+        this.fw.scene.onComponentCreated(this, this.onComponentCreated);
     },
 
     onEntityCreated : function(entity)
@@ -24,6 +26,20 @@ var UserPresenceApplication = IApplication.$extend(
             /*
             this.updateSub = this.fw.frame.onUpdate(this, this.sendPositionUpdate);
             */
+        }
+    },
+
+    onComponentCreated : function(entity, component)
+    {
+        if (component.typeId == 25 && component.name == "AvatarData" && component.color !== undefined)
+        {
+            if (entity.mesh)
+            {
+                entity.mesh.onMeshLoaded(this, function(parentEntity, meshComponent, asset)
+                {
+                    meshComponent.meshAsset.getSubmesh(0).material.color = component.color.toThreeColor();
+                });
+            }
         }
     },
 
