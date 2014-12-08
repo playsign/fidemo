@@ -308,6 +308,15 @@ if (santanderLatLon !== undefined) {
   switchboardStreets.addToWorld(world);
 }
 
+
+// TREES
+
+var treesConfig = getTreesConfig();
+
+var switchboardTrees = new VIZI.BlueprintSwitchboard(treesConfig);
+switchboardTrees.addToWorld(world);
+
+
 // BUILDINGS
 
 var buildingsConfig = {
