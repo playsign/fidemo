@@ -12,7 +12,7 @@ engine.IncludeFile("http://meshmoon.data.s3.amazonaws.com/app/lib/admino-utils-c
 // Each of the values are optional, and only defined values are updated.
 var cUserPresencePositionUpdate = "UserPresencePositionUpdate";
 
-var cDefaultUserPresencePrefab = "js/server/user-presence/UserPresence.txml";
+var cDefaultUserPresencePrefab = "js/server/UserPresence.txml";
 
 SetLogChannelName(me.name);
 
