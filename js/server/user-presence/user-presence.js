@@ -78,7 +78,7 @@ var UserPresenceServer = Class.extend(
             return;
         }
 
-        var prefabSource = asset.FindAsset(this.prefabRef).DiskSource();
+        var prefabSource = asset.GetAsset/*FindAsset*/(this.prefabRef).DiskSource();
         var entities = scene.LoadSceneXML(prefabSource, false, false, 0);
         var userPresence = entities.length > 0 ? entities[0] : null;
         if (!userPresence)
