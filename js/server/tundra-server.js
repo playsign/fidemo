@@ -10,18 +10,20 @@ function main()
 
 function onTestAction() {
     console.LogInfo("onTestAction");
-    
-    var c = scene.EntityByName("Test Cube");
 
-    var y = 0;
-    if (state == "up") {
-	y = 0;
-	state = "down";
-    } else {
-	y = 250; 	
-	state = "up";
+    var c = scene.EntityByName("Test Cube");
+    if (c)
+    {
+        var y = 0;
+        if (state == "up") {
+            y = 0;
+            state = "down";
+        } else {
+            y = 250; 
+            state = "up";
+        }
+        c.placeable.SetPosition(0, y, 0);
     }
-    c.placeable.SetPosition(0, y, 0);
 }
 
 if (server.IsRunning())
