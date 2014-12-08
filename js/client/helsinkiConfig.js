@@ -4,7 +4,8 @@ function getHelsinkiConfig() {
       type: "BlueprintInputSensor",
       options: {
         path: "http://dev.cie.fi/FI-WARE/mlevanto/dynpoi/server/radial_search",
-        repeat: false
+        repeat: true,
+        repeatRate: 10000 // ms
       }
     },
     output: {

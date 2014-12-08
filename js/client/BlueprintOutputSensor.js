@@ -103,8 +103,6 @@
   VIZI.BlueprintOutputSensor.prototype.outputSensor = function(data) {
     var self = this;
 
-    console.log(data);
-
     for (var i = 0; i <= data.length; i++) {
       if (data[i] === undefined) {
         continue;
@@ -154,8 +152,6 @@
 
   VIZI.BlueprintOutputSensor.prototype.createPin = function(lat, lon, name, desc, uuid) {
     var self = this;
-
-    console.log("createPin");
 
     var pin;
 
@@ -215,8 +211,6 @@
   VIZI.BlueprintOutputSensor.prototype.createThermometer = function(lat, lon, name, desc, uuid) {
     var self = this;
 
-    console.log("createThermometer");
-
     var thermo = new THREE.Mesh(self.thermometer.geometry.clone(), self.thermometer.material.clone());
 
     thermo.scale.set(1, 1, 1);
@@ -249,8 +243,6 @@
 
   VIZI.BlueprintOutputSensor.prototype.createLightbulb = function(lat, lon, name, desc, uuid, customValue) {
     var self = this;
-
-    console.log("createLightbulb");
 
     /*
     0.0001 lux    Moonless, overcast night sky (starlight)[3]
@@ -356,7 +348,7 @@
 
     // if there is one (or more) intersections
     if (intersects.length > 0) {
-      console.log(intersects[0]);
+      // console.log(intersects[0]);
       self.intersectedObject = intersects[0].object;
     }
     else {
@@ -387,7 +379,7 @@
 
     // if there is one (or more) intersections
     if (intersects.length > 0) {
-      console.log(intersects[0]);
+      // console.log(intersects[0]);
 
       self.closeDialog();
 
