@@ -65,38 +65,11 @@ try
         });
 
     // Connected to server
-    var instructions;
     client.onConnected(null, function() {
-        // Setup initial camera position
-        if (freecamera && freecamera.cameraEntity)
-            freecamera.cameraEntity.placeable.setPosition(0, 8.50, 28.50);
-
-        instructions = $("<div/>", {
-            text : "Click anywhere to jump the big plane up & down",
-            css : {
-                "position": "absolute",
-                "width": 360,
-                "background-color": "white",
-                "top": 10,
-                "left": 10,
-                "padding": 10,
-                "border-radius": 10,
-                "text-align": "center"
-            }
-        });
-        client.ui.addWidgetToScene(instructions);
-        instructions.hide();
-        instructions.fadeIn(5000);
-
-        //var dirLight = new THREE.DirectionalLight();
-        //client.renderer.scene.add(dirLight);
     });
 
     // Disconnected from server
     client.onDisconnected(null, function() {
-        if (instructions)
-            instructions.remove();
-        instructions = null;
         if (chat)
             chat.removeUi();
     });
