@@ -70,9 +70,6 @@ try
 
     // Disconnected from server
     client.onDisconnected(null, function() {
-        if (instructions)
-            instructions.remove();
-        instructions = null;
     });
 
     // Mouse pressed
