@@ -70,7 +70,6 @@ try
 
     // Disconnected from server
     client.onDisconnected(null, function() {
-		error;
         if (instructions)
             instructions.remove();
         instructions = null;
