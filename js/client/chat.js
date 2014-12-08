@@ -33,7 +33,7 @@ var ChatApplication = IApplication.$extend(
 
     onEntityCreated : function(entity)
     {
-        if (entity.id == 5) // TODO
+        if (entity.id == 3) // TODO Not the nicest way, but there is no guarantee that the name would be set here.
         {
             console.log("ChatApplication ready!");
             this.entity = entity;

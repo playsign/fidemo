@@ -16,7 +16,7 @@ var UserPresenceApplication = IApplication.$extend(
 
     onEntityCreated : function(entity)
     {
-        if (entity.id == 6) // TODO Not the nicest way
+        if (entity.id == 4) // TODO Not the nicest way, but there is no guarantee that the name would be set here.
         {
             console.log("UserPresenceApplication ready!");
             this.entity = entity;

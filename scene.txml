@@ -14,7 +14,7 @@
    <attribute value="" type="string" id="className" name="Script class name"/>
   </component>
  </entity>
- <entity id="4" sync="true">
+ <entity id="2" sync="true">
   <component typeId="20" type="Placeable" sync="false">
    <attribute value="1.449089,42.247108,34.574203,-53.699989,1.500000,0.000000,1.000000,1.000000,1.000000" type="Transform" id="transform" name="Transform"/>
    <attribute value="false" type="bool" id="drawDebug" name="Show bounding box"/>
@@ -46,7 +46,7 @@
    <attribute value="true" type="bool" id="active" name="Active"/>
   </component>
  </entity>
- <entity id="5" sync="true">
+ <entity id="3" sync="true">
   <component typeId="26" type="Name" sync="true">
    <attribute value="ChatApplication" type="string" id="name" name="Name"/>
    <attribute value="" type="string" id="description" name="Description"/>
@@ -60,7 +60,7 @@
    <attribute value="" type="string" id="className" name="Script class name"/>
   </component>
  </entity>
- <entity id="6" sync="true">
+ <entity id="4" sync="true">
   <component typeId="26" type="Name" sync="true">
    <attribute value="UserPresenceApplication" type="string" id="name" name="Name"/>
    <attribute value="" type="string" id="description" name="Description"/>
