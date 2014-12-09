@@ -1,5 +1,5 @@
 var _cburl = "http://orion.lab.fi-ware.org:1026";
-var _cbtoken = "4wUdbVliV55X5zI68DfDZgVI-by2MBR0s3QhJF7WwwOU0u5AO3f85ycMouzxr3UWGfbCjO3ODcaM6ybtHLcJPA";
+var _cbtoken = "K260vyH-hNJ-AVG3CszxXZTsM1Y62qcaX1IN9Y9bALgkHIcnFlCe49ythKEku5Bxs2n5FM8utLeC7GE0wYx6AQ";
 
 var ContextBrokerClient = IApplication.$extend({
 
@@ -14,59 +14,42 @@ var ContextBrokerClient = IApplication.$extend({
     // @param id as id of the context elemeny e.g. POI1 or wildcard .* or PO.*
     getContextBrokerItems : function(type, id) {
 
-        var xhr = new XMLHttpRequest();
-
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4) {
-                if (xhr.status === 200) {
-                    console.log("Get context broker items succeeded!");
-                    //var json = JSON.parse(xhr.responseText);
-                    console.log(xhr.responseText);
-                } else if (xhr.status === 404) {
-                    console.log("Get context broker item failed: " + xhr.responseText);
-                }
-            }
-        };
-        xhr.onerror = function (e) {
-            console.log("Failed to get context broker item: " + e.error);
-        };
-
         var json = "{ \"entities\": [ { \"type\": \"" + type + "\", \"isPattern\": \"true\", \"id\": \"" + id + "\" }]}";
 
-        xhr.open("POST", _cburl + "/ngsi10/queryContext?limit=1000", true);
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", _cburl + "/ngsi10/queryContext?limit=1000", false);
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.setRequestHeader("Accept", "application/json");
         xhr.setRequestHeader("X-Auth-Token", _cbtoken);
         xhr.send(json);
+
+        if (xhr.status === 200) {
+            console.log("Get context broker items succeeded!");
+            return xhr.responseText;
+        } else if (xhr.status === 404) {
+            console.log("Get context broker item failed: " + xhr.responseText);
+        }
+        return "";
     },
 
     // get context element by its id
     getContextBrokerItemById : function(id) {
 
         var xhr = new XMLHttpRequest();
-
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4) {
-                if (xhr.status === 200) {
-                    console.log("Get context broker item succeeded!");
-                    console.log(xhr.responseText);
-                    return xhr.responseText;
-
-                } else if (xhr.status === 404) {
-                    console.log("Get context broker item failed: " + xhr.responseText);
-                }
-            }
-        };
-        xhr.onerror = function (e) {
-            console.log("Failed to get context broker item: "+e.error);
-        };
-
-        xhr.open("GET", _cburl+"/ngsi10/contextEntities/"+id, true);
+        xhr.open("GET", _cburl+"/ngsi10/contextEntities/"+id, false);
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.setRequestHeader("Accept", "application/json");
         xhr.setRequestHeader("X-Auth-Token", _cbtoken);
         xhr.send();
 
+        if (xhr.status === 200) {
+            console.log("Get context broker item succeeded!");
+            return xhr.responseText;
+
+        } else if (xhr.status === 404) {
+            console.log("Get context broker item failed: " + xhr.responseText);
+            return "";
+        }
     },
 
     // @param type as type of context element e.g. POI
@@ -101,29 +84,24 @@ var ContextBrokerClient = IApplication.$extend({
         }
 
         var attrs = JSON.stringify(attributes);
+        console.log("CB UPDATING : "+type +" - " + id + " - " +attrs);
         var json = "{ \"contextElements\": [ { \"type\": \""+type+"\", \"isPattern\": \"false\", \"id\": \""+id+"\", \"attributes\": "+attrs+"} ], \"updateAction\": \"APPEND\" }";
 
         var xhr = new XMLHttpRequest();
-
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4) {
-                if (xhr.status === 200) {
-                    console.log("Creating/updating context broker item succeeded!");
-                    console.log(xhr.responseText);
-                } else {
-                    console.log("Creating/updating context broker item failed: " + xhr.responseText);
-                }
-            }
-        };
-        xhr.onerror = function (e) {
-            console.log("Failed to create/update context broker item: "+e.error);
-        };
-
-        xhr.open("POST", _cburl + "/ngsi10/updateContext", true);
+        xhr.open("POST", _cburl + "/ngsi10/updateContext", false);
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.setRequestHeader("Accept", "application/json");
         xhr.setRequestHeader("X-Auth-Token", _cbtoken);
         xhr.send(json);
+
+        if (xhr.status === 200) {
+            console.log("Creating/updating context broker item succeeded!");
+            console.log(xhr.responseText);
+            return true;
+        } else {
+            console.log("Creating/updating context broker item failed: " + xhr.responseText);
+            return false;
+        }
 
     },
 
