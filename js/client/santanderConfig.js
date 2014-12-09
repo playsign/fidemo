@@ -14,7 +14,7 @@ function getSantanderConfig(){
     },
     triggers: [{
         triggerObject: "output",
-        triggerName: "initialised",
+        triggerName: "models ready",
         triggerArguments: [],
         actionObject: "input",
         actionName: "requestData",

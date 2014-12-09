@@ -56,14 +56,20 @@
     self.spriteYpos = 30;
 
     var jsonLoader = new THREE.JSONLoader();
+    self.modelPaths = {
+      lightbulb: "data/3d/lightbulb.js",
+      thermometer: "data/3d/thermometer.js"
+    };
+
+    self.modelCount = 0;
 
     // Lightbulb model
     self.lightbulb;
-    jsonLoader.load("data/3d/lightbulb.js", self.loadLightbulbModel.bind(self));
+    jsonLoader.load(self.modelPaths.lightbulb, self.loadLightbulbModel.bind(self));
 
     // Thermometer model
     self.thermometer;
-    jsonLoader.load("data/3d/thermometer.js", self.loadThermometerModel.bind(self));
+    jsonLoader.load(self.modelPaths.thermometer, self.loadThermometerModel.bind(self));
 
     // Pin sprite material
     var pinMap = THREE.ImageUtils.loadTexture("data/2d/bussi.png");
@@ -301,6 +307,8 @@
     var material = new THREE.MeshFaceMaterial(materials);
 
     self.lightbulb = new THREE.Mesh(geometry, material);
+
+    self.updateModelCount();
   };
 
   VIZI.BlueprintOutputSensor.prototype.loadThermometerModel = function(geometry, materials) {
@@ -309,6 +317,8 @@
     var material = new THREE.MeshFaceMaterial(materials);
     material.materials[0].emissive = new THREE.Color(0xffffff);
     self.thermometer = new THREE.Mesh(geometry, material);
+
+    self.updateModelCount();
   };
 
   VIZI.BlueprintOutputSensor.prototype.onDocumentMouseMove = function(event) {
@@ -494,6 +504,14 @@
   VIZI.BlueprintOutputSensor.prototype.onTick = function(delta) {
     var self = this;
     self.lollipopMenu.onTick(delta);
-  }
+  };
+
+   VIZI.BlueprintOutputSensor.prototype.updateModelCount = function() {
+    var self = this;
+    self.modelCount++;
+    if (self.modelCount == Object.keys(self.modelPaths).length) {
+      self.emit("models ready");
+    }
+  };
 
 }());
