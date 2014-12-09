@@ -5,6 +5,7 @@ var Msg =
     ClientSendMessage : "ClientSendMessage",
     ClientSendPrivateMessage : "ClientSendPrivateMessage", // TODO private messaging not implemented yet
     ServerUpdateUserList : "ServerUpdateUserList",
+    SetUsername : "SetUsername", // New addition for FIDEMO.
     // client -> peers
     NewUserConnected : "NewUserConnected",
     // server -> clients
@@ -415,8 +416,36 @@ var ChatApplication = IApplication.$extend(
 
     sendMessage : function()
     {
-        if (this.entity)
-            this.entity.exec(EntityAction.Server, Msg.ClientSendMessage, [this.username, escape(this.ui.textField.val()), "true"]);
+        var text = this.ui.textField.val();
+        if (text.indexOf("/") === 0)
+        {
+            var parts = text.split(" ");
+            var cmd = parts[0];
+            var param = parts.length > 1 ? parts[parts.length-1].trim() : "";
+            switch(cmd)
+            {
+            case "/nick":
+                if (param.length === 0)
+                {
+                    console.error("Chat: /nick - empty string is not a valid username.");
+                }
+                else
+                {
+                    this.username = param;
+                    if (this.entity)
+                        this.entity.exec(EntityAction.Server, Msg.SetUsername, [ param, this.fw.client.connectionId ]);
+                }
+                break;
+            default:
+                console.error("Chat: Unknown command '" + cmd + "'.");
+                break;
+            }
+        }
+        else
+        {
+            if (this.entity)
+                this.entity.exec(EntityAction.Server, Msg.ClientSendMessage, [this.username, escape(text), "true"]);
+        }
         this.ui.textField.val("");
     },
 

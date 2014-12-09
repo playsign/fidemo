@@ -6,6 +6,7 @@ var Msg =
     ClientSendMessage : "ClientSendMessage",
     ClientSendPrivateMessage : "ClientSendPrivateMessage",
     ServerUpdateUserList : "ServerUpdateUserList",
+    SetUsername : "SetUsername", // New addition for FIDEMO.
     // client -> peers
     NewUserConnected : "NewUserConnected",
     // server -> clients
@@ -29,6 +30,8 @@ function ServerControl()
     me.Action(Msg.ClientSendMessage).Triggered.connect(this, this.OnClientMessage);
     me.Action(Msg.ClientSendPrivateMessage).Triggered.connect(this, this.OnPrivateOnClientMessage);
     me.Action(Msg.ServerUpdateUserList).Triggered.connect(this, this.ServerUpdateUserList);
+    me.Action(Msg.SetUsername).Triggered.connect(this, this.OnSetUsername);
+
     server.UserConnected.connect(this, this.OnUserConnected);
     server.UserDisconnected.connect(this, this.OnUserDisconnected);
 }
@@ -74,6 +77,23 @@ ServerControl.prototype.OnPrivateOnClientMessage = function(senderName, receiver
 ServerControl.prototype.ServerUpdateUserList = function(user)
 {
     me.Exec(4/*EntityAction.Peers*/, Msg.UpdateUserList, user);
+};
+
+ServerControl.prototype.OnSetUsername = function(newUsername, connectionId)
+{
+    var connection = server.GetUserConnection(parseInt(connectionId));
+    if (!connection)
+    {
+        console.LogError("ServerControl.OnSetUsername: user connection for ID " + connectionId + " not found.");
+        return;
+    }
+
+    var oldUsername = connection.Property("username");
+    connection.SetProperty("username", newUsername);
+    var msg = oldUsername + " is now known as " + newUsername + ".";
+    me.Exec(4/*EntityAction.Peers*/, Msg.ServerSendMessage, msg);
+    me.Exec(4/*EntityAction.Peers*/, Msg.RemoveUserFromList, oldUsername, connection.id);
+    me.Exec(4/*EntityAction.Peers*/, Msg.NewUserConnected, newUsername, connection.id);
 };
 
 if (server.IsRunning())
