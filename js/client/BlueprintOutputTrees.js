@@ -112,29 +112,30 @@
     treeClone.position.y = self.modelYpos;
     treeClone.position.z = dscenepoint.y;
 
-    // if (self.trees == undefined) {
+    if (self.trees == undefined) {
       self.trees = treeClone;
       self.add(self.trees);
-    // } else {
-    //   // Rotation
-    //   var max = 6;
-    //   var min = 0;
-    //   var randomValue = Math.random() * (max - min) + min;
-    //   treeClone.rotateY(randomValue);
+    } else {
+      // Rotation
+      var max = 6;
+      var min = 0;
+      var randomValue = Math.random() * (max - min) + min;
+      treeClone.rotateY(randomValue);
 
-    //   // // Scale
-    //   // max = 2;
-    //   // min = 0.8;
-    //   // randomValue = Math.random() * (max - min) + min;
-    //   // treeClone.scale.set(randomValue, randomValue, randomValue);
+      // // Scale
+      // max = 2;
+      // min = 0.8;
+      // randomValue = Math.random() * (max - min) + min;
+      // treeClone.scale.set(randomValue, randomValue, randomValue);
 
-    //   // console.log("create combined tree mesh");
+      // console.log("create combined tree mesh");
 
-    //   THREE.GeometryUtils.merge(self.trees.geometry, treeClone);
+      treeClone.updateMatrix();
+      self.trees.geometry.merge(treeClone.geometry, treeClone.matrix);
 
-    //   // Center trees
-    //   self.trees.position = new THREE.Vector3(0, 0, 0);
-    // }
+      // Center trees
+      self.trees.position.set(0, 0, 0);
+    }
 
     self.treeAmount++;
   };
