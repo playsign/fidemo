@@ -284,14 +284,14 @@ var switchboardMap = new VIZI.BlueprintSwitchboard(mapConfig);
 switchboardMap.addToWorld(world);
 
 
-// SENSOR
+// DATA
 
 if (santanderLatLon !== undefined) {
   // Santander
   var config = getSantanderConfig();
 
-  var switchboardSensor = new VIZI.BlueprintSwitchboard(config);
-  switchboardSensor.addToWorld(world);
+  var switchboardData = new VIZI.BlueprintSwitchboard(config);
+  switchboardData.addToWorld(world);
 
   // heatmap
   var heatmapConfig = getHeatmapConfig();
@@ -302,8 +302,8 @@ if (santanderLatLon !== undefined) {
 
   var config = getHelsinkiConfig();
 
-  var switchboardSensor = new VIZI.BlueprintSwitchboard(config);
-  switchboardSensor.addToWorld(world);
+  var switchboardData = new VIZI.BlueprintSwitchboard(config);
+  switchboardData.addToWorld(world);
   
   var streetLabelsConfig = getStreetLabelsConfig();
   var switchboardStreets = new VIZI.BlueprintSwitchboard(streetLabelsConfig);

@@ -3,11 +3,11 @@
   "use strict";
 
 /**
- * Blueprint sensor input
+ * Blueprint data input
  * @author Tapani Jämsä - playsign.net
  */  
 
-  VIZI.BlueprintInputSensor = function(options) {
+  VIZI.BlueprintInputData = function(options) {
     var self = this;
 
     VIZI.BlueprintInput.call(self, options);
@@ -17,7 +17,7 @@
     // Triggers and actions reference
     self.triggers = [
       {name: "initialised", arguments: []},
-      {name: "dataReceived", arguments: ["sensorsJSON"]}
+      {name: "dataReceived", arguments: ["dataJSON"]}
     ];
 
     self.actions = [
@@ -25,15 +25,15 @@
     ];
   };
 
-  VIZI.BlueprintInputSensor.prototype = Object.create( VIZI.BlueprintInput.prototype );
+  VIZI.BlueprintInputData.prototype = Object.create( VIZI.BlueprintInput.prototype );
 
   // Initialise instance and start automated processes
-  VIZI.BlueprintInputSensor.prototype.init = function() {
+  VIZI.BlueprintInputData.prototype.init = function() {
     var self = this;
     self.emit("initialised");
   };
 
-  VIZI.BlueprintInputSensor.prototype.requestData = function() {
+  VIZI.BlueprintInputData.prototype.requestData = function() {
     var self = this;
 
     if (!self.options.path) {
@@ -56,13 +56,16 @@
       var rootObj;
       var arr;
 
-      // Get root and force to array
+      // Get root and force it to array (because vizi seems to need an array)
       for (var p in data) {
         if(p == "osm3s"){
           // open streetmap copyright and version info
           continue;
         }
-        if (Array.isArray(data[p])) {
+        if (Array.isArray(data)) {
+          arr = data;
+          break;
+        } else if (Array.isArray(data[p])) {
           arr = data[p];
           break;
         } else if (Object.prototype.toString.call(data[p]) === '[object Object]') { // if object
@@ -78,9 +81,9 @@
       if (!arr) {
         arr = json2array(rootObj);
       }
-      data.sensors = arr;
+      data.data = arr;
 
-      console.log("Sensor data received. Length "+data.sensors.length);
+      console.log("Data received: "+self.options.path+" Length:"+data.data.length);
 
       self.emit("dataReceived", data);
 

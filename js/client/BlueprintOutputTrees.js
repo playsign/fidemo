@@ -87,7 +87,7 @@
       return;
     }
 
-    console.log("createTree");
+    // console.log("createTree");
 
     var max = 2;
     var min = 0;
