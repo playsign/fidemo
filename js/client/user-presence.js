@@ -35,9 +35,11 @@ var UserPresenceApplication = IApplication.$extend(
         {
             if (entity.mesh)
             {
-                entity.mesh.onMeshLoaded(this, function(parentEntity, meshComponent, asset)
+                entity.mesh.onMeshLoaded(this, function(parentEntity, meshComponent, meshAsset)
                 {
-                    meshComponent.meshAsset.getSubmesh(0).material.color = component.color.toThreeColor();
+                    var material = meshAsset.getSubmesh(0).material.clone();
+                    material.color = component.color.toThreeColor();
+                    meshAsset.getSubmesh(0).material = material;
                 });
             }
         }
