@@ -181,6 +181,9 @@ console.log("FIDEMO: created scene", threejs.scene);
 
 // threejs = null; //no overrides, vizicity creates scene & renderer
 
+
+// COORDINATES
+
 var santanderLatLon;
 var helsinkiLatLon;
 
@@ -190,8 +193,15 @@ var world = new VIZI.World({
     // center: new VIZI.LatLon(65.0164696, 25.479259499999998), // Oulu
     // center: santanderLatLon = new VIZI.LatLon(43.47195, -3.79909),
     center: helsinkiLatLon = new VIZI.LatLon(60.17096119799872, 24.94066956044796), // Helsinki
-    threejs: threejs
+    threejs: threejs,
+    camera: camera = new VIZI.Camera({
+      aspect: viewport.clientWidth / viewport.clientHeight,
+      near: 30
+    })
 });
+
+//
+
 
 var controls = new VIZI.ControlsMap(world.camera);
 
