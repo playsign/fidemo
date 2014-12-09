@@ -228,7 +228,7 @@
     thermo.position.z = dscenepoint.y;
 
     thermo.index = self.pois.length;
-    self.pois.push(thermo);
+    self.poisArray.push(thermo);
 
     self.add(thermo);
     /*
@@ -283,7 +283,7 @@
     lightMesh.position.z = dscenepoint.y;
 
     lightMesh.index = self.pois.length;
-    self.pois.push(lightMesh);
+    self.poisArray.push(lightMesh);
 
     self.add(lightMesh);
   };
