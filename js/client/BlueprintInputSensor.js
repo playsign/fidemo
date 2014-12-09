@@ -54,16 +54,30 @@
       }
 
       var rootObj;
-      for (var first in data) {
-        rootObj = first;
-        break;
+      var arr;
+
+      // Get root and force to array
+      for (var p in data) {
+        if(p == "osm3s"){
+          // open streetmap copyright and version info
+          continue;
+        }
+        if (Array.isArray(data[p])) {
+          arr = data[p];
+          break;
+        } else if (Object.prototype.toString.call(data[p]) === '[object Object]') { // if object
+          rootObj = data[p];
+          break;
+        }
       }
 
-      if (rootObj === undefined) {
+      if (arr === undefined && rootObj === undefined) {
         throw new Error("JSON doesn't have a data object");
       }
 
-      var arr = json2array(data[rootObj]);
+      if (!arr) {
+        arr = json2array(rootObj);
+      }
       data.sensors = arr;
 
       console.log("Sensor data received. Length "+data.sensors.length);
