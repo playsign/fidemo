@@ -49,6 +49,8 @@ var FiwareDemo = IApplication.$extend(
                 TundraSDK.framework.renderer.scene.add( mesh );
             });
         }
+        
+        this.buildingAnimator = null;
     },
 
     onConnected : function()
@@ -80,6 +82,9 @@ var FiwareDemo = IApplication.$extend(
             this.ECEnt.placeable.setPosition(0, 0, -this.dcube.position.x);
         }
         */
+       if (this.buildingAnimator != null)
+           this.buildingAnimator.Update(frametime);
+           
     },
 
     onKeyEvent : function(event)

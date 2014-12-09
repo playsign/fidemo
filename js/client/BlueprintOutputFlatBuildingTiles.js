@@ -143,12 +143,21 @@
     var gridHash = self.grids[tile.z];
 
     var loader = new THREE.JSONLoader();
-    var material = new THREE.MeshLambertMaterial({
-      color: 0xeeeeee,
-      ambient: 0x0000ff,
-      shading: THREE.FlatShading
-    });
 	
+	var material = null;
+	if (self.options.buildingAnimator != null)
+    {
+		material = self.options.buildingAnimator.material;
+    }
+	else
+	{
+		material = new THREE.MeshLambertMaterial({
+			color: 0xeeeeee,
+			ambient: 0x0000ff,
+			shading: THREE.FlatShading,
+			fragmentShader: (document.getElementById( 'fs-effect' ).textContent)
+		});
+    }
 
     // Load buildings in a Web Worker
     self.worker(self.world.origin, self.world.originZoom, buildings).then(function(result) {
@@ -189,6 +198,7 @@
 
       // TODO: Make sure coordinate space is right
       self.add(mesh);
+
     }, function(failure) {
       // ...
     });

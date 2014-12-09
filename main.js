@@ -1,6 +1,101 @@
 // Init WebTundra
 // NOTE was: WebTundra ships with three r62 but it picks up the later included r69 from vizi.js!
 // NOW: removed the three r62 from WTs deps and index.html has vizi, for three, first now
+
+var BuildingAnimation = function(material) {
+    this.clock = new THREE.Clock();
+    this.radius = 300.0;
+    this.speed = 0.75;
+    this.delay = 0.35;
+    this.animState = 0.0;
+    this.animState2 = 0.0;
+    this.animState3 = 0.0;
+    this.ambinetColor = new THREE.Vector3(0.6, 0.6, 0.6);
+    this.ambinetColor2 = new THREE.Vector3(1.0,1.0,1.0);
+    
+    this.material = new THREE.ShaderMaterial( {
+        uniforms: {
+            mouseposition: { type: "v3", value: new THREE.Vector3(0.0, 0.0, 0.0) },
+            ambientColor: { type: "v3", value: new THREE.Vector3(1.0, 1.0, 1.0)},
+            gradientColor1: { type: "v4", value: new THREE.Vector4(1.0,0.0,0.0,0.0)},
+            gradientColor2: { type: "v4", value: new THREE.Vector4(0.0,1.0,0.0,0.5)},
+            gradientColor3: { type: "v4", value: new THREE.Vector4(0.0,0.0,1.0,1.0)},
+            animScaleUp: { type: "f", value: 5.0 },
+            animScaleBlast: { type: "f", value: 5.0 },
+            radiusMultiplier: { type: "f", value: 0.01 }
+        },
+        vertexColors: THREE.VertexColors,
+        vertexShader: (document.getElementById( 'vs-generic-effect' ).textContent),
+        fragmentShader: (document.getElementById( 'fs-effect' ).textContent)
+    } );
+}
+
+BuildingAnimation.prototype = {
+    
+    EasingFunctions: {
+        // no easing, no acceleration
+        linear: function (t) { return t },
+        // accelerating from zero velocity
+        easeInQuad: function (t) { return t*t },
+        // decelerating to zero velocity
+        easeOutQuad: function (t) { return t*(2-t) },
+        // acceleration until halfway, then deceleration
+        easeInOutQuad: function (t) { return t<.5 ? 2*t*t : -1+(4-2*t)*t },
+        // accelerating from zero velocity
+        easeInCubic: function (t) { return t*t*t },
+        // decelerating to zero velocity
+        easeOutCubic: function (t) { return (--t)*t*t+1 },
+        // acceleration until halfway, then deceleration
+        easeInOutCubic: function (t) { return t<.5 ? 4*t*t*t : (t-1)*(2*t-2)*(2*t-2)+1 },
+        // accelerating from zero velocity
+        easeInQuart: function (t) { return t*t*t*t },
+        // decelerating to zero velocity
+        easeOutQuart: function (t) { return 1-(--t)*t*t*t },
+        // acceleration until halfway, then deceleration
+        easeInOutQuart: function (t) { return t<.5 ? 8*t*t*t*t : 1-8*(--t)*t*t*t },
+        // accelerating from zero velocity
+        easeInQuint: function (t) { return t*t*t*t*t },
+        // decelerating to zero velocity
+        easeOutQuint: function (t) { return 1+(--t)*t*t*t*t },
+        // acceleration until halfway, then deceleration
+        easeInOutQuint: function (t) { return t<.5 ? 16*t*t*t*t*t : 1+16*(--t)*t*t*t*t }
+    },
+    
+    Reset: function() {
+        this.animState = 0.0;
+        this.animState2 = 0.0;
+        this.animState3 = 0.0;
+    },
+    
+    Update: function(frameTime){
+        var delta = frameTime;
+        
+        this.animState = Math.max(0.0,Math.min(1.0, this.animState + delta * this.speed));
+        this.animState2 = this.animState2 + delta * this.speed;
+
+        var canimState2 = Math.max(0.0,Math.min(1.0, this.animState2 - this.delay));
+        this.animState3 = this.animState3 + delta * this.speed * 0.5;
+        var anim = this.EasingFunctions.easeInOutQuad(this.animState);
+        var anim2 = this.EasingFunctions.easeInOutQuad(canimState2);
+        var radius = 1.0  / (this.radius * anim);
+
+        this.material.uniforms.animScaleUp.value = anim2;
+        //this.material.uniforms.animscale2.value = anim;
+        this.material.uniforms.animScaleBlast.value = 1.0  / ((1150.0 + this.animState3 * 1000) * this.animState3);
+        this.material.uniforms.radiusMultiplier.value = radius;
+
+        //var testsin = (Math.sin(this.animState3) + 1.0) * 0.5;
+        //material.uniforms.ambientColor.value = this.ambinetColor.lerp(this.ambinetColor2, testsin);
+        this.material.uniforms.ambientColor.value = this.ambinetColor;
+    },
+    
+    SetPosition: function(position) {
+        this.material.uniforms.mouseposition.value = position;
+        this.Reset();
+    }
+};
+var animator = new BuildingAnimation();
+
 try
 {
     var client = tundra.createWebTundraClient(
@@ -20,7 +115,7 @@ try
         client.log.infoC("client reset is a no-op now.");
     };
 
-    var freecamera, demoapp, cbclient, chat, userPresence;
+    var freecamera, cbclient, demoapp, chat, userPresence;
 
     // Free camera application
     $.getScript("build/webtundra/application/freecamera.js")
@@ -35,6 +130,7 @@ try
     $.getScript("js/client/tundra-client.js")
         .done(function(/*script, textStatus*/) {
             demoapp = new FiwareDemo();
+            demoapp.buildingAnimator = animator;
         })
         .fail(function(jqxhr, settings, exception) {
             console.error(exception);
@@ -316,6 +412,7 @@ if (santanderLatLon !== undefined) {
   // Helsinki
 
   var config = getHelsinkiConfig();
+  config.output.options.buildingAnimator = animator;
 
   var switchboardData = new VIZI.BlueprintSwitchboard(config);
   switchboardData.addToWorld(world);
@@ -352,7 +449,8 @@ var buildingsConfig = {
         tilesPerDirection: 1,
         cullZoom: 13
       }],
-      workerURL: "build/vizicities/vizi-worker.min.js"
+      workerURL: "build/vizicities/vizi-worker.min.js",
+      buildingAnimator: animator
     }
   },
   triggers: [{

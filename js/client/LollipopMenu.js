@@ -66,6 +66,9 @@ LollipopMenu.prototype = {
       if (!this.isShowing()) {
         var pos = this.planeRaycast(x, y);
         if (pos) {
+          if (this.owner.options.buildingAnimator != null)
+              this.owner.options.buildingAnimator.SetPosition(pos);
+			
           this.createMenu(pos);
         }
       }
