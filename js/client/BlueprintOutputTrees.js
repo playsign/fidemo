@@ -32,9 +32,9 @@
     // MODELS & MATERIALS
 
     // Tree models
-    self.modelYpos = 10;
+    self.modelYpos = 0;
     self.treeAmount = 0;
-    self.treeLimit = 999999;
+    self.treeLimit = 1000; // 999999
     self.trees;
     self.treeModel;
     self.treeModelB;

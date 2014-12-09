@@ -3,7 +3,7 @@ function getTreesConfig() {
     input: {
       type: "BlueprintInputSensor",
       options: {
-        path: "http://overpass-api.de/api/interpreter?data=[out:json];((node(around:1000.0,60.17096119799872,24.94066956044796)[natural~%22tree%22];);(._;node(w);););out;",
+        path: "http://overpass-api.de/api/interpreter?data=[out:json];((node(around:1000.0,"+world.center.lat+","+world.center.lon+")[natural~%22tree%22];);(._;node(w);););out;",
         repeat: false,
       }
     },
