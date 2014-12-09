@@ -15,6 +15,12 @@ var UserPresenceApplication = IApplication.$extend(
         this.fw.scene.onEntityCreated(this, this.onEntityCreated);
         // Monitor for UserPresence (entity with "AvatarData" DC) creations.
         this.fw.scene.onComponentCreated(this, this.onComponentCreated);
+        
+        this.fw.scene.onEntityAction(this, this.onEntityAction);
+
+        // Hook to frame update to process smoothed movements
+        this.movements = {}
+        this.updateSub = this.fw.frame.onUpdate(this, this.runSmoothedMovements);
     },
 
     onEntityCreated : function(entity)
@@ -23,9 +29,7 @@ var UserPresenceApplication = IApplication.$extend(
         {
             console.log("UserPresenceApplication ready!");
             this.entity = entity;
-            /*
-            this.updateSub = this.fw.frame.onUpdate(this, this.sendPositionUpdate);
-            */
+
         }
     },
 
@@ -69,9 +73,46 @@ var UserPresenceApplication = IApplication.$extend(
 
     onScriptDestroyed : function()
     {
-        /*
         if (this.updateSub)
             TundraSDK.framework.events.unsubscribe(this.updateSub);
-        */
+    },
+    
+    onEntityAction : function(action)
+    {
+        if (action.name == "UserPresenceSmoothedMove")
+        {
+            var param = JSON.parse(action.parameters[0]);
+            param.et = 0;
+            this.movements[param.id] = param;
+        }
+    },
+    
+    runSmoothedMovements : function(delta)
+    {
+        for (var id in this.movements)
+        {
+            var m = this.movements[id];
+            var entity = this.fw.scene.entityById(m.id);
+            if (entity)
+            {
+                m.et += delta;
+                var t = m.et / m.t;
+                if (t > 1.0)
+                    t = 1.0;
+
+                t = Math.sin((t-0.5)*Math.PI)*0.5+0.5; // Movement curve, can be tweaked later
+                var tr = entity.placeable.transform;
+                tr.pos.x = t * m.ex + (1-t) * m.sx;
+                tr.pos.y = t * m.ey + (1-t) * m.sy;
+                tr.pos.z = t * m.ez + (1-t) * m.sz;
+
+                entity.placeable.setAttribute("transform", tr, AttributeChange.LocalOnly);
+            }
+            if (!entity || m.et > m.t)
+            {
+                //console.log("Del movement " + id);
+                delete this.movements[id];
+            }
+        }
     },
 });

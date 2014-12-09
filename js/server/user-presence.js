@@ -8,9 +8,14 @@ engine.IncludeFile("http://meshmoon.data.s3.amazonaws.com/app/lib/class.js");
 engine.IncludeFile("http://meshmoon.data.s3.amazonaws.com/app/lib/json2.js");
 engine.IncludeFile("http://meshmoon.data.s3.amazonaws.com/app/lib/admino-utils-common-deploy.js");
 
-// { x : <value>, y : <value>, z : <value> } JSON expected as the parameter.
+// { x : <value>, y : <value>, z : <value>, t : <value> } JSON expected as the parameter.
 // Each of the values are optional, and only defined values are updated.
+// If t parameter is specified, clients will perform a smoothed move of t seconds (replicated via action)
 var cUserPresencePositionUpdate = "UserPresencePositionUpdate";
+// The action used for replicating a smoothed move to clients
+// { id : <entityId>, sx : <value>, sy : <value>, sz : <value>, ex : <value>, ey : <value>, ez : <value>, t : <value> }
+var cUserPresenceSmoothedMove = "UserPresenceSmoothedMove";
+
 
 var cDefaultUserPresencePrefab = "js/server/UserPresence.txml";
 
@@ -28,9 +33,6 @@ var UserPresenceServer = Class.extend(
         // Connection ID to Entity ID mapping.
         // 0 denotes an invalid connection ID.
         this.userPresences = {};
-        
-        // Ongoing smooth movements by connection ID
-        this.userMovements = {};
 
         // Settings
         this.prefabRef = cDefaultUserPresencePrefab;
@@ -56,8 +58,6 @@ var UserPresenceServer = Class.extend(
         var users = server.AuthenticatedUsers();
         for(var i = 0; i < users.length; ++i)
             this.createUserPresence(users[i].id, users[i]);
-
-        frame.Updated.connect(this, this.updateMovement);
     },
 
     shutDown : function()
@@ -117,54 +117,31 @@ var UserPresenceServer = Class.extend(
         if (!userPresence || !userPresence.placeable)
             return;
 
-        var t = userPresence.placeable.transform;
+        var tr = userPresence.placeable.transform;
+        var oldpos = new float3(tr.pos.x, tr.pos.y, tr.pos.z);
+
+        if (pos.x !== undefined)
+            tr.pos.x = pos.x;
+        if (pos.y !== undefined)
+            tr.pos.y = pos.y;
+        if (pos.x !== undefined)
+            tr.pos.z = pos.z;
+
+        if (this.positionOffset.IsFinite())
+            tr.pos = tr.pos.Add(this.positionOffset);
 
         // Simple move
         if (pos.t === undefined)
         {
-            if (pos.x !== undefined)
-                t.pos.x = pos.x;
-            if (pos.y !== undefined)
-                t.pos.y = pos.y;
-            if (pos.x !== undefined)
-                t.pos.z = pos.z;
-
-            if (this.positionOffset.IsFinite())
-                t.pos = t.pos.Add(this.positionOffset);
-
-            userPresence.placeable.transform = t;
+            userPresence.placeable.transform = tr;
         }
-        // Time-based move
+        // Time-based move. Client(s) will perform smoothing
         else
         {
-            this.userMovements[connectionId] = {};
-            this.userMovements[connectionId].startPos = new float3(t.pos.x, t.pos.y, t.pos.z);
-            this.userMovements[connectionId].endPos = new float3(pos.x, pos.y, pos.z);
-            this.userMovements[connectionId].elapsed = 0;
-            this.userMovements[connectionId].duration = pos.t;
-            this.userMovements[connectionId].entityId = userPresenceId;
-        }
-    },
-    
-    updateMovement : function(delta)
-    {
-        for (var key in this.userMovements)
-        {
-            var m = this.userMovements[key];
-            var entity = scene.EntityById(m.entityId);
-            m.elapsed += delta;
-            if (entity)
-            {
-                var t = m.elapsed / m.duration;
-                if (t > 1.0)
-                    t = 1.0;
-                t = Math.sqrt(t); // Movement curve
-                var tr = entity.placeable.transform;
-                tr.pos = m.startPos.Lerp(m.endPos, t);
-                entity.placeable.transform = tr;
-            }
-            if (m.elapsed > m.endPos.t)
-            delete this.userMovements[key];
+            userPresence.placeable.updateMode = { value : 2 }; // Switch to LocalOnly for setting the pos
+            userPresence.placeable.transform = tr;
+            userPresence.placeable.updateMode = { value : 3 }; // Switch back to Replicated
+            userPresence.Exec(4, cUserPresenceSmoothedMove, JSON.stringify({ id : userPresence.id, sx : oldpos.x, sy : oldpos.y, sz : oldpos.z, ex : tr.pos.x, ey : tr.pos.y, ez : tr.pos.z, t : pos.t }));
         }
     },
 });

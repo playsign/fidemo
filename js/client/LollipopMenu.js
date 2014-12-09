@@ -49,7 +49,7 @@ var LollipopMenu = function(owner) {
   this.mouseDownX = 0;
   this.mouseDownY = 0;
   
-  this.avatarMoveDelay = 2.0;
+  this.avatarMoveDelay = 1.0;
 
   this.selection = 0; // 0 = none, 1 = photos, 2 = properties etc.
 };
