@@ -315,7 +315,8 @@ var world = new VIZI.World({
 
 
 var controls = new VIZI.ControlsMap(world.camera);
-
+//override change emitting as the unload & load code is not good in 0.2.0 yet
+controls.onChange = function() {}; 
 
 // MAP
 
