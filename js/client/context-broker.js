@@ -95,8 +95,7 @@ var ContextBrokerClient = IApplication.$extend({
         xhr.send(json);
 
         if (xhr.status === 200) {
-            console.log("Creating/updating context broker item succeeded!");
-            console.log(xhr.responseText);
+            console.log("Creating/updating context broker item done: "+xhr.responseText);
             return true;
         } else {
             console.log("Creating/updating context broker item failed: " + xhr.responseText);
