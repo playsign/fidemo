@@ -45,61 +45,23 @@
       if (data[i] === undefined) {
         continue;
       }
-      
-        var lon = data[i].coordinates[0]
-        var lat = data[i].coordinates[1];
-        var name = data[i].name;
+      var lon = data[i].coordinates[0]
+      var lat = data[i].coordinates[1];
+      var name = data[i].name;
+        
+      var textFront = self.makeTextPlane(name, 260, 65, "Arial", 32, 'white', 'black');
+      var textBack = self.makeTextPlane(name, 260, 65, "Arial", 32, 'white', 'black');
+        
+      var dgeocoord = new VIZI.LatLon(lat, lon);
+      var dscenepoint = self.world.project(dgeocoord);
 
-        var		height = 0,
-			size = 20,
-			curveSegments = 4,
-			bevelThickness = 2,
-			bevelSize = 1.5,
-			bevelSegments = 3,
-			bevelEnabled = false,
+      textFront.position.x = textBack.position.x = dscenepoint.x;
+      textFront.position.y = textBack.position.y = 40;
+      textFront.position.z = textBack.position.z = dscenepoint.y;
+      textBack.rotation.y = Math.PI;
 
-			font = "optimer",
-			weight = "normal",
-			style = "normal";
-				
-        var material = new THREE.MeshFaceMaterial( [ 
-					new THREE.MeshBasicMaterial( { color: 0xd64541, shading: THREE.FlatShading } ), // front
-					new THREE.MeshPhongMaterial( { color: 0xffffff, shading: THREE.SmoothShading } ) // side
-				] );
-				
-        var textGeo = new THREE.TextGeometry( name, {
-
-			size: size,
-			height: height,
-			curveSegments: curveSegments,
-
-			font: font,
-			weight: weight,
-			style: style,
-
-			bevelThickness: bevelThickness,
-			bevelSize: bevelSize,
-			bevelEnabled: bevelEnabled,
-
-			material: 0,
-			extrudeMaterial: 1
-
-		});
-
-		textGeo.computeBoundingBox();
-		textGeo.computeVertexNormals();
-
-        var centerOffset = -0.5 * ( textGeo.boundingBox.max.x - textGeo.boundingBox.min.x );
-
-        var textMesh1 = new THREE.Mesh( textGeo, material );
-        var dgeocoord = new VIZI.LatLon(lat, lon);
-        var dscenepoint = self.world.project(dgeocoord);
-
-        textMesh1.position.x = dscenepoint.x + centerOffset;
-        textMesh1.position.y = 40;
-        textMesh1.position.z = dscenepoint.y;
-
-        self.add(textMesh1);
+      self.add(textFront);
+      self.add(textBack);
     }
   };
 
@@ -107,6 +69,39 @@
     var self = this;
     self.world = world;
     self.init();
+  };
+  
+  VIZI.BlueprintOutputStreets.prototype.makeTextPlane = function(message, width, height, font, fontsize, textColor, outlineColor) {
+    var self = this;
+
+    var canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 128;
+    var context = canvas.getContext('2d');
+    
+    context.font = fontsize + "px " + font;
+    var metrics = context.measureText( message );
+    var textWidth = metrics.width;
+
+    context.strokeStyle = outlineColor;
+    context.miterLimit = 2;
+    context.lineJoin = 'circle';
+        
+    context.fillStyle = textColor;
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+    context.lineWidth = 4;
+    context.strokeText(message, canvas.width / 2, canvas.height / 2);
+    context.lineWidth = 1;
+    context.fillText(message, canvas.width / 2, canvas.height / 2);
+
+    var texture = new THREE.Texture(canvas);
+    texture.needsUpdate = true;
+
+    var material = new THREE.MeshBasicMaterial( { map: texture, shading: THREE.FlatShading, transparent:true, depthTest:true, depthWrite:true, alphaTest: 0.01, side: THREE.FrontSide } );
+
+    var plane = new THREE.Mesh( new THREE.PlaneGeometry(width, height), material );
+    return plane;
   };
 
 }());
