@@ -442,13 +442,24 @@ switchboardTrees.addToWorld(world);
 
 
 // BUILDINGS
+var highpolyBuildingsConfig = {
+    buildings : [{
+        model: "data/3d/rautatieasema.js",
+        ids: ["122595198"]
+    }, {
+        model: "data/3d/tuomiokirkko.js",
+        ids: ["4253123"]
+    }, {
+        model: "",
+        ids: ["234872439", "234871242", "234870674"]
+    }]
+};
 
 var buildingsConfig = {
   input: {
     type: "BlueprintInputOverrideGeoJSON",
     options: {
-        tilePath: "http://vector.mapzen.com/osm/buildings/{z}/{x}/{y}.json",
-        omitBuildings: ["122595198", "4253123", "234872439", "234871242", "234870674"]
+        tilePath: "http://vector.mapzen.com/osm/buildings/{z}/{x}/{y}.json"
     }
   },
   output: {
@@ -460,7 +471,8 @@ var buildingsConfig = {
         cullZoom: 13
       }],
       workerURL: "build/vizicities/vizi-worker.min.js",
-      buildingAnimator: animator
+      buildingAnimator: animator,
+      manualBuildings: highpolyBuildingsConfig
     }
   },
   triggers: [{
@@ -497,7 +509,8 @@ var buildingsConfig = {
         itemsProperties: "features",
         transformation: {
           outline: "geometry.coordinates",
-          height: "properties.height"
+          height: "properties.height",
+          id: "id"
         }
       },
       tile: "tile"

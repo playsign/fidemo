@@ -31,25 +31,7 @@ var FiwareDemo = IApplication.$extend(
         mesh.meshRef = "suzanne.js";
         scene.addEntity(ECEnt);
         this.ECEnt = ECEnt
-        */
-
-        //and the same with using three json loading directly
-        var loader = new THREE.JSONLoader();
-        var buildings = ["data/3d/rautatieasema.js", "data/3d/tuomiokirkko.js"];
-        var building = null;
-        for(var index in buildings)
-        {
-            building = buildings[index];
-            console.log("Loading " + building + " model.");
-            // TODO Making functions within loop is bad.
-            loader.load( building, function(geometry, materials) {
-                console.log(building + " loaded.");
-                var mesh = new THREE.Mesh( geometry, new THREE.MeshFaceMaterial( materials ) );
-                mesh.scale.set( 0.8582932963847628, 0.8582932963847628, 0.8582932963847628 );
-                TundraSDK.framework.renderer.scene.add( mesh );
-            });
-        }
-        
+        */        
         this.buildingAnimator = null;
     },
 

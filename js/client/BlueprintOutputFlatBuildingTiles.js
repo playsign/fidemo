@@ -160,7 +160,7 @@
     }
 
     // Load buildings in a Web Worker
-    self.worker(self.world.origin, self.world.originZoom, buildings).then(function(result) {
+    self.worker(self.world.origin, self.world.originZoom, buildings, self.options.manualBuildings).then(function(result) {
       var model = result.model;
       var offset = result.offset;
 
@@ -199,6 +199,21 @@
       // TODO: Make sure coordinate space is right
       self.add(mesh);
 
+      _.each(result.highPolyModels, function(building) {
+        if (building.model !== "") {
+            console.log("Loading " + building.model + " model.");
+            // TODO Making functions within loop is bad.
+            loader.load( building.model, function(geometry, materials) {
+                console.log(building.model + " loaded.");
+                var mesh = new THREE.Mesh( geometry, new THREE.MeshFaceMaterial( materials ) );
+                mesh.scale.set( 0.8582932963847628, 0.8582932963847628, 0.8582932963847628 );
+                mesh.position.x = building.position.x;
+                mesh.position.z = building.position.y;
+                self.add(mesh);
+                //TundraSDK.framework.renderer.scene.add( mesh );
+            });
+         }
+       });
     }, function(failure) {
       // ...
     });
@@ -297,7 +312,7 @@
 
   // TODO: Is this running before the Blueprint is initialised and taking up unnecessary memory?
   // TODO: Find a better way to replicate World state (origin, origin zoom, CRS, etc) so it doesn't have to be duplicated for every Blueprint
-  VIZI.BlueprintOutputFlatBuildingTiles.prototype.outputBuildingTileWorker = function(origin, originZoom, buildings) {
+  VIZI.BlueprintOutputFlatBuildingTiles.prototype.outputBuildingTileWorker = function(origin, originZoom, buildings, manualBuildings) {
     var self = this;
     var deferred = self.deferred();
 
@@ -334,62 +349,103 @@
 
     // Local pixels per meter - set once per tile
     var ppm;
-
+    //console.log(manualBuildings);
+    var highPolyModels = [];
+    var found = false;
+    var building;
+      
     _.each(buildings, function(feature) {
-      var offset = new VIZI.Point();
-      var shape = new THREE.Shape();
-
-      // TODO: Don't manually use first set of coordinates (index 0)
-      _.each(feature.outline[0], function(coord, index) {
-        var latLon = new VIZI.LatLon(coord[1], coord[0]);
-        var geoCoord = project(latLon);
-
-        // Set local pixels per meter if not set
-        if (ppm === undefined) {
-          ppm = pixelsPerMeter(latLon);
-        }
-
-        if (offset.length === 0) {
-          offset.x = -1 * geoCoord.x;
-          offset.y = -1 * geoCoord.y;
-        }
-
-        // Move if first coordinate
-        if (index === 0) {
-          shape.moveTo( geoCoord.x + offset.x, geoCoord.y + offset.y );
-        } else {
-          shape.lineTo( geoCoord.x + offset.x, geoCoord.y + offset.y );
-        }
-      });
-
-      // TODO: Don't have random height logic in here
-      var height = (feature.height) ? feature.height : 5 + Math.random() * 10;
-
-      // TODO: Add floor/level-based heights
-      // << rounds the height down
-      // var height = (feature.height * metersPerLevel * scalingFactor << 0);
+      found = false;
+      building = null;
       
-      // Multiply height in meters by pixels per meter ratio at latitude
-      height *= ppm.y;
+      if (manualBuildings) {
+          // TODO: better logic for finding ids
+          found = _.find(manualBuildings.buildings, function( value ) {
+            return _.find(value.ids, function( id ) {
+                if (id == feature.id) {
+                    building = value;
+                  return true;
+                }
+                return false;
+            });
+          });
+      }
+          
+      if (found) {
+        if (feature.outline[0].length > 0) {
+            var position = new VIZI.Point(0, 0);
+            // Get center of feature outline
+            _.each(feature.outline[0], function(coord, index) {
+              var latLon = new VIZI.LatLon(coord[1], coord[0]);
+              var geoCoord = project(latLon);
+              position.x += geoCoord.x;
+              position.y += geoCoord.y;
+            });
+            
+            //console.log(building.model + "  " + feature.id + "  " + position.x + "  " + position.y + "  " + feature.outline[0].length);
+            // Round, since vizicity itself also rounds.
+            position.x = Math.round(position.x / feature.outline[0].length);
+            position.y = Math.round(position.y / feature.outline[0].length);
+            highPolyModels.push({ model: building.model, position:position });
+          }
+      }
 
-      var extrudeSettings = { amount: height, bevelEnabled: false };
-      
-      var geom = new THREE.ExtrudeGeometry( shape, extrudeSettings );
-      geom.computeFaceNormals();
-      
-      var mesh = new THREE.Mesh(geom);
+      if (!found) {
+          var offset = new VIZI.Point();
+          var shape = new THREE.Shape();
 
-      mesh.position.y = height;
+          // TODO: Don't manually use first set of coordinates (index 0)
+          _.each(feature.outline[0], function(coord, index) {
+            var latLon = new VIZI.LatLon(coord[1], coord[0]);
+            var geoCoord = project(latLon);
 
-      // Offset
-      mesh.position.x = -1 * offset.x;
-      mesh.position.z = -1 * offset.y;
+            // Set local pixels per meter if not set
+            if (ppm === undefined) {
+              ppm = pixelsPerMeter(latLon);
+            }
 
-      // Flip as they are up-side down
-      mesh.rotation.x = 90 * Math.PI / 180;
+            if (offset.length === 0) {
+              offset.x = -1 * geoCoord.x;
+              offset.y = -1 * geoCoord.y;
+            }
 
-      mesh.matrixAutoUpdate && mesh.updateMatrix();
-      combinedGeom.merge(mesh.geometry, mesh.matrix);
+            // Move if first coordinate
+            if (index === 0) {
+              shape.moveTo( geoCoord.x + offset.x, geoCoord.y + offset.y );
+            } else {
+              shape.lineTo( geoCoord.x + offset.x, geoCoord.y + offset.y );
+            }
+          });
+
+          // TODO: Don't have random height logic in here
+          var height = (feature.height) ? feature.height : 5 + Math.random() * 10;
+
+          // TODO: Add floor/level-based heights
+          // << rounds the height down
+          // var height = (feature.height * metersPerLevel * scalingFactor << 0);
+          
+          // Multiply height in meters by pixels per meter ratio at latitude
+          height *= ppm.y;
+
+          var extrudeSettings = { amount: height, bevelEnabled: false };
+          
+          var geom = new THREE.ExtrudeGeometry( shape, extrudeSettings );
+          geom.computeFaceNormals();
+          
+          var mesh = new THREE.Mesh(geom);
+
+          mesh.position.y = height;
+
+          // Offset
+          mesh.position.x = -1 * offset.x;
+          mesh.position.z = -1 * offset.y;
+
+          // Flip as they are up-side down
+          mesh.rotation.x = 90 * Math.PI / 180;
+
+          mesh.matrixAutoUpdate && mesh.updateMatrix();
+          combinedGeom.merge(mesh.geometry, mesh.matrix);
+      }
     });
 
     // Move merged geom to 0,0 and return offset
@@ -416,7 +472,7 @@
       faces: facesArray
     };
 
-    var data = {model: model, offset: offset};
+    var data = {model: model, offset: offset, highPolyModels: highPolyModels};
 
     deferred.transferResolve(data, [model.vertices.buffer, model.normals.buffer, model.uvs.buffer, model.faces.buffer]);
   };
