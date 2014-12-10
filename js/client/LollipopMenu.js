@@ -105,7 +105,14 @@ LollipopMenu.prototype = {
     if (userPresence)
       userPresence.sendPositionUpdate(pos, this.avatarMoveDelay);
 
-    var spr = new THREE.Sprite(this.lollipopMat);
+    // The central "lollipop" is actually redundant if user has an avatar
+    // in that case create just a bare scene node
+    var spr;
+    if (userPresence && userPresence.entity)
+        spr = new THREE.Object3D();
+    else
+        spr = new THREE.Sprite(this.lollipopMat);
+
     spr.position.x = pos.x;
     spr.position.y = this.owner.spriteYpos;
     spr.position.z = pos.z;
