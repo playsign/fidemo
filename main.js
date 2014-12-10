@@ -468,7 +468,7 @@ var buildingsConfig = {
     options: {
       grids: [{
         zoom: 15,
-        tilesPerDirection: 1,
+        tilesPerDirection: 3,
         cullZoom: 13
       }],
       workerURL: "build/vizicities/vizi-worker.min.js",
