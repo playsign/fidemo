@@ -237,7 +237,7 @@ function createScene() {
     // - I'm sure people would want to add their own lighting too
     // TODO: Should this even be in here?
     var directionalLight = new THREE.DirectionalLight( 0x999999 );
-    directionalLight.intesity = 0.1;
+    directionalLight.intensity = 0.1;
     directionalLight.position.x = 1;
     directionalLight.position.y = 1;
     directionalLight.position.z = 1;
@@ -245,7 +245,7 @@ function createScene() {
     scene.add(directionalLight);
 
     var directionalLight2 = new THREE.DirectionalLight( 0x999999 );
-    directionalLight2.intesity = 0.1;
+    directionalLight2.intensity = 0.1;
     directionalLight2.position.x = -1;
     directionalLight2.position.y = 1;
     directionalLight2.position.z = -1;
@@ -582,7 +582,7 @@ debugObject(60.171680, 24.943881); //Rautatientorin patsas
 //lights
 function addLights(scene) {
     var directionalLight = new THREE.DirectionalLight( 0x999999 );
-    directionalLight.intesity = 0.1;
+    // directionalLight.intensity = 0.1; // TODO this was typoed as 'intesity' but 0.1 value for intensity doesn't look that hot
     directionalLight.position.x = 1;
     directionalLight.position.y = 1;
     directionalLight.position.z = 1;
@@ -590,7 +590,7 @@ function addLights(scene) {
     scene.add(directionalLight);
 
     var directionalLight2 = new THREE.DirectionalLight( 0x999999 );
-    directionalLight2.intesity = 0.1;
+    // directionalLight2.intensity = 0.1; // TODO this was typoed as 'intesity' but 0.1 value for intensity doesn't look that hot
     directionalLight2.position.x = -1;
     directionalLight2.position.y = 1;
     directionalLight2.position.z = -1;
@@ -663,8 +663,8 @@ var UsernameDialog = Class.$extend(
             }
         }.bind(this));
         var buttonStyle = { "border" : "1px solid gray", "text" : "align:center" };
-        this.ui.okButton = createButton("okButton", "OK", buttonStyle, this.ui.dialog);
-        this.ui.cancelButton = createButton("cancelButton", "Cancel/Close", buttonStyle, this.ui.dialog);
+        this.ui.okButton = createButton("okButton", "OK", buttonStyle);
+        this.ui.cancelButton = createButton("cancelButton", "Cancel/Close", buttonStyle);
         this.ui.dialog.append(this.ui.labelField);
         this.ui.dialog.append(this.ui.inputField);
         this.ui.dialog.append(this.ui.okButton);
