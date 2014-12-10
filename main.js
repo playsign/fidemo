@@ -50,6 +50,16 @@ try
             console.error(exception);
         });
 
+    // Context broker comment test ui
+      $.getScript("js/client/poi-comment.js")
+        .done(function(/*script, textStatus*/) {
+          poicommentclient = new PoiComment();
+        })
+        .fail(function(jqxhr, settings, exception) {
+          console.error(exception);
+        }
+      );
+
     // Chat
     $.getScript("js/client/chat.js")
         .done(function(/*script, textStatus*/) {
@@ -257,12 +267,12 @@ var mapConfig = {
     }
   },
   // Triggers are events that get fired at a certain point in time (eg. after initialisation, or after you've finished moving around the city)
-  triggers: [{  
-    // Nothing in the input should know about or be dependant on a specific output. 
+  triggers: [{
+    // Nothing in the input should know about or be dependant on a specific output.
     triggerObject: "output", // String defining whether this trigger is fired from the "input" or "output".
     triggerName: "initialised", // String defining the name of the trigger event (found in the documentation for the input or output).
     triggerArguments: ["tiles"], // String defining the names and order of the trigger arguments, if required (found in the documentation for the input or output).
-    // Actions are methods that are called after a trigger event has been fired (eg. loading new data after you've finished moving, or outputting something when data is received) 
+    // Actions are methods that are called after a trigger event has been fired (eg. loading new data after you've finished moving, or outputting something when data is received)
     actionObject: "input",  // String defining whether the action is to be called on the "input" or "output".
     actionName: "requestTiles", // String defining the name of the action (found in the documentation for the input or output).
     actionArguments: ["tiles"], // String defining the names and order of the action arguments, if required (found in the documentation for the input or output).
@@ -319,7 +329,7 @@ if (santanderLatLon !== undefined) {
 
   var switchboardData = new VIZI.BlueprintSwitchboard(config);
   switchboardData.addToWorld(world);
-  
+
   var streetLabelsConfig = getStreetLabelsConfig();
   var switchboardStreets = new VIZI.BlueprintSwitchboard(streetLabelsConfig);
   switchboardStreets.addToWorld(world);
