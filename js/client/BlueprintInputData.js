@@ -83,7 +83,7 @@
       }
       data.data = arr;
 
-      console.log("Data received: "+self.options.path+" Length:"+data.data.length);
+      console.log("Data received: "+self.options.path);
 
       self.emit("dataReceived", data);
 
