@@ -41,6 +41,7 @@ var LollipopMenu = function(owner) {
   this.lollipopScale = 40;
   this.iconScale = 30;
   this.iconSelectedScale = 35;
+  this.newPosThreshold = 20; // Clicking closer than this (in world coords) will close instead of moving to new pos
   
   this.scaleTween = 0;
   this.scaleTweenDir = 0;
@@ -48,7 +49,7 @@ var LollipopMenu = function(owner) {
 
   this.mouseDownX = 0;
   this.mouseDownY = 0;
-  
+
   this.avatarMoveDelay = 1.0;
 
   this.selection = 0; // 0 = none, 1 = photos, 2 = properties etc.
@@ -66,16 +67,22 @@ LollipopMenu.prototype = {
       if (!this.isShowing()) {
         var pos = this.planeRaycast(x, y);
         if (pos) {
-          if (this.owner.options.buildingAnimator != null)
-              this.owner.options.buildingAnimator.SetPosition(pos);
-			
           this.createMenu(pos);
         }
       }
       else {
-        // Raycast to icons and perform selection, hide menu if none hit
+        // Raycast to icons and perform selection, hide/reopen menu if none hit
         if (!this.doSelectionRaycast(x, y)) {
-          this.startHideMenu();
+          var pos = this.planeRaycast(x, y);
+          var distVec = new THREE.Vector3();
+          distVec.subVectors(pos, this.lastShowPos);
+          var dist = distVec.length();
+          if (dist > this.newPosThreshold) {
+            this.createMenu(pos);
+          }
+          else {
+            this.startHideMenu();
+          }
         }
       }
     }
@@ -98,8 +105,14 @@ LollipopMenu.prototype = {
 
   createMenu : function(pos) {
     if (this.isShowing()) {
-      return; // Already showing
+        this.hideMenu(); // If already showing, hide the old first
     }
+
+    // Animate the circle to new position
+    if (this.owner.options.buildingAnimator != null)
+        this.owner.options.buildingAnimator.SetPosition(pos);
+
+    this.lastShowPos = pos;
 
     // Move user's avatar to the position where the menu is going to open
     if (userPresence)
