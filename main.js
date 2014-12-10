@@ -72,6 +72,11 @@ try
 
     // Connected to server
     client.onConnected(null, function() {
+        if (chat)
+        {
+            var usernameDialog = new UsernameDialog();
+            usernameDialog.show();
+        }
     });
 
     // Disconnected from server
@@ -181,6 +186,9 @@ console.log("FIDEMO: created scene", threejs.scene);
 
 // threejs = null; //no overrides, vizicity creates scene & renderer
 
+
+// COORDINATES
+
 var santanderLatLon;
 var helsinkiLatLon;
 
@@ -190,8 +198,15 @@ var world = new VIZI.World({
     // center: new VIZI.LatLon(65.0164696, 25.479259499999998), // Oulu
     // center: santanderLatLon = new VIZI.LatLon(43.47195, -3.79909),
     center: helsinkiLatLon = new VIZI.LatLon(60.17096119799872, 24.94066956044796), // Helsinki
-    threejs: threejs
+    threejs: threejs,
+    camera: camera = new VIZI.Camera({
+      aspect: viewport.clientWidth / viewport.clientHeight,
+      near: 30
+    })
 });
+
+//
+
 
 var controls = new VIZI.ControlsMap(world.camera);
 
@@ -476,3 +491,76 @@ var update = function() {
 };
 
 update();
+
+// Helper function, perfect candidate for something to be in UiAPI, or at least in some centralized place, at some point.
+var createButton = function(id, text, css, parent)
+{
+    var button = $("<div/>", { id : id, type : "button" });
+    button.button();
+    button.text(text);
+    button.css(css);
+    if (parent !== undefined)
+        parent.append(button);
+    button.show();
+    return button;
+};
+
+var UsernameDialog = Class.$extend(
+{
+    __init__ : function()
+    {
+        this.ui = {};
+        this.ui.dialog = $("<div/>", { id : "DialogWindow"});
+        this.ui.dialog.css(
+        {
+            "border"           : "0px solid gray",
+            "position"         : "absolute",
+            "width"            : 300,
+            "height"           : "auto",
+            "overflow"         : "hidden",
+            "color"            : "color: rgb(56,56,56)",
+            "background-color" : "color: rgb(214,214,214)",
+            "left"             : 400,
+            "top"              : 400
+        });
+
+        this.ui.labelField = $("<div/>", { id : "label" });
+        this.ui.labelField.text("Enter username");
+        this.ui.inputField = $("<input/>", { id : "inputField", type : "text" });
+        this.ui.inputField.width(295);
+        // Workaround for other scripts stealing the clicks to line edit.
+        this.ui.inputField.mousedown(function(e) { e.preventDefault(); e.stopPropagation(); });
+        this.ui.inputField.mouseup(function(e) { this.ui.inputField.focus(); e.preventDefault(); e.stopPropagation(); }.bind(this));
+        this.ui.inputField.keypress(function(e)
+        {
+            if (e.keyCode == 13) // Enter
+            {
+                if (this.ui.okButton.is(":visible"))
+                    this.ui.okButton.trigger('click');
+                e.preventDefault();
+            }
+        }.bind(this));
+        var buttonStyle = { "border" : "1px solid gray", "text" : "align:center" };
+        this.ui.okButton = createButton("okButton", "OK", buttonStyle, this.ui.dialog);
+        this.ui.cancelButton = createButton("cancelButton", "Cancel/Close", buttonStyle, this.ui.dialog);
+        this.ui.dialog.append(this.ui.labelField);
+        this.ui.dialog.append(this.ui.inputField);
+        this.ui.dialog.append(this.ui.okButton);
+        this.ui.dialog.append(this.ui.cancelButton);
+        TundraSDK.framework.ui.addWidgetToScene(this.ui.dialog);
+        this.ui.dialog.hide();
+
+        this.ui.okButton.click(this.onOkPressed.bind(this));
+        this.ui.cancelButton.click(this.hide.bind(this));
+    },
+
+    show : function() { this.ui.dialog.fadeIn(); },
+    hide : function() { this.ui.dialog.fadeOut(); },
+
+    onOkPressed : function()
+    {
+        var newUsername = this.ui.inputField.val();
+        if (newUsername.trim().length > 0 && chat && chat.entity)
+            chat.entity.exec(EntityAction.Server, Msg.SetUsername, [ newUsername, TundraSDK.framework.client.connectionId ]);
+    }
+});
