@@ -2,7 +2,7 @@
 // NOTE was: WebTundra ships with three r62 but it picks up the later included r69 from vizi.js!
 // NOW: removed the three r62 from WTs deps and index.html has vizi, for three, first now
 
-var BuildingAnimation = function(material) {
+var BuildingAnimation = function() {
     this.clock = new THREE.Clock();
     this.radius = 300.0;
     this.speed = 0.75;
@@ -28,37 +28,37 @@ var BuildingAnimation = function(material) {
         vertexShader: (document.getElementById( 'vs-generic-effect' ).textContent),
         fragmentShader: (document.getElementById( 'fs-effect' ).textContent)
     } );
-}
+};
 
 BuildingAnimation.prototype = {
     
     EasingFunctions: {
         // no easing, no acceleration
-        linear: function (t) { return t },
+        linear: function (t) { return t; },
         // accelerating from zero velocity
-        easeInQuad: function (t) { return t*t },
+        easeInQuad: function (t) { return t*t; },
         // decelerating to zero velocity
-        easeOutQuad: function (t) { return t*(2-t) },
+        easeOutQuad: function (t) { return t*(2-t); },
         // acceleration until halfway, then deceleration
-        easeInOutQuad: function (t) { return t<.5 ? 2*t*t : -1+(4-2*t)*t },
+        easeInOutQuad: function (t) { return t<0.5 ? 2*t*t : -1+(4-2*t)*t; },
         // accelerating from zero velocity
-        easeInCubic: function (t) { return t*t*t },
+        easeInCubic: function (t) { return t*t*t; },
         // decelerating to zero velocity
-        easeOutCubic: function (t) { return (--t)*t*t+1 },
+        easeOutCubic: function (t) { return (--t)*t*t+1; },
         // acceleration until halfway, then deceleration
-        easeInOutCubic: function (t) { return t<.5 ? 4*t*t*t : (t-1)*(2*t-2)*(2*t-2)+1 },
+        easeInOutCubic: function (t) { return t<0.5 ? 4*t*t*t : (t-1)*(2*t-2)*(2*t-2)+1; },
         // accelerating from zero velocity
-        easeInQuart: function (t) { return t*t*t*t },
+        easeInQuart: function (t) { return t*t*t*t; },
         // decelerating to zero velocity
-        easeOutQuart: function (t) { return 1-(--t)*t*t*t },
+        easeOutQuart: function (t) { return 1-(--t)*t*t*t; },
         // acceleration until halfway, then deceleration
-        easeInOutQuart: function (t) { return t<.5 ? 8*t*t*t*t : 1-8*(--t)*t*t*t },
+        easeInOutQuart: function (t) { return t<0.5 ? 8*t*t*t*t : 1-8*(--t)*t*t*t; },
         // accelerating from zero velocity
-        easeInQuint: function (t) { return t*t*t*t*t },
+        easeInQuint: function (t) { return t*t*t*t*t; },
         // decelerating to zero velocity
-        easeOutQuint: function (t) { return 1+(--t)*t*t*t*t },
+        easeOutQuint: function (t) { return 1+(--t)*t*t*t*t; },
         // acceleration until halfway, then deceleration
-        easeInOutQuint: function (t) { return t<.5 ? 16*t*t*t*t*t : 1+16*(--t)*t*t*t*t }
+        easeInOutQuint: function (t) { return t<0.5 ? 16*t*t*t*t*t : 1+16*(--t)*t*t*t*t; }
     },
     
     Reset: function() {
@@ -194,9 +194,9 @@ try
         if (!mouse.leftDown)
             return;
 
-        var serverEnt = client.scene.entityByName("FIWARE Demo Application"); //"Test Cube");
-        if (serverEnt)
-            serverEnt.exec(EntityAction.Server, "TestAction");
+        // var serverEnt = client.scene.entityByName("FIWARE Demo Application"); //"Test Cube");
+        // if (serverEnt)
+            // serverEnt.exec(EntityAction.Server, "TestAction");
 
         var result = client.renderer.raycast();
         // console.log(result);
@@ -637,19 +637,19 @@ var UsernameDialog = Class.$extend(
         {
             "border"           : "0px solid gray",
             "position"         : "absolute",
-            "width"            : 300,
+            "width"            : 160,
             "height"           : "auto",
             "overflow"         : "hidden",
             "color"            : "color: rgb(56,56,56)",
             "background-color" : "color: rgb(214,214,214)",
-            "left"             : 400,
-            "top"              : 400
+            "left"             : 5,
+            "top"              : 5
         });
 
         this.ui.labelField = $("<div/>", { id : "label" });
-        this.ui.labelField.text("Enter username");
+        this.ui.labelField.text("Enter username for chat");
         this.ui.inputField = $("<input/>", { id : "inputField", type : "text" });
-        this.ui.inputField.width(295);
+        this.ui.inputField.width(155);
         // Workaround for other scripts stealing the clicks to line edit.
         this.ui.inputField.mousedown(function(e) { e.preventDefault(); e.stopPropagation(); });
         this.ui.inputField.mouseup(function(e) { this.ui.inputField.focus(); e.preventDefault(); e.stopPropagation(); }.bind(this));
