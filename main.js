@@ -77,7 +77,7 @@ try
         asset : {
             localStoragePath : "build/webtundra"
         },
-            taskbar : false,
+            taskbar : true,
             console : true
     });
 
@@ -88,6 +88,7 @@ try
     };
 
     var freecamera, cbclient, demoapp, chat, userPresence;
+    var infoDialog, usernameDialog;
 
     // Free camera application
     $.getScript("build/webtundra/application/freecamera.js")
@@ -128,17 +129,6 @@ try
         }
       );
 
-    // Chat
-    $.getScript("js/client/chat.js")
-        .done(function(/*script, textStatus*/) {
-            // Note that chat is not initialized fully until we're connected to the server.
-            chat = new ChatApplication();
-            // chat.initUi(); // Uncomment to test chat UI in standalone mode
-        })
-        .fail(function(jqxhr, settings, exception) {
-            console.error(exception);
-        });
-
     // User presence (avatar)
     $.getScript("js/client/user-presence.js")
         .done(function(/*script, textStatus*/) {
@@ -149,12 +139,46 @@ try
         });
 
     // Connected to server
-    client.onConnected(null, function() {
-        if (chat)
+    client.onConnected(null, function()
+    {
+        // Chat
+        $.getScript("js/client/chat.js")
+            .done(function(/*script, textStatus*/) {
+                // Note that chat is not initialized fully until we're connected to the server.
+                chat = new ChatApplication();
+                // chat.initUi(); // Uncomment to test chat UI in standalone mode
+
+                // Information dialog
+                var showInfo = TundraSDK.framework.ui.addAction(
+                    "Information", TundraSDK.framework.asset.getLocalAssetPath("../../img/chat-off.png"));
+                showInfo.click(function(e)
+                {
+                    if (infoDialog)
+                        infoDialog.setVisible(!infoDialog.isVisible());
+                    e.preventDefault();
+                    e.stopPropagation();
+                });
+            })
+            .fail(function(jqxhr, settings, exception) {
+                console.error(exception);
+            });
+
+        usernameDialog = new UsernameDialog();
+        usernameDialog.show();
+
+        // Username config dialog
+        var showUsernameConfig = TundraSDK.framework.ui.addAction(
+            "Set username", TundraSDK.framework.asset.getLocalAssetPath("../../img/chat-off.png"));
+        showUsernameConfig.click(function(e)
         {
-            var usernameDialog = new UsernameDialog();
-            usernameDialog.show();
-        }
+            if (usernameDialog)
+                usernameDialog.setVisible(!usernameDialog.isVisible());
+            e.preventDefault();
+            e.stopPropagation();
+        });
+
+        infoDialog = new InfoDialog();
+        infoDialog.show();
     });
 
     // Disconnected from server
@@ -415,7 +439,7 @@ switchboardTrees.addToWorld(world);
 
 // BUILDING PRICES
 
-var buildingPricesConfig = getBuildingPricesConfig()
+var buildingPricesConfig = getBuildingPricesConfig();
 var switchboardBuildingPrices = new VIZI.BlueprintSwitchboard(buildingPricesConfig);
 switchboardBuildingPrices.addToWorld(world);
 
@@ -603,13 +627,23 @@ var createButton = function(id, text, css, parent)
     button.show();
     return button;
 };
-
+// Sets the position of the widget. Does not let the widget go outside of the window.
+// TODO Move this utility function to UiAPI.
+var setWidgetPosition = function(widget, x, y)
+{
+    if (y + widget.height() > $(document).height())
+        y -= widget.height();
+    widget.css("top", y);
+    if (x + widget.width() > $(document).width())
+        x -= widget.width();
+    widget.css("left", x);
+};
 var UsernameDialog = Class.$extend(
 {
     __init__ : function()
     {
         this.ui = {};
-        this.ui.dialog = $("<div/>", { id : "DialogWindow"});
+        this.ui.dialog = $("<div/>", { id : "UsernameDialog"});
         this.ui.dialog.css(
         {
             "border"           : "0px solid gray",
@@ -655,11 +689,59 @@ var UsernameDialog = Class.$extend(
 
     show : function() { this.ui.dialog.fadeIn(); },
     hide : function() { this.ui.dialog.fadeOut(); },
+    setVisible : function(visible) { if (visible) this.show(); else this.hide(); },
+    isVisible : function() { return this.ui.dialog.is(":visible"); },
 
     onOkPressed : function()
     {
         var newUsername = this.ui.inputField.val();
         if (newUsername.trim().length > 0 && chat && chat.entity)
             chat.entity.exec(EntityAction.Server, Msg.SetUsername, [ newUsername, TundraSDK.framework.client.connectionId ]);
+    }
+});
+
+var InfoDialog = Class.$extend(
+{
+    __init__ : function()
+    {
+        this.ui = {};
+        this.ui.dialog = $("<div/>", { id : "InfoDialog"});
+        this.ui.dialog.css(
+        {
+            "border"           : "0px solid gray",
+            "position"         : "absolute",
+            "width"            : 160,
+            "height"           : "auto",
+            "overflow"         : "hidden",
+            "color"            : "color: rgb(56,56,56)",
+            "background-color" : "color: rgb(214,214,214)",
+            "left"             : 5,
+            "top"              : 5
+        });
+
+        this.ui.labelField = $("<div/>", { id : "label" });
+        this.ui.labelField.text("Hi! This is FIDEMO.");
+        var buttonStyle = { "border" : "1px solid gray", "text" : "align:center" };
+        this.ui.closeButton = createButton("closeButton", "Close", buttonStyle);
+        this.ui.dialog.append(this.ui.labelField);
+        this.ui.dialog.append(this.ui.closeButton);
+        TundraSDK.framework.ui.addWidgetToScene(this.ui.dialog);
+        this.ui.dialog.hide();
+
+        this.ui.closeButton.click(this.hide.bind(this));
+
+        this.positionUi($(document).width(), $(document).height());
+    },
+
+    show : function() { this.ui.dialog.fadeIn(); },
+    hide : function() { this.ui.dialog.fadeOut(); },
+    setVisible : function(visible) { if (visible) this.show(); else this.hide(); },
+    isVisible : function() { return this.ui.dialog.is(":visible"); },
+
+    positionUi : function(canvasWidth, canvasHeight)
+    {
+        var x = canvasWidth/2 - this.ui.dialog.width()/2;
+        var y = canvasHeight/2 - this.ui.dialog.height()/2;
+        setWidgetPosition(this.ui.dialog, x, y);
     }
 });
