@@ -359,6 +359,11 @@ var treesConfig = getTreesConfig();
 var switchboardTrees = new VIZI.BlueprintSwitchboard(treesConfig);
 switchboardTrees.addToWorld(world);
 
+// BUILDING PRICES
+
+var buildingPricesConfig = getBuildingPricesConfig()
+var switchboardBuildingPrices = new VIZI.BlueprintSwitchboard(buildingPricesConfig);
+switchboardBuildingPrices.addToWorld(world);
 
 // BUILDINGS
 var highpolyBuildingsConfig = {

@@ -29,6 +29,7 @@
 
     self.world;
 
+
     // POI
 
     self.mouse = {
@@ -49,6 +50,7 @@
     document.addEventListener('mousedown', self.onDocumentMouseDown.bind(self), false);
     document.addEventListener('mouseup', self.onDocumentMouseUp.bind(self), false);
     document.addEventListener('mousewheel', self.setDialogPosition.bind(self), false);
+
 
     // MODELS & MATERIALS
 
@@ -92,6 +94,14 @@
       color: 0xffffff,
       fog: true
     });
+
+
+    // INTERPOLATION
+
+    self.interpolations = [];
+    self.updatePeriod_ = 9; // 1 / 20; // seconds
+    // self.avgUpdateInterval = 0;
+    // self.lerpClock = new THREE.Clock();
   };
 
   VIZI.BlueprintOutputSensor.prototype = Object.create(VIZI.BlueprintOutput.prototype);
@@ -157,6 +167,7 @@
 
   };
 
+  // TODO: rename
   VIZI.BlueprintOutputSensor.prototype.createPin = function(lat, lon, name, desc, uuid) {
     var self = this;
 
@@ -168,9 +179,15 @@
       var dgeocoord = new VIZI.LatLon(lat, lon);
       var dscenepoint = self.world.project(dgeocoord);
 
-      self.pois[name].position.x = dscenepoint.x;
-      self.pois[name].position.y = self.spriteYpos;
-      self.pois[name].position.z = dscenepoint.y;
+      // self.pois[name].position.x = dscenepoint.x;
+      // self.pois[name].position.y = self.spriteYpos;
+      // self.pois[name].position.z = dscenepoint.y;
+
+      var newTransfrom = {
+        position: new THREE.Vector3( dscenepoint.x, self.spriteYpos, dscenepoint.y )
+        // TODO rotation and scale
+      };
+      self.handleTransformUpdate(self.pois[name], newTransfrom);
     } else {
       // CREATE NEW
 
@@ -200,7 +217,7 @@
       self.pois[name] = pin;
       // Add also to array for raycast
       self.poisArray.push(pin);
-      
+
       self.updatePoiVisibility(pin); // Set initial visibility according to lollipopmenu selection mode
 
 
@@ -383,8 +400,7 @@
     if (intersects.length > 0 && intersects[0].object.visible) {
       // console.log(intersects[0]);
       self.intersectedObject = intersects[0].object;
-    }
-    else {
+    } else {
       // If no ray hits, pass on to lollipopmenu
       self.lollipopMenu.onMouseDown(self.mouse.x, self.mouse.y);
     }
@@ -456,8 +472,7 @@
 
         self.setDialogPosition();
       }
-    }
-    else {
+    } else {
       // If no ray hits, pass on to lollipopmenu
       self.lollipopMenu.onMouseUp(self.mouse.x, self.mouse.y);
     }
@@ -522,11 +537,12 @@
 
     self.currentDialog.dialog("option", "position", [x, y]);
   };
-  
+
   // Tick handler
   VIZI.BlueprintOutputSensor.prototype.onTick = function(delta) {
     var self = this;
     self.lollipopMenu.onTick(delta);
+    self.updateInterpolations(delta);
   };
 
   VIZI.BlueprintOutputSensor.prototype.onLollipopSelectionChanged = function(newSel) {
@@ -535,7 +551,7 @@
       self.updatePoiVisibility(self.poisArray[i]);
     }
   };
-  
+
   VIZI.BlueprintOutputSensor.prototype.updatePoiVisibility = function(poi) {
     var self = this;
     if (!self.lollipopMenu)
@@ -543,7 +559,7 @@
     var sel = self.lollipopMenu.getSelection();
     poi.visible = sel == 0 || sel == 4; // No selection, or Transportation
   };
-   VIZI.BlueprintOutputSensor.prototype.updateModelCount = function() {
+  VIZI.BlueprintOutputSensor.prototype.updateModelCount = function() {
     var self = this;
     self.modelCount++;
     if (self.modelCount == Object.keys(self.modelPaths).length) {
@@ -581,7 +597,7 @@
       a: 1.0
     };
 
-    var spriteAlignment = new THREE.Vector2( 0, 1 );
+    var spriteAlignment = new THREE.Vector2(0, 1);
 
     var canvas = document.createElement('canvas');
     var context = canvas.getContext('2d');
@@ -637,5 +653,181 @@
     ctx.stroke();
   };
 
+// "updateFromTransform" from https://github.com/realXtend/WebTundra/blob/master/src/view/ThreeView.js
+  VIZI.BlueprintOutputSensor.prototype.handleTransformUpdate = function(threeMesh, newTransform) {
+    var self = this;
+
+    // Tundra.checkDefined(placeable, threeMesh);
+    // var ptv = placeable.transform;
+
+
+    // INTERPOLATION
+
+    // Update interval
+
+    // If it's the first measurement, set time directly. Else smooth
+    // var time = self.lerpClock.getDelta(); // seconds
+
+    // if (self.avgUpdateInterval === 0) {
+    //   self.avgUpdateInterval = time;
+    // } else {
+    //   self.avgUpdateInterval = 0.5 * time + 0.5 * self.avgUpdateInterval;
+    // }
+
+    var updateInterval = self.updatePeriod_;
+    // if (self.avgUpdateInterval > 0) {
+    //   updateInterval = self.avgUpdateInterval;
+    // }
+    // // Add a fudge factor in case there is jitter in packet receipt or the server is too taxed
+    // updateInterval *= 1.25;
+
+    // // End previous interpolation if existed 
+    // var previous = self.endInterpolation(threeMesh);
+
+    // // If previous interpolation does not exist, perform a direct snapping to the end value
+    // // but still start an interpolation period, so that on the next update we detect that an interpolation is going on,
+    // // and will interpolate normally
+    // if (!previous) {
+    //   // // Position
+    //   // copyXyz(ptv.pos, threeMesh.position);
+
+    //   // // Rotation
+    //   // var quat = new THREE.Quaternion();
+    //   // var euler = new THREE.Euler();
+    //   // //euler.order = 'XYZ'; //not needed as tundraToThreeEuler defines it too
+    //   // tundraToThreeEuler(ptv.rot, euler);
+    //   // quat.setFromEuler(euler, true);
+    //   // threeMesh.quaternion = quat;
+
+    //   // fidemo
+    //   threeMesh.position.set(newTransform.position.x, newTransform.position.y, newTransform.position.z);
+    //   // threeMesh.quaternion = newTransform.endRot;
+    //   // threeMesh.scale = newTransform.endScale;
+
+    //   // Scale
+    //   // copyXyz(ptv.scale, threeMesh.scale);
+    // }
+    
+        // Create new interpolation
+
+    // // position
+    // var endPos = new THREE.Vector3();
+    // copyXyz(newTransform.pos, endPos);
+
+    // // rotation
+    // var endRot = new THREE.Quaternion();
+    // var euler = new THREE.Euler();
+    // //euler.order = 'XYZ'; ////not needed as tundraToThreeEuler defines it too
+    // tundraToThreeEuler(newTransform.rot, euler);
+    // endRot.setFromEuler(euler, true);
+
+    // // scale
+    // var endScale = new THREE.Vector3();
+    // copyXyz(newTransform.scale, endScale);
+
+    // interpolation struct
+    var newInterp = {
+      dest: threeMesh,
+      start: {
+        // Use CLONED values!!!
+        position: threeMesh.position.clone(),
+        // rotation: threeMesh.quaternion clone,
+        // scale: threeMesh.scale clone
+      },
+      end: {
+        // position: endPos,
+        // rotation: endRot,
+        // scale: endScale
+
+        // fidemo
+        position: newTransform.position,
+        // rotation: newTransform.endRot,
+        // scale: newTransform.endScale
+      },
+      time: 0,
+      length: updateInterval // update interval (seconds)
+    };
+
+    self.interpolations.push(newInterp);
+  };
+
+  // "updateInterpolations" from https://github.com/realXtend/WebTundra/blob/master/src/view/ThreeView.js
+  VIZI.BlueprintOutputSensor.prototype.updateInterpolations = function(delta) {
+    var self = this;
+
+    for (var i = self.interpolations.length - 1; i >= 0; i--) {
+      var interp = self.interpolations[i];
+      var finished = false;
+
+      // Allow the interpolation to persist for 2x time, though we are no longer setting the value
+      // This is for the continuous/discontinuous update detection in updateFromTransform()
+
+      if (interp.time <= interp.length) {
+        interp.time += delta;
+        var t = interp.time / interp.length; // between 0 and 1
+        if (self.interpolations.length > 100 && i == 200) {
+          // console.log("---");
+          // console.log("interp.time: " + interp.time);
+          // console.log("interp.length: " + interp.length);
+          // console.log("self.interpolations.length: " + self.interpolations.length);
+          // console.log("t: "+t);
+        }
+
+        if (t > 1) {
+          t = 1;
+        }
+
+
+        // LERP
+
+        // position
+        var newPos = interp.start.position.clone();
+
+        //  if (self.interpolations.length > 100 && i == 200)
+        // console.log("newPos.x: "+newPos.x);
+
+        newPos.lerp(interp.end.position, t);
+        interp.dest.position.set(newPos.x, newPos.y, newPos.z);
+
+        //  if (self.interpolations.length > 100 && i == 200)
+        // console.log("interp.end.position.x: "+interp.end.position.x);
+
+        // console.log("t:" + t);
+        // console.log("i:" + i);
+
+        // // rotation
+        // var newRot = interp.start.rotation.clone();
+        // newRot.slerp(interp.end.rotation, t);
+        // interp.dest.quaternion.set(newRot.x, newRot.y, newRot.z, newRot.w);
+
+        // // scale
+        // var newScale = interp.start.scale.clone();
+        // newScale.lerp(interp.end.scale, t);
+        // interp.dest.scale.set(newScale.x, newScale.y, newScale.z);
+      } else {
+        interp.time += delta;
+        if (interp.time >= interp.length * 2) {
+          finished = true;
+        }
+      }
+
+      // Remove interpolation (& delete start/endpoints) when done
+      if (finished) {
+        self.interpolations.splice(i, 1);
+      }
+    }
+  };
+
+  // "endInterpolation" from https://github.com/realXtend/WebTundra/blob/master/src/view/ThreeView.js
+  VIZI.BlueprintOutputSensor.prototype.endInterpolation = function(obj) {
+    var self = this;
+    for (var i = self.interpolations.length - 1; i >= 0; i--) {
+      if (self.interpolations[i].dest == obj) {
+        self.interpolations.splice(i, 1);
+        return true;
+      }
+    }
+    return false;
+  };
 
 }());
