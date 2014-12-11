@@ -2,71 +2,8 @@
 // NOTE was: WebTundra ships with three r62 but it picks up the later included r69 from vizi.js!
 // NOW: removed the three r62 from WTs deps and index.html has vizi, for three, first now
 
-var BuildingAnimation = function() {
-    this.clock = new THREE.Clock();
-    this.radius = 300.0;
-    this.speed = 0.75;
-    this.delay = 0.35;
-    this.animState = 0.0;
-    this.animState2 = 0.0;
-    this.animState3 = 0.0;
-    this.ambinetColor = new THREE.Vector3(0.6, 0.6, 0.6);
-    this.ambinetColor2 = new THREE.Vector3(1.0,1.0,1.0);
-    
-    this.material = new THREE.ShaderMaterial( {
-        uniforms: {
-            mouseposition: { type: "v3", value: new THREE.Vector3(0.0, 0.0, 0.0) },
-            ambientColor: { type: "v3", value: new THREE.Vector3(1.0, 1.0, 1.0)},
-            gradientColor1: { type: "v4", value: new THREE.Vector4(1.0,0.0,0.0,0.0)},
-            gradientColor2: { type: "v4", value: new THREE.Vector4(0.0,1.0,0.0,0.5)},
-            gradientColor3: { type: "v4", value: new THREE.Vector4(0.0,0.0,1.0,1.0)},
-            animScaleUp: { type: "f", value: 5.0 },
-            animScaleBlast: { type: "f", value: 5.0 },
-            radiusMultiplier: { type: "f", value: 0.01 }
-        },
-        vertexColors: THREE.VertexColors,
-        vertexShader: (document.getElementById( 'vs-generic-effect' ).textContent),
-        fragmentShader: (document.getElementById( 'fs-effect' ).textContent)
-    } );
-};
-
-BuildingAnimation.prototype = {
-    
-    Reset: function() {
-        this.animState = 0.0;
-        this.animState2 = 0.0;
-        this.animState3 = 0.0;
-    },
-    
-    Update: function(frameTime){
-        var delta = frameTime;
-        
-        this.animState = Math.max(0.0,Math.min(1.0, this.animState + delta * this.speed));
-        this.animState2 = this.animState2 + delta * this.speed;
-
-        var canimState2 = Math.max(0.0,Math.min(1.0, this.animState2 - this.delay));
-        this.animState3 = this.animState3 + delta * this.speed * 0.5;
-        
-        var anim = this.animState < 0.5 ? 2 * this.animState * this.animState : -1 + (4 - 2 * this.animState) * this.animState;
-        var anim2 = canimState2 < 0.5 ? 2 * canimState2 * canimState2 : -1 + (4 - 2 * canimState2) * canimState2;
-        var radius = 1.0  / (this.radius * anim);
-
-        this.material.uniforms.animScaleUp.value = anim2;
-        //this.material.uniforms.animscale2.value = anim;
-        this.material.uniforms.animScaleBlast.value = 1.0  / ((1150.0 + this.animState3 * 1000) * this.animState3);
-        this.material.uniforms.radiusMultiplier.value = radius;
-
-        //var testsin = (Math.sin(this.animState3) + 1.0) * 0.5;
-        //material.uniforms.ambientColor.value = this.ambinetColor.lerp(this.ambinetColor2, testsin);
-        this.material.uniforms.ambientColor.value = this.ambinetColor;
-    },
-    
-    SetPosition: function(position) {
-        this.material.uniforms.mouseposition.value = position;
-        this.Reset();
-    }
-};
-var animator = new BuildingAnimation();
+// Global data object is used to share data between blueprints and Tundra-Client.
+var globalData = {};
 
 try
 {
@@ -87,7 +24,16 @@ try
         client.log.infoC("client reset is a no-op now.");
     };
 
-    var freecamera, cbclient, demoapp, chat, userPresence;
+    var freecamera, cbclient, demoapp, chat, userPresence, animator;
+
+    // Free camera application
+    $.getScript("js/client/BuildingAnimation.js")
+        .done(function(/*script, textStatus*/) {
+            globalData.animator = new BuildingAnimation();
+        })
+        .fail(function(jqxhr, settings, exception) {
+            console.error(exception);
+        });
 
     // Free camera application
     $.getScript("build/webtundra/application/freecamera.js")
@@ -102,7 +48,7 @@ try
     $.getScript("js/client/tundra-client.js")
         .done(function(/*script, textStatus*/) {
             demoapp = new FiwareDemo();
-            demoapp.buildingAnimator = animator;
+            demoapp.globalData = globalData;
         })
         .fail(function(jqxhr, settings, exception) {
             console.error(exception);
@@ -297,8 +243,8 @@ var mapConfig = {
   input: {
     type: "BlueprintInputMapTiles", // String representation of the input module you want to use (this is the same as the input module filename).
     options: { // Used to provide options for the input; in most cases this will at least include a path to the data source (local or remote).
-      // tilePath: "https://a.tiles.mapbox.com/v3/examples.map-i86l3621/{z}/{x}/{y}@2x.png" // default
-        tilePath: "https://a.tiles.mapbox.com/v4/tapanij.kai3hkpp/{z}/{x}/{y}@2x.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6IlhHVkZmaW8ifQ.hAMX5hSW-QnTeRCMAy9A8Q&update=i2x0h" // tapanij custom
+       //tilePath: "https://a.tiles.mapbox.com/v3/examples.map-i86l3621/{z}/{x}/{y}@2x.png" // default
+       tilePath: "https://a.tiles.mapbox.com/v4/vaisanen86.bc7645dc/{z}/{x}/{y}@2x.png?access_token=pk.eyJ1IjoidmFpc2FuZW44NiIsImEiOiJ2cjJQT0FJIn0.DJEqSoyWlgJS_UT40XoZXQ" // jonnev custom
     }
   },
   output: {
@@ -394,8 +340,8 @@ if (santanderLatLon !== undefined) {
 } else if(helsinkiLatLon){
   // Helsinki
 
-  var config = getHelsinkiConfig();
-  config.output.options.buildingAnimator = animator;
+  config = getHelsinkiConfig();
+  config.output.options.globalData = globalData;
 
   var switchboardData = new VIZI.BlueprintSwitchboard(config);
   switchboardData.addToWorld(world);
@@ -444,7 +390,7 @@ var buildingsConfig = {
         cullZoom: 13
       }],
       workerURL: "build/vizicities/vizi-worker.min.js",
-      buildingAnimator: animator,
+      globalData: globalData,
       manualBuildings: highpolyBuildingsConfig
     }
   },
@@ -489,7 +435,7 @@ var buildingsConfig = {
       tile: "tile"
     }
   }]
-};
+}
 
 var switchboardBuildings = new VIZI.BlueprintSwitchboard(buildingsConfig);
 switchboardBuildings.addToWorld(world);

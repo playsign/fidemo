@@ -32,7 +32,7 @@ var FiwareDemo = IApplication.$extend(
         scene.addEntity(ECEnt);
         this.ECEnt = ECEnt
         */        
-        this.buildingAnimator = null;
+        this.globalData = null;
     },
 
     onConnected : function()
@@ -64,8 +64,8 @@ var FiwareDemo = IApplication.$extend(
             this.ECEnt.placeable.setPosition(0, 0, -this.dcube.position.x);
         }
         */
-       if (this.buildingAnimator != null)
-           this.buildingAnimator.Update(frametime);
+       if (this.globalData != null && this.globalData.animator != null)
+           this.globalData.animator.Update(frametime);
            
     },
 
