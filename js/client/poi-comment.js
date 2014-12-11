@@ -23,6 +23,7 @@ var PoiComment = IApplication.$extend({
 
         //Count ui messages
         this.ui.messageCount = 0;
+        this.ui.itemid = "PoiComment";
 
         this.ui.ccontainer = $("<div/>", {
             id : "comment-container",
@@ -174,11 +175,7 @@ var PoiComment = IApplication.$extend({
             }
             else
             {
-                //Clear UI before load
-                that.ui.ccomments.empty();
-                that.loadPoiComments("PoiComment");
-                that.ui.toggleComments.hide();
-                that.ui.ccontainer.show();
+                that.openCommentPoi(that.ui.itemid);
             }
             e.preventDefault();
             e.stopPropagation();
@@ -197,9 +194,25 @@ var PoiComment = IApplication.$extend({
 
     },
 
+    openCommentPoi : function(itemid)
+    {
+        if (itemid === "") {
+            console.log("Please give poi id");
+            return;
+        }
+
+        this.ui.itemid = itemid;
+
+        //Clear UI before load
+        this.ui.ccomments.empty();
+        this.loadPoiComments(this.ui.itemid);
+        this.ui.toggleComments.hide();
+        this.ui.ccontainer.show();
+
+    },
+
     createPoiComment : function()
     {
-        var itemid = "PoiComment"; //Get real poi here
         var txt = this.ui.ctextarea.val();
         if (txt === "")
         {
@@ -208,7 +221,7 @@ var PoiComment = IApplication.$extend({
 
         var dt = new Date();
         //Find if exists
-        var json = cbclient.getContextBrokerItemById(itemid);
+        var json = cbclient.getContextBrokerItemById("PoiComment");
         if (json === undefined || json === null || json === "")
         {
 
@@ -217,7 +230,7 @@ var PoiComment = IApplication.$extend({
                          "type"  : "string",
                          "value" : txt }];
 
-            if (cbclient.createContextBrokerItem("PoiComment", itemid, attributes))
+            if (cbclient.createContextBrokerItem("PoiComment", this.ui.itemid, attributes))
             {
                 this.ui.messageCount++;
                 this.addUiComment(this.ui.messageCount, txt);
@@ -231,7 +244,7 @@ var PoiComment = IApplication.$extend({
         {
             //Update existing attributes
             var newattr = [{"name" : ""+dt.getTime()+"", "type" : "string", "value" : txt}];
-            if (cbclient.createContextBrokerItem("PoiComment", itemid, newattr))
+            if (cbclient.createContextBrokerItem("PoiComment", this.ui.itemid, newattr))
             {
                 this.ui.messageCount++;
                 this.addUiComment(this.ui.messageCount, txt);
