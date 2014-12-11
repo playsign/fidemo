@@ -402,8 +402,8 @@ var mapConfig = {
   }]
 };
 
-var switchboardMap = new VIZI.BlueprintSwitchboard(mapConfig);
-switchboardMap.addToWorld(world);
+//var switchboardMap = new VIZI.BlueprintSwitchboard(mapConfig);
+//switchboardMap.addToWorld(world);
 
 
 // DATA
@@ -572,6 +572,56 @@ var choroplethConfig = {
 
 var switchboardChoropleth = new VIZI.BlueprintSwitchboard(choroplethConfig);
 switchboardChoropleth.addToWorld(world);
+
+//ROUTE LINES TEST
+
+var routelinesConfig = {
+  input: {
+    type: "BlueprintInputGeoJSON",
+    options: {
+      path: "./data/routes.geojson"
+    }
+  },
+  output: {
+    type: "BlueprintOutputGeoJSONLines",
+    options: {
+      colourRange: ["#ffffe5","#f7fcb9","#d9f0a3","#addd8e","#78c679","#41ab5d","#238443","#006837","#004529"],
+      layer: 100
+    }
+  },
+  triggers: [{
+    triggerObject: "output",
+    triggerName: "initialised",
+    triggerArguments: [],
+    actionObject: "input",
+    actionName: "requestData",
+    actionArguments: [],
+    actionOutput: {}
+  }, {
+    triggerObject: "input",
+    triggerName: "dataReceived",
+    triggerArguments: ["geoJSON"],
+    actionObject: "output",
+    actionName: "outputGeoJSONLines",
+    actionArguments: ["data"],
+    actionOutput: {
+      data: {
+        // Loop through each item in trigger.geoJSON and return a new array of processed values (a map)
+        process: "map",
+        itemsObject: "geoJSON",
+        itemsProperties: "features",
+        // Return a new object for each item with the given properties
+        transformation: {
+          linecoords: "geometry.coordinates",
+          value: "properties.POPDEN"
+        }
+      }
+    }
+  }]
+};
+
+var switchboardGeoJSONLines = new VIZI.BlueprintSwitchboard(routelinesConfig);
+switchboardGeoJSONLines.addToWorld(world);
 
 /* geopositioned -> scene converted positions for test/reference
 debugObject(60.17096119799872, 24.94066956044796); //Helsinki start center
