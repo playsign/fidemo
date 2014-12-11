@@ -43,9 +43,12 @@ var LollipopMenu = function(owner) {
   this.iconSelectedScale = 35;
   this.newPosThreshold = 20; // Clicking closer than this (in world coords) will close instead of moving to new pos
   
+  this.hoverTweenSpeed = 4.5;
+  this.hoverSelection = 0;
+  
   this.scaleTween = 0;
   this.scaleTweenDir = 0;
-  this.scaleTweenSpeed = 2.5;
+  this.scaleTweenSpeed = 1.0;
 
   this.mouseDownX = 0;
   this.mouseDownY = 0;
@@ -88,9 +91,11 @@ LollipopMenu.prototype = {
     }
   },
   
-  onMouseMove : function() {
-    if (this.isShowing())
+  onMouseMove : function(x, y) {
+    if (this.isShowing()){
       this.updateIconPositions();
+      this.doHoverRaycast(x, y);
+    }
   },
 
   planeRaycast : function(x, y) {
@@ -137,7 +142,8 @@ LollipopMenu.prototype = {
       spr2.scale.set(this.iconScale,this.iconScale,this.iconScale);
       spr2.position.copy(this.calculateIconPosition(i));
       spr2.selectionNumber = i+1;
-
+      spr2.hoverTween = 0.0;
+      
       this.lollipopSprite.add(spr2);
       this.iconSprites.push(spr2);
     }
@@ -185,6 +191,15 @@ LollipopMenu.prototype = {
     }
   },
   
+  doHoverRaycast : function(x, y) {
+    var intersections = this.owner.doRaycast(x, y, this.iconSprites);
+    this.hoverSelection = -1;
+    if(intersections.length != 0){
+      this.hoverSelection = intersections[0].object.selectionNumber - 1;
+    }
+    return this.hoverSelection;
+  },
+
   doSelectionRaycast : function(x, y) {
     var intersections = this.owner.doRaycast(x, y, this.iconSprites);
     for (var i = 0; i < intersections.length; ++i)
@@ -204,31 +219,62 @@ LollipopMenu.prototype = {
   },
 
   updateTween : function(delta) {
-    if (this.lollipopSprite && this.scaleTweenDir != 0) {
-      this.scaleTween += this.scaleTweenDir * this.scaleTweenSpeed * delta;
-      if (this.scaleTween > 1) {
-        this.scaleTween = 1;
-        this.scaleTweenDir = 0;
+    if (this.lollipopSprite){
+      if (this.lollipopSprite && this.scaleTweenDir != 0) {
+        this.scaleTween += this.scaleTweenDir * this.scaleTweenSpeed * delta;
+        if (this.scaleTween > 1) {
+          this.scaleTween = 1;
+          this.scaleTweenDir = 0;
+        }
+        if (this.scaleTween < 0) {
+          this.scaleTween = 0;
+          this.scaleTweenDir = 0;
+          this.hideMenu();
+        }
       }
-      if (this.scaleTween < 0) {
-        this.scaleTween = 0;
-        this.scaleTweenDir = 0;
-        this.hideMenu();
+      
+      for (var i = 0; i < this.iconSprites.length; ++i) {
+        var dir = i == this.hoverSelection ? 1.0 : -1.0;
+        this.iconSprites[i].hoverTween = Math.max(0, Math.min(1.0, this.iconSprites[i].hoverTween + dir * this.hoverTweenSpeed * delta));
       }
     }
   },
-
+  
+  easeInOutQuad : function (t) {
+    return t<.5 ? 2*t*t : -1+(4-2*t)*t 
+  },
+  
   updateScale : function() {
     if (this.lollipopSprite) {
-      var s = this.lollipopScale * this.scaleTween;
+      //center icon
+      var t = Math.min(0.33333, this.scaleTween)*3.0;
+      var icontween = this.easeInOutQuad(t);
+      var iconscl = (6.5) - (5.5* icontween);
+      var s = iconscl*this.lollipopScale * icontween;
       this.lollipopSprite.scale.set(s, s, s);
-      // Update icon scales
+    
+      //Update icon scales
+      var num = this.iconSprites.length;
+      var step = 1.0 / num;
+      var start = 0.5; 
+      var totaldelay = start + 0.25*num*step;
+      var delaystep = (1.0 / (1.0 - totaldelay));
+    
       for (var i = 0; i < this.iconSprites.length; ++i) {
+    
+        var delay = start + 0.25*i*step;
+        t = (this.scaleTween - delay) * delaystep;
+        t = Math.max( 0.0, Math.min( 1.0, t) );
+        
+        var tween = this.easeInOutQuad(t);
+        var hoverscl = this.easeInOutQuad(this.iconSprites[i].hoverTween) * 0.5;
+        var sclfactor = hoverscl + ((4.5) - (3.5* tween));
+      
         if (this.iconSprites[i].selectionNumber == this.selection) {
-          s = this.iconSelectedScale * this.scaleTween;
+          s = sclfactor * this.iconSelectedScale * tween;
         }
         else {
-          s = this.iconScale * this.scaleTween;
+          s = sclfactor * this.iconScale * tween;
         }
         this.iconSprites[i].scale.set(s, s, s);
       }

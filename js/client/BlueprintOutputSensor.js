@@ -357,7 +357,7 @@
     self.setDialogPosition();
 
     // Lollipop also needs to handle move to keep icons straightened during rotate
-    self.lollipopMenu.onMouseMove();
+    self.lollipopMenu.onMouseMove(self.mouse.x, self.mouse.y);
   };
 
   VIZI.BlueprintOutputSensor.prototype.onDocumentMouseDown = function(event) {
