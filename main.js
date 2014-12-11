@@ -243,8 +243,8 @@ var mapConfig = {
   input: {
     type: "BlueprintInputMapTiles", // String representation of the input module you want to use (this is the same as the input module filename).
     options: { // Used to provide options for the input; in most cases this will at least include a path to the data source (local or remote).
-       //tilePath: "https://a.tiles.mapbox.com/v3/examples.map-i86l3621/{z}/{x}/{y}@2x.png" // default
-       tilePath: "https://a.tiles.mapbox.com/v4/vaisanen86.bc7645dc/{z}/{x}/{y}@2x.png?access_token=pk.eyJ1IjoidmFpc2FuZW44NiIsImEiOiJ2cjJQT0FJIn0.DJEqSoyWlgJS_UT40XoZXQ" // jonnev custom
+        // tilePath: "https://a.tiles.mapbox.com/v3/examples.map-i86l3621/{z}/{x}/{y}@2x.png" // default
+        tilePath: "https://a.tiles.mapbox.com/v4/tapanij.kai3hkpp/{z}/{x}/{y}@2x.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6IlhHVkZmaW8ifQ.hAMX5hSW-QnTeRCMAy9A8Q&update=i2x0h" // tapanij custom
     }
   },
   output: {
