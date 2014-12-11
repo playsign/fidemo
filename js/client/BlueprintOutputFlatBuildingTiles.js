@@ -442,6 +442,27 @@
 
           // Flip as they are up-side down
           mesh.rotation.x = 90 * Math.PI / 180;
+          
+          // Building animation needs to store mesh position to to uv
+          // so that we can animate mesh height change when the building is highlighted
+          var pos = mesh.position;
+          for (var i = 0 ; i < geom.faceVertexUvs[0].length; i=i+2) {
+            // Face1 and Face2
+            for (var j = 0; j < 2; j++) {
+                geom.faceVertexUvs[0][i+j][0].x = pos.x ;
+                geom.faceVertexUvs[0][i+j][0].y = pos.z ;
+                geom.faceVertexUvs[0][i+j][0].z = 0 ;
+
+                geom.faceVertexUvs[0][i+j][1].x = pos.x ;
+                geom.faceVertexUvs[0][i+j][1].y = pos.z ;
+                geom.faceVertexUvs[0][i+j][1].z = 0 ;
+
+                geom.faceVertexUvs[0][i+j][2].x = pos.x ;
+                geom.faceVertexUvs[0][i+j][2].y = pos.z ;
+                geom.faceVertexUvs[0][i+j][2].z = 0 ;
+            }
+          }
+          mesh.uvsNeedUpdate = true;
 
           mesh.matrixAutoUpdate && mesh.updateMatrix();
           combinedGeom.merge(mesh.geometry, mesh.matrix);
