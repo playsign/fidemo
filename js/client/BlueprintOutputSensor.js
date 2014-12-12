@@ -97,7 +97,7 @@
       self.updateModelCount();
     };
 
-    pinMap = THREE.ImageUtils.loadTexture("data/2d/pointer.png");
+    var pinMap = THREE.ImageUtils.loadTexture("data/2d/pointer.png");
     self.pinMaterialFocus = new THREE.SpriteMaterial({
       map: pinMap,
       color: "rgb(216,136,0)",
