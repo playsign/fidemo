@@ -201,6 +201,8 @@
       pinSprite.name = name;
       pinSprite.description = desc;
       pinSprite.uuid = uuid;
+      //pin.scale.set(20, 20, 20);
+      //was with ludo's icons
 
       var dgeocoord = new VIZI.LatLon(lat, lon);
       var dscenepoint = self.world.project(dgeocoord);
@@ -214,9 +216,27 @@
       self.pois[name] = pinSprite;
       // Add also to array for raycast
       self.poisArray.push(pinSprite);
-
       self.updatePoiVisibility(pinSprite); // Set initial visibility according to lollipopmenu selection mode
 
+
+      // NUMBER SPRITE
+      var textSprite = self.makePinSprite(name, {
+        fontsize: 12,
+        borderColor: {
+          r: 195,
+          g: 123,
+          b: 0,
+          a: 1.0
+        },
+        backgroundColor: {
+          r: 255,
+          g: 255,
+          b: 255,
+          a: 0.8
+        }
+      });
+
+      self.updatePoiVisibility(pinSprite); // Set initial visibility according to lollipopmenu selection mode
 
       self.add(pinSprite);
     }
