@@ -16,7 +16,7 @@ function getHelsinkiConfig() {
     },
     triggers: [{
         triggerObject: "output",
-        triggerName: "models ready",
+        triggerName: "assets ready",
         triggerArguments: [],
         actionObject: "input",
         actionName: "requestData",

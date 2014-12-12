@@ -1,23 +1,6 @@
 /* globals window, _, VIZI */
-
 (function() {
   "use strict";
-
-  // Adapted from https://github.com/HSLdevcom/navigator-proto/blob/master/src/routing.coffee#L40
-  var intepretJoreCode = function(routeId) {
-    if (routeId.match(/^(1|2|4).../))
-      return { mode : "BUS", routeType : 3, route : "" + (parseInt(routeId.substring(1))) };
-    else if (routeId.match(/^1019/))
-      return { mode : "FERRY", routeType : 4, route : "Ferry" };
-    else if (routeId.match(/^1300/))
-      return { mode : "SUBWAY", routeType : 1, route : routeId.substring(4, 5) };
-    else if (routeId.match(/^300/))
-      return { mode : "RAIL", routeType : 2, route : routeId.substring(4, 5) };
-    else if (routeId.match(/^10(0|10)/))
-      return { mode : "TRAM", routeType : 0, route : "" + (parseInt(routeId.substring(2, 4))) };
-    else // unknown, assume bus
-      return { mode : "BUS", routeType : 3, route : routeId };
-  };
 
   /**
    * Blueprint sensor output
@@ -44,6 +27,8 @@
       }
     ];
 
+    self.world;
+
 
     // POI
 
@@ -52,10 +37,13 @@
       y: 0
     };
 
+    self.intersectedObject;
     self.raycastsEnabled = true;
 
     self.pois = {};
     self.poisArray = [];
+    self.currentDialog;
+    self.currentPoi;
 
     // listeners
     document.addEventListener('mousemove', self.onDocumentMouseMove.bind(self), false);
@@ -70,42 +58,46 @@
     self.spriteYpos = 30;
 
     var jsonLoader = new THREE.JSONLoader();
-    self.modelPaths = {
-      lightbulb: "data/3d/lightbulb.js",
-      thermometer: "data/3d/thermometer.js"
+    self.assetPaths = {
+      lightbulb: 'data/3d/lightbulb.js',
+      thermometer: 'data/3d/thermometer.js',
+      bus: 'data/2d/bussi.png',
+      tram: 'data/2d/ratikka.png',
+      metro: 'data/2d/jokujuna.png',
     };
 
     self.modelCount = 0;
 
     // Lightbulb model
-    jsonLoader.load(self.modelPaths.lightbulb, self.loadLightbulbModel.bind(self));
+    self.lightbulb;
+    jsonLoader.load(self.assetPaths.lightbulb, self.loadLightbulbModel.bind(self));
 
     // Thermometer model
-    jsonLoader.load(self.modelPaths.thermometer, self.loadThermometerModel.bind(self));
+    self.thermometer;
+    jsonLoader.load(self.assetPaths.thermometer, self.loadThermometerModel.bind(self));
 
-    // Pin sprite material
-    var pinMap = THREE.ImageUtils.loadTexture("data/2d/bussi.png");
-    self.pinMaterialBus = new THREE.SpriteMaterial({
-      map: pinMap,
-      color: 0xffffff,
-      fog: true
-    });
+    // Bus image
+    self.busImg = new Image();
+    self.busImg.src = self.assetPaths.bus;
+    self.busImg.onload = function() {
+      self.updateModelCount();
+    };
 
-    pinMap = THREE.ImageUtils.loadTexture("data/2d/ratikka.png");
-    self.pinMaterialTram = new THREE.SpriteMaterial({
-      map: pinMap,
-      color: 0xffffff,
-      fog: true
-    });
+    // Tram image
+    self.tramImg = new Image();
+    self.tramImg.src = self.assetPaths.tram;
+    self.tramImg.onload = function() {
+      self.updateModelCount();
+    };
 
-    pinMap = THREE.ImageUtils.loadTexture("data/2d/jokujuna.png");
-    self.pinMaterialMetro = new THREE.SpriteMaterial({
-      map: pinMap,
-      color: 0xffffff,
-      fog: true
-    });
+    // Metro image
+    self.metroImg = new Image();
+    self.metroImg.src = self.assetPaths.metro;
+    self.metroImg.onload = function() {
+      self.updateModelCount();
+    };
 
-    pinMap = THREE.ImageUtils.loadTexture("data/2d/pointer.png");
+    var pinMap = THREE.ImageUtils.loadTexture("data/2d/pointer.png");
     self.pinMaterialFocus = new THREE.SpriteMaterial({
       map: pinMap,
       color: "rgb(216,136,0)",
@@ -188,13 +180,12 @@
     var self = this;
 
     var pin;
-    var dgeocoord = new VIZI.LatLon(lat, lon);
-    var dscenepoint = self.world.project(dgeocoord);
+
     if (self.pois[name]) {
       // UPDATE
-      // self.pois[name].position.x = dscenepoint.x;
-      // self.pois[name].position.y = self.spriteYpos;
-      // self.pois[name].position.z = dscenepoint.y;
+
+      var dgeocoord = new VIZI.LatLon(lat, lon);
+      var dscenepoint = self.world.project(dgeocoord);
 
       var newTransfrom = {
         position: new THREE.Vector3( dscenepoint.x, self.spriteYpos, dscenepoint.y )
@@ -202,37 +193,34 @@
       };
       self.handleTransformUpdate(self.pois[name], newTransfrom);
     } else {
+
       // CREATE NEW
-      // TODO 'name' here is not in suitable for number-only form for intepretJoreCode(name);
-      if (name.indexOf('RHKL') > -1) { // info.mode == "TRAM"
-        pin = new THREE.Sprite(self.pinMaterialTram);
-      } else if (name.indexOf('metro') > -1) { // info.mode == "SUBWAY"
-        pin = new THREE.Sprite(self.pinMaterialMetro);
-      } else {
-        pin = new THREE.Sprite(self.pinMaterialBus);
-      }
 
-      pin.scale.set(20, 20, 20);
+      var pinSprite = self.makePinSprite(name);
 
-      pin.name = name;
-      pin.description = desc;
-      pin.uuid = uuid;
+      pinSprite.name = name;
+      pinSprite.description = desc;
+      pinSprite.uuid = uuid;
+      //pin.scale.set(20, 20, 20);
+      //was with ludo's icons
 
-      pin.position.x = dscenepoint.x;
-      pin.position.y = self.spriteYpos;
-      pin.position.z = dscenepoint.y;
+      var dgeocoord = new VIZI.LatLon(lat, lon);
+      var dscenepoint = self.world.project(dgeocoord);
 
-      pin.index = self.pois.length;
+      pinSprite.position.x = dscenepoint.x;
+      pinSprite.position.y = self.spriteYpos;
+      pinSprite.position.z = dscenepoint.y;
 
-      self.pois[name] = pin;
+      pinSprite.index = self.pois.length;
+
+      self.pois[name] = pinSprite;
       // Add also to array for raycast
-      self.poisArray.push(pin);
-
-      self.updatePoiVisibility(pin); // Set initial visibility according to lollipopmenu selection mode
+      self.poisArray.push(pinSprite);
+      self.updatePoiVisibility(pinSprite); // Set initial visibility according to lollipopmenu selection mode
 
 
       // NUMBER SPRITE
-      var textSprite = self.makeTextSprite(name, {
+      var textSprite = self.makePinSprite(name, {
         fontsize: 12,
         borderColor: {
           r: 195,
@@ -248,9 +236,9 @@
         }
       });
 
-      pin.add(textSprite);
+      self.updatePoiVisibility(pinSprite); // Set initial visibility according to lollipopmenu selection mode
 
-      self.add(pin);
+      self.add(pinSprite);
     }
 
 
@@ -407,13 +395,13 @@
     var intersects = self.doRaycast(self.mouse.x, self.mouse.y, self.poisArray);
 
     // if there is one (or more) intersections
-    if (intersects.length > 0 && intersects[0].object.visible) {
-      // console.log(intersects[0]);
-      self.intersectedObject = intersects[0].object;
-    } else {
+    // if (intersects.length > 0 && intersects[0].object.visible) {
+    //   // console.log(intersects[0]);
+    //   self.intersectedObject = intersects[0].object;
+    // } else {
       // If no ray hits, pass on to lollipopmenu
       self.lollipopMenu.onMouseDown(self.mouse.x, self.mouse.y);
-    }
+    // }
   };
 
 
@@ -567,69 +555,58 @@
     if (!self.lollipopMenu)
       return;
     var sel = self.lollipopMenu.getSelection();
-    poi.visible = sel === 0 || sel == 4; // No selection, or Transportation
+    poi.visible = sel == 0 || sel == 4; // No selection, or Transportation
   };
   VIZI.BlueprintOutputSensor.prototype.updateModelCount = function() {
     var self = this;
     self.modelCount++;
-    if (self.modelCount == Object.keys(self.modelPaths).length) {
-      self.emit("models ready");
+    if (self.modelCount == Object.keys(self.assetPaths).length) {
+      self.emit("assets ready");
     }
   };
 
-  VIZI.BlueprintOutputSensor.prototype.makeTextSprite = function(message, parameters) {
+  VIZI.BlueprintOutputSensor.prototype.makePinSprite = function(name) {
     var self = this;
 
-    if (parameters === undefined) parameters = {};
+    var fontface = "Arial";
 
-    var fontface = parameters.hasOwnProperty("fontface") ?
-      parameters.fontface : "Arial";
-
-    var fontsize = parameters.hasOwnProperty("fontsize") ?
-      parameters.fontsize : 18;
-
-    var borderThickness = parameters.hasOwnProperty("borderThickness") ?
-      parameters.borderThickness : 4;
-
-    var borderColor = parameters.hasOwnProperty("borderColor") ?
-      parameters.borderColor : {
-      r: 0,
-      g: 0,
-      b: 0,
-      a: 1.0
-    };
-
-    var backgroundColor = parameters.hasOwnProperty("backgroundColor") ?
-      parameters.backgroundColor : {
-      r: 255,
-      g: 255,
-      b: 255,
-      a: 1.0
-    };
-
-    var spriteAlignment = new THREE.Vector2(0, 1);
+    var fontsize = 64;
 
     var canvas = document.createElement('canvas');
+    canvas.width = "512";
+    canvas.height = "256";
     var context = canvas.getContext('2d');
+
+
+    // IMAGE
+
+    if (name.indexOf('RHKL') > -1) {
+      context.drawImage(self.tramImg, 0, 0);
+    } else if (name.indexOf('metro') > -1) {
+      context.drawImage(self.metroImg, 0, 0);
+    } else {
+      context.drawImage(self.busImg, 0, 0);
+    }
+
+
+    // TEXT
+
     context.font = "Bold " + fontsize + "px " + fontface;
 
+    name = name.slice(-3);
+
     // get size data (height depends only on font size)
-    var metrics = context.measureText(message);
+    var metrics = context.measureText(name);
     var textWidth = metrics.width;
 
-    // background color
-    context.fillStyle = "rgba(" + backgroundColor.r + "," + backgroundColor.g + "," + backgroundColor.b + "," + backgroundColor.a + ")";
-    // border color
-    context.strokeStyle = "rgba(" + borderColor.r + "," + borderColor.g + "," + borderColor.b + "," + borderColor.a + ")";
-
-    context.lineWidth = borderThickness;
-    self.roundRect(context, borderThickness / 2, borderThickness / 2, textWidth + borderThickness, fontsize * 1.4 + borderThickness, 6);
-    // 1.4 is extra height factor for text below baseline: g,j,p,q.
-
     // text color
-    context.fillStyle = "rgba(0, 0, 0, 1.0)";
+    context.fillStyle = "rgba(255, 255, 255, 1.0)";
 
-    context.fillText(message, borderThickness, fontsize + borderThickness);
+    context.textAlign = "left";
+    context.textBaseline = "top";
+
+    context.fillText(name, 270, 92, 160);
+
 
     // canvas contents will be used for a texture
     var texture = new THREE.Texture(canvas);
@@ -638,10 +615,10 @@
     var spriteMaterial = new THREE.SpriteMaterial({
       map: texture,
       useScreenCoordinates: false,
-      alignment: spriteAlignment
     });
     var sprite = new THREE.Sprite(spriteMaterial);
-    sprite.scale.set(100, 50, 1.0);
+
+    sprite.scale.set(50, 25, 1.0);
     return sprite;
   };
 
