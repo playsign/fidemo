@@ -27,9 +27,6 @@
       }
     ];
 
-    self.world;
-
-
     // POI
 
     self.mouse = {
@@ -37,13 +34,10 @@
       y: 0
     };
 
-    self.intersectedObject;
     self.raycastsEnabled = true;
 
     self.pois = {};
     self.poisArray = [];
-    self.currentDialog;
-    self.currentPoi;
 
     // listeners
     document.addEventListener('mousemove', self.onDocumentMouseMove.bind(self), false);
@@ -69,11 +63,9 @@
     self.modelCount = 0;
 
     // Lightbulb model
-    self.lightbulb;
     jsonLoader.load(self.assetPaths.lightbulb, self.loadLightbulbModel.bind(self));
 
     // Thermometer model
-    self.thermometer;
     jsonLoader.load(self.assetPaths.thermometer, self.loadThermometerModel.bind(self));
 
     // Bus image
@@ -179,23 +171,17 @@
   VIZI.BlueprintOutputSensor.prototype.createPin = function(lat, lon, name, desc, uuid) {
     var self = this;
 
-    var pin;
-
+    var dgeocoord = new VIZI.LatLon(lat, lon);
+    var dscenepoint = self.world.project(dgeocoord);
     if (self.pois[name]) {
       // UPDATE
-
-      var dgeocoord = new VIZI.LatLon(lat, lon);
-      var dscenepoint = self.world.project(dgeocoord);
-
       var newTransfrom = {
         position: new THREE.Vector3( dscenepoint.x, self.spriteYpos, dscenepoint.y )
         // TODO rotation and scale
       };
       self.handleTransformUpdate(self.pois[name], newTransfrom);
     } else {
-
       // CREATE NEW
-
       var pinSprite = self.makePinSprite(name);
 
       pinSprite.name = name;
@@ -203,9 +189,6 @@
       pinSprite.uuid = uuid;
       //pin.scale.set(20, 20, 20);
       //was with ludo's icons
-
-      var dgeocoord = new VIZI.LatLon(lat, lon);
-      var dscenepoint = self.world.project(dgeocoord);
 
       pinSprite.position.x = dscenepoint.x;
       pinSprite.position.y = self.spriteYpos;
@@ -555,7 +538,7 @@
     if (!self.lollipopMenu)
       return;
     var sel = self.lollipopMenu.getSelection();
-    poi.visible = sel == 0 || sel == 4; // No selection, or Transportation
+    poi.visible = sel === 0 || sel == 4; // No selection, or Transportation
   };
   VIZI.BlueprintOutputSensor.prototype.updateModelCount = function() {
     var self = this;
