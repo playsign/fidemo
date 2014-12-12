@@ -67,9 +67,8 @@
       linewidth: 5
     });
 
-    var geom = new THREE.Geometry();
-
     _.each(data, function(feature) {
+      var geom = new THREE.Geometry();
       _.each(feature.linecoords, function(coord, index) {
         var geoCoord = self.world.project(new VIZI.LatLon(coord[1], coord[0]));
         geom.vertices.push(new THREE.Vector3( geoCoord.x, 10, geoCoord.y ));
@@ -79,10 +78,11 @@
       /*var colour = (self.options.colourRange) ? new THREE.Color(scaleColour(feature.value)) : new THREE.Color(0xffffff * Math.random());
 
       self.applyVertexColors(geom, colour);*/
+
+      var line = new THREE.Line( geom, material );
+      self.add(line);
     });
 
-    var line = new THREE.Line( geom, material );
-    self.add(line);
   };
 
   VIZI.BlueprintOutputGeoJSONLines.prototype.onAdd = function(world) {
