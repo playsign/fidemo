@@ -70,22 +70,8 @@
     var geom = new THREE.Geometry();
 
     _.each(data, function(feature) {
-      var offset = new VIZI.Point();
-
       _.each(feature.linecoords, function(coord, index) {
         var geoCoord = self.world.project(new VIZI.LatLon(coord[1], coord[0]));
-
-        if (offset.length === 0) {
-          offset.x = -1 * geoCoord.x;
-          offset.y = -1 * geoCoord.y;
-        }
-
-        // Move if first coordinate
-        /*if (index === 0) {
-          shape.moveTo( geoCoord.x + offset.x, geoCoord.y + offset.y );
-        } else {
-          shape.lineTo( geoCoord.x + offset.x, geoCoord.y + offset.y );
-        }*/
         geom.vertices.push(new THREE.Vector3( geoCoord.x, 10, geoCoord.y ));
       });
 
@@ -95,21 +81,7 @@
       self.applyVertexColors(geom, colour);*/
     });
 
-    // Move merged geom to 0,0 and return offset
-    var offset = geom.center();
-
     var line = new THREE.Line( geom, material );
-
-    // Use previously calculated offset to return merged mesh to correct position
-    // This allows frustum culling to work correctly
-    line.position.x = -1 * offset.x;
-
-    // Removed for scale center to be correct
-    // Offset with applyMatrix above
-    line.position.y = -1 * offset.y;
-
-    line.position.z = -1 * offset.z;
-
     self.add(line);
   };
 
