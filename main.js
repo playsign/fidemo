@@ -253,8 +253,8 @@ var world = new VIZI.World({
     })
 });
 
-//
-
+// TODO Move Vizi attribution overlay to the top right corner, for now hide it altogether.
+world.attribution.container.style.display = "none";
 
 var controls = new VIZI.ControlsMap(world.camera);
 //override change emitting as the unload & load code is not good in 0.2.0 yet
