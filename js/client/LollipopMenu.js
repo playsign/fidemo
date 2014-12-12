@@ -13,7 +13,7 @@ var LollipopMenu = function(owner) {
   this.lollipopSprite = null;
   this.iconSprites = [];
 
-  this.lollipopMat = owner.pinMaterialBus; // todo: replace with proper material
+  this.lollipopMat = owner.pinMaterialFocus; // todo: replace with proper material
   this.iconMats = [];
   var iconTexNames = [
     "data/2d/icon_photos.png",
@@ -24,7 +24,7 @@ var LollipopMenu = function(owner) {
   for (var i = 0; i < iconTexNames.length; ++i) {
     this.iconMats.push(new THREE.SpriteMaterial({
       map: THREE.ImageUtils.loadTexture(iconTexNames[i]),
-      color: 0x000000, // Images black for now to make them stand out from totally white city
+      color: "rgb(216,136,0)",
       fog: true,
       depthWrite : false
     }));
@@ -37,7 +37,7 @@ var LollipopMenu = function(owner) {
     this.iconAngles.push((this.minAngle + i * angleRange/(iconTexNames.length-1)) * (Math.PI/180));
   }
   this.iconDist = 0.9;
-  this.iconHeight = 0.5;
+  this.iconHeight = 0.35;
   this.lollipopScale = 40;
   this.iconScale = 30;
   this.iconSelectedScale = 35;

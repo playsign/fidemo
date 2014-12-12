@@ -105,7 +105,13 @@
       fog: true
     });
 
-
+    pinMap = THREE.ImageUtils.loadTexture("data/2d/pointer.png");
+    self.pinMaterialFocus = new THREE.SpriteMaterial({
+      map: pinMap,
+      color: "rgb(216,136,0)",
+      fog: true
+    });
+    
     // INTERPOLATION
 
     self.interpolations = [];
