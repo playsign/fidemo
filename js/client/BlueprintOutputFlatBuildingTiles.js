@@ -185,7 +185,18 @@
       // TODO: Stop this locking up the browser
       // No visible lock up at all when removed
       var geom = loader.parse(model);
-
+      
+      //moves building's pivot points to compensate position offset
+      for (var i = 0 ; i < geom.geometry.faceVertexUvs[0].length; i=i+2) {
+        for (var j = 0; j < 2; j++) {
+          for(var k = 0 ; k < 3 ; k++){
+            geom.geometry.faceVertexUvs[0][i+j][k].x += offset.x;
+            geom.geometry.faceVertexUvs[0][i+j][k].y += offset.z;
+            geom.geometry.faceVertexUvs[0][i+j][k].z += 0 ;
+          }
+        }
+      }
+      
       var mesh = new THREE.Mesh(geom.geometry, material);
 
       // Use previously calculated offset to return merged mesh to correct position
@@ -393,7 +404,7 @@
       if (!found) {
           var offset = new VIZI.Point();
           var shape = new THREE.Shape();
-
+          var points = [];
           // TODO: Don't manually use first set of coordinates (index 0)
           _.each(feature.outline[0], function(coord, index) {
             var latLon = new VIZI.LatLon(coord[1], coord[0]);
@@ -408,7 +419,9 @@
               offset.x = -1 * geoCoord.x;
               offset.y = -1 * geoCoord.y;
             }
-
+            
+            points.push(new THREE.Vector2(geoCoord.x + offset.x, geoCoord.y + offset.y));
+            
             // Move if first coordinate
             if (index === 0) {
               shape.moveTo( geoCoord.x + offset.x, geoCoord.y + offset.y );
@@ -443,28 +456,29 @@
           // Flip as they are up-side down
           mesh.rotation.x = 90 * Math.PI / 180;
           
-          // Building animation needs to store mesh position to to uv
-          // so that we can animate mesh height change when the building is highlighted
+          
+          mesh.matrixAutoUpdate && mesh.updateMatrix();
+          
+          var avgpivot = new THREE.Vector2(0.0, 0.0);
+          for(var i = 0 ; i < points.length ; i++){
+            avgpivot.add(points[i]);
+          }
+          avgpivot.divideScalar(points.length);
+
+          // Buildings' animated shader needs to store mesh position to to uv coordinates
+          // so that we can animate mesh height change when a building is highlighted
           var pos = mesh.position;
           for (var i = 0 ; i < geom.faceVertexUvs[0].length; i=i+2) {
-            // Face1 and Face2
             for (var j = 0; j < 2; j++) {
-                geom.faceVertexUvs[0][i+j][0].x = pos.x ;
-                geom.faceVertexUvs[0][i+j][0].y = pos.z ;
-                geom.faceVertexUvs[0][i+j][0].z = 0 ;
-
-                geom.faceVertexUvs[0][i+j][1].x = pos.x ;
-                geom.faceVertexUvs[0][i+j][1].y = pos.z ;
-                geom.faceVertexUvs[0][i+j][1].z = 0 ;
-
-                geom.faceVertexUvs[0][i+j][2].x = pos.x ;
-                geom.faceVertexUvs[0][i+j][2].y = pos.z ;
-                geom.faceVertexUvs[0][i+j][2].z = 0 ;
+              for(var k = 0 ; k < 3 ; k++){
+                geom.faceVertexUvs[0][i+j][k].x = avgpivot.x;
+                geom.faceVertexUvs[0][i+j][k].y = avgpivot.y;
+                geom.faceVertexUvs[0][i+j][k].z = 0 ;
+              }
             }
           }
           mesh.uvsNeedUpdate = true;
-
-          mesh.matrixAutoUpdate && mesh.updateMatrix();
+          
           combinedGeom.merge(mesh.geometry, mesh.matrix);
       }
     });

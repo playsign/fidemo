@@ -93,22 +93,27 @@
             vec3 lpos = position;
             worldpos = modelMatrix * vec4( position, 1.0 );
             vNormal = normal;
+
             //element pivot point stored in UV-coordinates (u = x,v = z)
             vec4 pivot = modelMatrix * vec4( vUv.x,0.0,vUv.y, 1.0 );
             float dstpivot = distance(pivot.xyz, mouseposition.xyz)*radiusMultiplier;
             float blast = distance(worldpos.xyz, mouseposition.xyz)*animScaleBlast;
 
-            float thickness = 0.35;
-            float offset = 0.30;
-            float blastmask = smoothstep(0.15, 0.79, blast-offset);
-            float blastmask2 = smoothstep(0.79+thickness, 0.8+thickness, blast-offset);
-            float fmask = blastmask-blastmask2;
+            float thickness = 0.035;
+            float offset = 0.030;
+            float blastmaskout = smoothstep(0.15, 0.79, blast-offset);
+            float blastmaskin = smoothstep(0.79+thickness, 0.8+thickness, blast-offset);
+            float fmask = blastmaskout-blastmaskin;
 
             float mask = smoothstep(animScaleUp*0.6, animScaleUp*0.95, dstpivot);
             vMask = 1.0 - mask;
-            lpos.y =  position.y *clamp(vMask + fmask,0.0,1.0);
-            vColor = vec4(color.r, fmask, fmask, 1.0);
-
+            lpos.y =  position.y + position.y *clamp(vMask + fmask,0.0,1.0)*3.0;
+            
+            float buildingmask = clamp((1.0-dstpivot-0.25)*6.0, 0.0, 1.0);
+            
+            
+            vColor = vec4(color.r, fmask, buildingmask, 1.0);
+ 
             //Use vertex color's red channel as a gradient step value
             vGradientCol = mix(gradientColor1.rgb, gradientColor2.rgb, smoothstep(gradientColor1.a, gradientColor2.a, color.r));
             vGradientCol = mix(vGradientCol, gradientColor3.rgb, smoothstep(gradientColor2.a, gradientColor3.a, color.r));
@@ -124,20 +129,24 @@
         varying vec3 vNormal;
         varying vec3 vGradientCol;
         varying vec4 worldpos;
-
+        varying float vMask; //building pivot mask
+        varying vec2 vUv;
+        
         uniform vec3 mouseposition;
         uniform vec3 ambientColor;
+        uniform vec3 litColor;
+        uniform vec3 shadowColor;
         uniform float radiusMultiplier;
-
+      
         void main()	{
             float dstpivot = distance(worldpos.xyz, mouseposition.xyz)*radiusMultiplier;
 
             //Replace this with proper THREE.js lighting shader code
             vec3 lightdir = normalize(vec3(1,0.5, 0.25));
-            float dot = clamp(dot(lightdir, vNormal), 0.0,1.0);
-            float lightpower = 0.7;
+            float LdotN = clamp(dot(lightdir, vNormal), 0.0,1.0);
+            float lightpower = 1.7;
 
-            float ringthickness = 0.015;
+            float ringthickness = 0.005;
             float offset = 0.1;
             float mask = smoothstep(0.79, 0.8, dstpivot-offset);
             float mask2 = smoothstep(0.79+ringthickness, 0.8+ringthickness, dstpivot-offset);
@@ -146,10 +155,17 @@
             vec3 finalcol = mix(vec3(1.0,1.0,1.0), vec3(0.05,0.05,0.05), mask);
 
             //Simple "ao" effect based on y pos. Lower parts get darker value
-            vec3 ambientFactor = mix(ambientColor*0.55, ambientColor, clamp((worldpos.y*0.05), 0.0,1.0));
-
-            finalcol = ambientFactor + (finalcol * vGradientCol.rgb)*dot*lightpower + ambientColor*3.0*vColor.g + ringcol;
-
+            vec3 ambientFactor = mix(ambientColor*0.55, ambientColor, clamp((worldpos.y*0.02), 0.0,1.0));
+            
+            
+            //ambientFactor + (finalcol * vGradientCol.rgb)*LdotN*lightpower + ambientColor*0.5*vColor.g + ringcol;
+            float lightmask = LdotN*lightpower - (1.0 - clamp((worldpos.y*0.05), 0.0,1.0)*2.0);
+            vec3 baseColor = mix(shadowColor, litColor, lightmask );
+            //baseColor = vec3(lightmask);
+            
+            //finalcol = mix(ambientColor+LdotN*0.05, baseColor, vColor.g + (1.0-mask2)*vColor.z) + ringcol;
+            finalcol = mix(baseColor,ambientColor+LdotN*0.25, mask2) + ringcol;
+            //finalcol = vec3(vColor.z,vColor.z,vColor.z);
             gl_FragColor = vec4(finalcol ,1.0);
 
         }
