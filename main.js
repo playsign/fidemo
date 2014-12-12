@@ -96,7 +96,7 @@ try
 
                 // Information dialog
                 var showInfo = TundraSDK.framework.ui.addAction(
-                    "Information", TundraSDK.framework.asset.getLocalAssetPath("../../img/chat-off.png"));
+                    "Information", TundraSDK.framework.asset.getLocalAssetPath("../../img/ic_info_outline_24px.svg"));
                 showInfo.click(function(e)
                 {
                     if (infoDialog)
@@ -114,7 +114,7 @@ try
 
         // Username config dialog
         var showUsernameConfig = TundraSDK.framework.ui.addAction(
-            "Set username", TundraSDK.framework.asset.getLocalAssetPath("../../img/chat-off.png"));
+            "Set username", TundraSDK.framework.asset.getLocalAssetPath("../../img/ic_perm_identity_24px.svg"));
         showUsernameConfig.click(function(e)
         {
             if (usernameDialog)
