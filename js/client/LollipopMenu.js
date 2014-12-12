@@ -114,8 +114,8 @@ LollipopMenu.prototype = {
     }
 
     // Animate the circle to new position
-    if (this.owner.options.buildingAnimator != null)
-        this.owner.options.buildingAnimator.SetPosition(pos);
+    if (this.owner.options.globalData != null && this.owner.options.globalData.animator != null)
+        this.owner.options.globalData.animator.SetPosition(pos);
 
     this.lastShowPos = pos;
 

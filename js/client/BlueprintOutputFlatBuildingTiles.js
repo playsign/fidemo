@@ -145,9 +145,9 @@
     var loader = new THREE.JSONLoader();
 	
 	var material = null;
-	if (self.options.buildingAnimator != null)
+	if (self.options.globalData != null && self.options.globalData.animator != null)
     {
-		material = self.options.buildingAnimator.material;
+		material = self.options.globalData.animator.material;
     }
 	else
 	{
