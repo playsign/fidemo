@@ -14,7 +14,7 @@ try
         asset : {
             localStoragePath : "build/webtundra"
         },
-            taskbar : false,
+            taskbar : true,
             console : true
     });
 
@@ -25,6 +25,7 @@ try
     };
 
     var freecamera, cbclient, demoapp, chat, userPresence, animator;
+    var infoDialog, usernameDialog;
 
     // Free camera application
     $.getScript("js/client/BuildingAnimation.js")
@@ -74,17 +75,6 @@ try
         }
       );
 
-    // Chat
-    $.getScript("js/client/chat.js")
-        .done(function(/*script, textStatus*/) {
-            // Note that chat is not initialized fully until we're connected to the server.
-            chat = new ChatApplication();
-            // chat.initUi(); // Uncomment to test chat UI in standalone mode
-        })
-        .fail(function(jqxhr, settings, exception) {
-            console.error(exception);
-        });
-
     // User presence (avatar)
     $.getScript("js/client/user-presence.js")
         .done(function(/*script, textStatus*/) {
@@ -95,12 +85,46 @@ try
         });
 
     // Connected to server
-    client.onConnected(null, function() {
-        if (chat)
+    client.onConnected(null, function()
+    {
+        // Chat
+        $.getScript("js/client/chat.js")
+            .done(function(/*script, textStatus*/) {
+                // Note that chat is not initialized fully until we're connected to the server.
+                chat = new ChatApplication();
+                // chat.initUi(); // Uncomment to test chat UI in standalone mode
+
+                // Information dialog
+                var showInfo = TundraSDK.framework.ui.addAction(
+                    "Information", TundraSDK.framework.asset.getLocalAssetPath("../../img/chat-off.png"));
+                showInfo.click(function(e)
+                {
+                    if (infoDialog)
+                        infoDialog.setVisible(!infoDialog.isVisible());
+                    e.preventDefault();
+                    e.stopPropagation();
+                });
+            })
+            .fail(function(jqxhr, settings, exception) {
+                console.error(exception);
+            });
+
+        usernameDialog = new UsernameDialog();
+        usernameDialog.show();
+
+        // Username config dialog
+        var showUsernameConfig = TundraSDK.framework.ui.addAction(
+            "Set username", TundraSDK.framework.asset.getLocalAssetPath("../../img/chat-off.png"));
+        showUsernameConfig.click(function(e)
         {
-            var usernameDialog = new UsernameDialog();
-            usernameDialog.show();
-        }
+            if (usernameDialog)
+                usernameDialog.setVisible(!usernameDialog.isVisible());
+            e.preventDefault();
+            e.stopPropagation();
+        });
+
+        infoDialog = new InfoDialog();
+        infoDialog.show();
     });
 
     // Disconnected from server
@@ -243,7 +267,6 @@ var mapConfig = {
   input: {
     type: "BlueprintInputMapTiles", // String representation of the input module you want to use (this is the same as the input module filename).
     options: { // Used to provide options for the input; in most cases this will at least include a path to the data source (local or remote).
-        // tilePath: "https://a.tiles.mapbox.com/v3/examples.map-i86l3621/{z}/{x}/{y}@2x.png" // default
         tilePath: "https://a.tiles.mapbox.com/v4/tapanij.kai3hkpp/{z}/{x}/{y}@2x.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6IlhHVkZmaW8ifQ.hAMX5hSW-QnTeRCMAy9A8Q&update=i2x0h" // tapanij custom
     }
   },
@@ -361,7 +384,7 @@ switchboardTrees.addToWorld(world);
 
 // BUILDING PRICES
 
-var buildingPricesConfig = getBuildingPricesConfig()
+var buildingPricesConfig = getBuildingPricesConfig();
 var switchboardBuildingPrices = new VIZI.BlueprintSwitchboard(buildingPricesConfig);
 switchboardBuildingPrices.addToWorld(world);
 
@@ -496,6 +519,52 @@ var choroplethConfig = {
 var switchboardChoropleth = new VIZI.BlueprintSwitchboard(choroplethConfig);
 switchboardChoropleth.addToWorld(world);
 
+//ROUTE LINES TEST
+
+var routelinesConfig = {
+  input: {
+    type: "BlueprintInputGeoJSON",
+    options: {
+      path: "./data/routes.geojson"
+    }
+  },
+  output: {
+    type: "BlueprintOutputGeoJSONLines"
+  },
+  triggers: [{
+    triggerObject: "output",
+    triggerName: "initialised",
+    triggerArguments: [],
+    actionObject: "input",
+    actionName: "requestData",
+    actionArguments: [],
+    actionOutput: {}
+  }, {
+    triggerObject: "input",
+    triggerName: "dataReceived",
+    triggerArguments: ["geoJSON"],
+    actionObject: "output",
+    actionName: "outputGeoJSONLines",
+    actionArguments: ["data"],
+    actionOutput: {
+      data: {
+        // Loop through each item in trigger.geoJSON and return a new array of processed values (a map)
+        process: "map",
+        itemsObject: "geoJSON",
+        itemsProperties: "features",
+        // Return a new object for each item with the given properties
+        transformation: {
+          linecoords: "geometry.coordinates",
+          value: "properties.POPDEN"
+        }
+      }
+    }
+  }]
+};
+
+var switchboardGeoJSONLines = new VIZI.BlueprintSwitchboard(routelinesConfig);
+switchboardGeoJSONLines.addToWorld(world);
+
 /* geopositioned -> scene converted positions for test/reference
 debugObject(60.17096119799872, 24.94066956044796); //Helsinki start center
 debugObject(60.170040, 24.936350); //Lasipalatsinaukion tötsä
@@ -549,13 +618,23 @@ var createButton = function(id, text, css, parent)
     button.show();
     return button;
 };
-
+// Sets the position of the widget. Does not let the widget go outside of the window.
+// TODO Move this utility function to UiAPI.
+var setWidgetPosition = function(widget, x, y)
+{
+    if (y + widget.height() > $(document).height())
+        y -= widget.height();
+    widget.css("top", y);
+    if (x + widget.width() > $(document).width())
+        x -= widget.width();
+    widget.css("left", x);
+};
 var UsernameDialog = Class.$extend(
 {
     __init__ : function()
     {
         this.ui = {};
-        this.ui.dialog = $("<div/>", { id : "DialogWindow"});
+        this.ui.dialog = $("<div/>", { id : "UsernameDialog"});
         this.ui.dialog.css(
         {
             "border"           : "0px solid gray",
@@ -601,11 +680,59 @@ var UsernameDialog = Class.$extend(
 
     show : function() { this.ui.dialog.fadeIn(); },
     hide : function() { this.ui.dialog.fadeOut(); },
+    setVisible : function(visible) { if (visible) this.show(); else this.hide(); },
+    isVisible : function() { return this.ui.dialog.is(":visible"); },
 
     onOkPressed : function()
     {
         var newUsername = this.ui.inputField.val();
         if (newUsername.trim().length > 0 && chat && chat.entity)
             chat.entity.exec(EntityAction.Server, Msg.SetUsername, [ newUsername, TundraSDK.framework.client.connectionId ]);
+    }
+});
+
+var InfoDialog = Class.$extend(
+{
+    __init__ : function()
+    {
+        this.ui = {};
+        this.ui.dialog = $("<div/>", { id : "InfoDialog"});
+        this.ui.dialog.css(
+        {
+            "border"           : "0px solid gray",
+            "position"         : "absolute",
+            "width"            : 160,
+            "height"           : "auto",
+            "overflow"         : "hidden",
+            "color"            : "color: rgb(56,56,56)",
+            "background-color" : "color: rgb(214,214,214)",
+            "left"             : 5,
+            "top"              : 5
+        });
+
+        this.ui.labelField = $("<div/>", { id : "label" });
+        this.ui.labelField.text("Hi! This is FIDEMO.");
+        var buttonStyle = { "border" : "1px solid gray", "text" : "align:center" };
+        this.ui.closeButton = createButton("closeButton", "Close", buttonStyle);
+        this.ui.dialog.append(this.ui.labelField);
+        this.ui.dialog.append(this.ui.closeButton);
+        TundraSDK.framework.ui.addWidgetToScene(this.ui.dialog);
+        this.ui.dialog.hide();
+
+        this.ui.closeButton.click(this.hide.bind(this));
+
+        this.positionUi($(document).width(), $(document).height());
+    },
+
+    show : function() { this.ui.dialog.fadeIn(); },
+    hide : function() { this.ui.dialog.fadeOut(); },
+    setVisible : function(visible) { if (visible) this.show(); else this.hide(); },
+    isVisible : function() { return this.ui.dialog.is(":visible"); },
+
+    positionUi : function(canvasWidth, canvasHeight)
+    {
+        var x = canvasWidth/2 - this.ui.dialog.width()/2;
+        var y = canvasHeight/2 - this.ui.dialog.height()/2;
+        setWidgetPosition(this.ui.dialog, x, y);
     }
 });
