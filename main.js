@@ -96,7 +96,7 @@ try
 
                 // Information dialog
                 var showInfo = TundraSDK.framework.ui.addAction(
-                    "Information", TundraSDK.framework.asset.getLocalAssetPath("../../img/chat-off.png"));
+                    "Information", TundraSDK.framework.asset.getLocalAssetPath("../../img/ic_info_outline_24px.svg"));
                 showInfo.click(function(e)
                 {
                     if (infoDialog)
@@ -114,7 +114,7 @@ try
 
         // Username config dialog
         var showUsernameConfig = TundraSDK.framework.ui.addAction(
-            "Set username", TundraSDK.framework.asset.getLocalAssetPath("../../img/chat-off.png"));
+            "Set username", TundraSDK.framework.asset.getLocalAssetPath("../../img/ic_perm_identity_24px.svg"));
         showUsernameConfig.click(function(e)
         {
             if (usernameDialog)
@@ -253,8 +253,8 @@ var world = new VIZI.World({
     })
 });
 
-//
-
+// TODO Move Vizi attribution overlay to the top right corner, for now hide it altogether.
+world.attribution.container.style.display = "none";
 
 var controls = new VIZI.ControlsMap(world.camera);
 //override change emitting as the unload & load code is not good in 0.2.0 yet
