@@ -63,7 +63,8 @@
 
     var material = new THREE.LineBasicMaterial({
       color: 0xff0000,
-      linewidth: 3
+      //vertexColors: ,
+      linewidth: 5
     });
 
     var geom = new THREE.Geometry();
@@ -91,8 +92,7 @@
       // Use choropleth range colour if defined, else random
       /*var colour = (self.options.colourRange) ? new THREE.Color(scaleColour(feature.value)) : new THREE.Color(0xffffff * Math.random());
 
-      self.applyVertexColors(geom, colour);
-      */
+      self.applyVertexColors(geom, colour);*/
     });
 
     // Move merged geom to 0,0 and return offset
