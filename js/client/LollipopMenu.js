@@ -7,6 +7,7 @@ var LollipopMenu = function(owner) {
   this.owner = owner;
   this.worldPlane = new THREE.Plane(new THREE.Vector3(0,1,0),-this.owner.spriteYpos);
   this.selectionChanged = new signals.Signal(); // User selected icon (1-4) or deselected (0)
+  this.positionChanged = new signals.Signal(); // new position
   this.shown = new signals.Signal; // Menu was shown
   this.hidden = new signals.Signal; // Menu was hidden
 
@@ -74,7 +75,8 @@ LollipopMenu.prototype = {
         var pos = this.planeRaycast(x, y);
         if (pos) {
           this.createMenu(pos);
-        }
+		 this.sendPositionChanged(pos);
+		}
       }
       else {
         // Raycast to icons and perform selection, hide/reopen menu if none hit
@@ -85,6 +87,7 @@ LollipopMenu.prototype = {
           var dist = distVec.length();
           if (dist > this.newPosThreshold) {
             this.createMenu(pos);
+			this.sendPositionChanged(pos);
           }
           else {
             this.startHideMenu();
@@ -92,6 +95,14 @@ LollipopMenu.prototype = {
         }
       }
     }
+  },
+  
+  sendPositionChanged: function(pos)
+  {
+	var point = new VIZI.Point(pos.x, pos.y);
+	var w = this.owner.options.globalData.world;
+	var latLong = w.unproject(point, w.zoom);
+	this.positionChanged.dispatch(latLong);
   },
   
   onMouseMove : function(x, y) {
@@ -116,9 +127,11 @@ LollipopMenu.prototype = {
         this.hideMenu(); // If already showing, hide the old first
     }
 
-    // Animate the circle to new position
+    //Animate the circle to new position
     if (this.owner.options.globalData != null && this.owner.options.globalData.animator != null)
-        this.owner.options.globalData.animator.SetPosition(pos);
+	{
+		this.owner.options.globalData.animator.SetPosition(pos);
+	}
 
     this.lastShowPos = pos;
 

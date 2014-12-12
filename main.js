@@ -252,6 +252,7 @@ var world = new VIZI.World({
       near: 30
     })
 });
+globalData.world = world;
 
 // TODO Move Vizi attribution overlay to the top right corner, for now hide it altogether.
 world.attribution.container.style.display = "none";
@@ -381,6 +382,17 @@ var treesConfig = getTreesConfig();
 
 var switchboardTrees = new VIZI.BlueprintSwitchboard(treesConfig);
 switchboardTrees.addToWorld(world);
+
+// overpass data
+globalData.currentPos = world.center;
+var overpassConfig = getOverpassConfig();
+
+overpassConfig.output.options.globalData = globalData;
+
+var switchboardOverpass = new VIZI.BlueprintSwitchboard(overpassConfig);
+switchboardOverpass.addToWorld(world);
+
+
 
 // BUILDING PRICES
 

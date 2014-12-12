@@ -23,6 +23,11 @@
     self.actions = [
       {name: "requestData", arguments: []}
     ];
+	self.actions = [{
+        name: "updatePath",
+        arguments: ["newPath"]
+      }
+    ];
   };
 
   VIZI.BlueprintInputData.prototype = Object.create( VIZI.BlueprintInput.prototype );
@@ -32,7 +37,12 @@
     var self = this;
     self.emit("initialised");
   };
-
+  
+  VIZI.BlueprintInputData.prototype.updatePath = function(newPath)  {
+	console.log("_______________new path" + newPath);
+	//self.options.path = newPath;
+  };
+	
   VIZI.BlueprintInputData.prototype.requestData = function() {
     var self = this;
 
