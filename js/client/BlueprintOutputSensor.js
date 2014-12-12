@@ -153,7 +153,7 @@
       var boxId = data[i].node;
 
       if (data[i].categories) {
-        boxName = data[i].name;
+        boxName = data[i].lineref; //data[i].name; 'name' is a vehicle ID and has no value for us
         self.createPin(boxLatitude, boxLongitude, boxName, boxDescription, boxId);
       } else if (data[i].light) {
         var lux = parseFloat(data[i].light, 10);
@@ -578,10 +578,11 @@
 
 
     // IMAGE
-
-    if (name.indexOf('RHKL') > -1) {
+    var info = intepretJoreCode(name);
+    //console.log(name + " is route " + info.route + " and is a " + info.mode);
+    if (info.mode == "TRAM") { // if (name.indexOf('RHKL') > -1) {
       context.drawImage(self.tramImg, 0, 0);
-    } else if (name.indexOf('metro') > -1) {
+    } else if (info.mode == "SUBWAY") { // } else if (name.indexOf('metro') > -1) {
       context.drawImage(self.metroImg, 0, 0);
     } else {
       context.drawImage(self.busImg, 0, 0);
@@ -592,7 +593,7 @@
 
     context.font = "Bold " + fontsize + "px " + fontface;
 
-    name = name.slice(-3);
+    name = info.route; //name.slice(-3);
 
     // get size data (height depends only on font size)
     var metrics = context.measureText(name);

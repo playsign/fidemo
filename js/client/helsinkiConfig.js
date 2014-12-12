@@ -53,7 +53,8 @@ function getHelsinkiConfig() {
               coordinates: ["fw_core.location.wgs84.latitude", "fw_core.location.wgs84.longitude"], // get coordinates from properties of the JSON          
               node: "data.Node",
               categories: "fw_core.categories",
-              name: "fw_core.name." // name. with the dot because for some reason in a json name object keys are empty e.g "":"HSLsomething"
+              name: "fw_core.name.", // name. with the dot because for some reason in a json name object keys are empty e.g "":"HSLsomething"
+              lineref: "fw_extra.lineref"
             }
           }
         }
