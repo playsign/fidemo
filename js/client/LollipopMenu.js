@@ -22,13 +22,16 @@ var LollipopMenu = function(owner) {
     "data/2d/icon_transportation.png"
   ];
   for (var i = 0; i < iconTexNames.length; ++i) {
-    this.iconMats.push(new THREE.SpriteMaterial({
-      map: THREE.ImageUtils.loadTexture(iconTexNames[i]),
-      color: "rgb(216,136,0)",
-      fog: true,
-      depthWrite : false
-    }));
+    this.iconMats.push(
+      new THREE.SpriteMaterial({
+        map: THREE.ImageUtils.loadTexture(iconTexNames[i]),
+        color: "rgb(255,255,255)",
+        fog: true,
+        depthWrite : false,
+      })
+    );
   }
+  
   this.iconAngles = [];
   this.minAngle = -90;
   this.maxAngle = 90;

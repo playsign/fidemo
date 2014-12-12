@@ -107,7 +107,7 @@
 
             float mask = smoothstep(animScaleUp*0.6, animScaleUp*0.95, dstpivot);
             vMask = 1.0 - mask;
-            lpos.y =  position.y + position.y *clamp(vMask + fmask,0.0,1.0)*3.0;
+            lpos.y =  position.y + position.y *clamp(vMask + fmask,0.0,1.0)*4.0;
             
             float buildingmask = clamp((1.0-dstpivot-0.25)*6.0, 0.0, 1.0);
             
@@ -172,6 +172,7 @@
         
   </script>
 
+  
   <script src="js/client/BuildingAnimation.js"></script>
   <script src="js/client/BlueprintInputData.js"></script>
   <script src="js/client/BlueprintOutputSensor.js"></script>

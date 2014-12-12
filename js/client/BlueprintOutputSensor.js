@@ -212,7 +212,7 @@
         pin = new THREE.Sprite(self.pinMaterialBus);
       }
 
-      pin.scale.set(40, 40, 40);
+      pin.scale.set(20, 20, 20);
 
       pin.name = name;
       pin.description = desc;
@@ -235,14 +235,14 @@
       var textSprite = self.makeTextSprite(name, {
         fontsize: 12,
         borderColor: {
-          r: 0,
-          g: 0,
-          b: 255,
+          r: 195,
+          g: 123,
+          b: 0,
           a: 1.0
         },
         backgroundColor: {
-          r: 100,
-          g: 100,
+          r: 255,
+          g: 255,
           b: 255,
           a: 0.8
         }
