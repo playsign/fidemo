@@ -1,6 +1,23 @@
 /* globals window, _, VIZI */
+
 (function() {
   "use strict";
+
+  // Adapted from https://github.com/HSLdevcom/navigator-proto/blob/master/src/routing.coffee#L40
+  var intepretJoreCode = function(routeId) {
+    if (routeId.match(/^(1|2|4).../))
+      return { mode : "BUS", routeType : 3, route : "" + (parseInt(routeId.substring(1))) };
+    else if (routeId.match(/^1019/))
+      return { mode : "FERRY", routeType : 4, route : "Ferry" };
+    else if (routeId.match(/^1300/))
+      return { mode : "SUBWAY", routeType : 1, route : routeId.substring(4, 5) };
+    else if (routeId.match(/^300/))
+      return { mode : "RAIL", routeType : 2, route : routeId.substring(4, 5) };
+    else if (routeId.match(/^10(0|10)/))
+      return { mode : "TRAM", routeType : 0, route : "" + (parseInt(routeId.substring(2, 4))) };
+    else // unknown, assume bus
+      return { mode : "BUS", routeType : 3, route : routeId };
+  };
 
   /**
    * Blueprint sensor output
@@ -27,8 +44,6 @@
       }
     ];
 
-    self.world;
-
 
     // POI
 
@@ -37,13 +52,10 @@
       y: 0
     };
 
-    self.intersectedObject;
     self.raycastsEnabled = true;
 
     self.pois = {};
     self.poisArray = [];
-    self.currentDialog;
-    self.currentPoi;
 
     // listeners
     document.addEventListener('mousemove', self.onDocumentMouseMove.bind(self), false);
@@ -66,11 +78,9 @@
     self.modelCount = 0;
 
     // Lightbulb model
-    self.lightbulb;
     jsonLoader.load(self.modelPaths.lightbulb, self.loadLightbulbModel.bind(self));
 
     // Thermometer model
-    self.thermometer;
     jsonLoader.load(self.modelPaths.thermometer, self.loadThermometerModel.bind(self));
 
     // Pin sprite material
@@ -172,13 +182,10 @@
     var self = this;
 
     var pin;
-
+    var dgeocoord = new VIZI.LatLon(lat, lon);
+    var dscenepoint = self.world.project(dgeocoord);
     if (self.pois[name]) {
       // UPDATE
-
-      var dgeocoord = new VIZI.LatLon(lat, lon);
-      var dscenepoint = self.world.project(dgeocoord);
-
       // self.pois[name].position.x = dscenepoint.x;
       // self.pois[name].position.y = self.spriteYpos;
       // self.pois[name].position.z = dscenepoint.y;
@@ -190,10 +197,10 @@
       self.handleTransformUpdate(self.pois[name], newTransfrom);
     } else {
       // CREATE NEW
-
-      if (name.indexOf('RHKL') > -1) {
+      // TODO 'name' here is not in suitable for number-only form for intepretJoreCode(name);
+      if (name.indexOf('RHKL') > -1) { // info.mode == "TRAM"
         pin = new THREE.Sprite(self.pinMaterialTram);
-      } else if (name.indexOf('metro') > -1) {
+      } else if (name.indexOf('metro') > -1) { // info.mode == "SUBWAY"
         pin = new THREE.Sprite(self.pinMaterialMetro);
       } else {
         pin = new THREE.Sprite(self.pinMaterialBus);
@@ -204,9 +211,6 @@
       pin.name = name;
       pin.description = desc;
       pin.uuid = uuid;
-
-      var dgeocoord = new VIZI.LatLon(lat, lon);
-      var dscenepoint = self.world.project(dgeocoord);
 
       pin.position.x = dscenepoint.x;
       pin.position.y = self.spriteYpos;
@@ -557,7 +561,7 @@
     if (!self.lollipopMenu)
       return;
     var sel = self.lollipopMenu.getSelection();
-    poi.visible = sel == 0 || sel == 4; // No selection, or Transportation
+    poi.visible = sel === 0 || sel == 4; // No selection, or Transportation
   };
   VIZI.BlueprintOutputSensor.prototype.updateModelCount = function() {
     var self = this;
@@ -573,16 +577,16 @@
     if (parameters === undefined) parameters = {};
 
     var fontface = parameters.hasOwnProperty("fontface") ?
-      parameters["fontface"] : "Arial";
+      parameters.fontface : "Arial";
 
     var fontsize = parameters.hasOwnProperty("fontsize") ?
-      parameters["fontsize"] : 18;
+      parameters.fontsize : 18;
 
     var borderThickness = parameters.hasOwnProperty("borderThickness") ?
-      parameters["borderThickness"] : 4;
+      parameters.borderThickness : 4;
 
     var borderColor = parameters.hasOwnProperty("borderColor") ?
-      parameters["borderColor"] : {
+      parameters.borderColor : {
       r: 0,
       g: 0,
       b: 0,
@@ -590,7 +594,7 @@
     };
 
     var backgroundColor = parameters.hasOwnProperty("backgroundColor") ?
-      parameters["backgroundColor"] : {
+      parameters.backgroundColor : {
       r: 255,
       g: 255,
       b: 255,
