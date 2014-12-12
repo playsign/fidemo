@@ -58,42 +58,44 @@
     self.spriteYpos = 30;
 
     var jsonLoader = new THREE.JSONLoader();
-    self.modelPaths = {
-      lightbulb: "data/3d/lightbulb.js",
-      thermometer: "data/3d/thermometer.js"
+    self.assetPaths = {
+      lightbulb: 'data/3d/lightbulb.js',
+      thermometer: 'data/3d/thermometer.js',
+      bus: 'data/2d/bussi.png',
+      tram: 'data/2d/ratikka.png',
+      metro: 'data/2d/jokujuna.png',
     };
 
     self.modelCount = 0;
 
     // Lightbulb model
     self.lightbulb;
-    jsonLoader.load(self.modelPaths.lightbulb, self.loadLightbulbModel.bind(self));
+    jsonLoader.load(self.assetPaths.lightbulb, self.loadLightbulbModel.bind(self));
 
     // Thermometer model
     self.thermometer;
-    jsonLoader.load(self.modelPaths.thermometer, self.loadThermometerModel.bind(self));
+    jsonLoader.load(self.assetPaths.thermometer, self.loadThermometerModel.bind(self));
 
-    // Pin sprite material
-    var pinMap = THREE.ImageUtils.loadTexture("data/2d/bussi.png");
-    self.pinMaterialBus = new THREE.SpriteMaterial({
-      map: pinMap,
-      color: 0xffffff,
-      fog: true
-    });
+    // Bus image
+    self.busImg = new Image();
+    self.busImg.src = self.assetPaths.bus;
+    self.busImg.onload = function() {
+      self.updateModelCount();
+    };
 
-    pinMap = THREE.ImageUtils.loadTexture("data/2d/ratikka.png");
-    self.pinMaterialTram = new THREE.SpriteMaterial({
-      map: pinMap,
-      color: 0xffffff,
-      fog: true
-    });
+    // Tram image
+    self.tramImg = new Image();
+    self.tramImg.src = self.assetPaths.tram;
+    self.tramImg.onload = function() {
+      self.updateModelCount();
+    };
 
-    pinMap = THREE.ImageUtils.loadTexture("data/2d/jokujuna.png");
-    self.pinMaterialMetro = new THREE.SpriteMaterial({
-      map: pinMap,
-      color: 0xffffff,
-      fog: true
-    });
+    // Metro image
+    self.metroImg = new Image();
+    self.metroImg.src = self.assetPaths.metro;
+    self.metroImg.onload = function() {
+      self.updateModelCount();
+    };
 
 
     // INTERPOLATION
@@ -179,68 +181,38 @@
       var dgeocoord = new VIZI.LatLon(lat, lon);
       var dscenepoint = self.world.project(dgeocoord);
 
-      // self.pois[name].position.x = dscenepoint.x;
-      // self.pois[name].position.y = self.spriteYpos;
-      // self.pois[name].position.z = dscenepoint.y;
-
       var newTransfrom = {
         position: new THREE.Vector3( dscenepoint.x, self.spriteYpos, dscenepoint.y )
         // TODO rotation and scale
       };
       self.handleTransformUpdate(self.pois[name], newTransfrom);
     } else {
+
       // CREATE NEW
 
-      if (name.indexOf('RHKL') > -1) {
-        pin = new THREE.Sprite(self.pinMaterialTram);
-      } else if (name.indexOf('metro') > -1) {
-        pin = new THREE.Sprite(self.pinMaterialMetro);
-      } else {
-        pin = new THREE.Sprite(self.pinMaterialBus);
-      }
+      var pinSprite = self.makePinSprite(name);
 
-      pin.scale.set(40, 40, 40);
-
-      pin.name = name;
-      pin.description = desc;
-      pin.uuid = uuid;
+      pinSprite.name = name;
+      pinSprite.description = desc;
+      pinSprite.uuid = uuid;
 
       var dgeocoord = new VIZI.LatLon(lat, lon);
       var dscenepoint = self.world.project(dgeocoord);
 
-      pin.position.x = dscenepoint.x;
-      pin.position.y = self.spriteYpos;
-      pin.position.z = dscenepoint.y;
+      pinSprite.position.x = dscenepoint.x;
+      pinSprite.position.y = self.spriteYpos;
+      pinSprite.position.z = dscenepoint.y;
 
-      pin.index = self.pois.length;
+      pinSprite.index = self.pois.length;
 
-      self.pois[name] = pin;
+      self.pois[name] = pinSprite;
       // Add also to array for raycast
-      self.poisArray.push(pin);
+      self.poisArray.push(pinSprite);
 
-      self.updatePoiVisibility(pin); // Set initial visibility according to lollipopmenu selection mode
+      self.updatePoiVisibility(pinSprite); // Set initial visibility according to lollipopmenu selection mode
 
 
-      // NUMBER SPRITE
-      var textSprite = self.makeTextSprite(name, {
-        fontsize: 12,
-        borderColor: {
-          r: 0,
-          g: 0,
-          b: 255,
-          a: 1.0
-        },
-        backgroundColor: {
-          r: 100,
-          g: 100,
-          b: 255,
-          a: 0.8
-        }
-      });
-
-      pin.add(textSprite);
-
-      self.add(pin);
+      self.add(pinSprite);
     }
 
 
@@ -562,64 +534,53 @@
   VIZI.BlueprintOutputSensor.prototype.updateModelCount = function() {
     var self = this;
     self.modelCount++;
-    if (self.modelCount == Object.keys(self.modelPaths).length) {
-      self.emit("models ready");
+    if (self.modelCount == Object.keys(self.assetPaths).length) {
+      self.emit("assets ready");
     }
   };
 
-  VIZI.BlueprintOutputSensor.prototype.makeTextSprite = function(message, parameters) {
+  VIZI.BlueprintOutputSensor.prototype.makePinSprite = function(name) {
     var self = this;
 
-    if (parameters === undefined) parameters = {};
+    var fontface = "Arial";
 
-    var fontface = parameters.hasOwnProperty("fontface") ?
-      parameters["fontface"] : "Arial";
-
-    var fontsize = parameters.hasOwnProperty("fontsize") ?
-      parameters["fontsize"] : 18;
-
-    var borderThickness = parameters.hasOwnProperty("borderThickness") ?
-      parameters["borderThickness"] : 4;
-
-    var borderColor = parameters.hasOwnProperty("borderColor") ?
-      parameters["borderColor"] : {
-      r: 0,
-      g: 0,
-      b: 0,
-      a: 1.0
-    };
-
-    var backgroundColor = parameters.hasOwnProperty("backgroundColor") ?
-      parameters["backgroundColor"] : {
-      r: 255,
-      g: 255,
-      b: 255,
-      a: 1.0
-    };
-
-    var spriteAlignment = new THREE.Vector2(0, 1);
+    var fontsize = 64;
 
     var canvas = document.createElement('canvas');
+    canvas.width = "512";
+    canvas.height = "256";
     var context = canvas.getContext('2d');
+
+
+    // IMAGE
+
+    if (name.indexOf('RHKL') > -1) {
+      context.drawImage(self.tramImg, 0, 0);
+    } else if (name.indexOf('metro') > -1) {
+      context.drawImage(self.metroImg, 0, 0);
+    } else {
+      context.drawImage(self.busImg, 0, 0);
+    }
+
+
+    // TEXT
+
     context.font = "Bold " + fontsize + "px " + fontface;
 
+    name = name.slice(-3);
+
     // get size data (height depends only on font size)
-    var metrics = context.measureText(message);
+    var metrics = context.measureText(name);
     var textWidth = metrics.width;
 
-    // background color
-    context.fillStyle = "rgba(" + backgroundColor.r + "," + backgroundColor.g + "," + backgroundColor.b + "," + backgroundColor.a + ")";
-    // border color
-    context.strokeStyle = "rgba(" + borderColor.r + "," + borderColor.g + "," + borderColor.b + "," + borderColor.a + ")";
-
-    context.lineWidth = borderThickness;
-    self.roundRect(context, borderThickness / 2, borderThickness / 2, textWidth + borderThickness, fontsize * 1.4 + borderThickness, 6);
-    // 1.4 is extra height factor for text below baseline: g,j,p,q.
-
     // text color
-    context.fillStyle = "rgba(0, 0, 0, 1.0)";
+    context.fillStyle = "rgba(255, 255, 255, 1.0)";
 
-    context.fillText(message, borderThickness, fontsize + borderThickness);
+    context.textAlign = "left";
+    context.textBaseline = "top";
+
+    context.fillText(name, 270, 92, 160);
+
 
     // canvas contents will be used for a texture
     var texture = new THREE.Texture(canvas);
@@ -628,10 +589,10 @@
     var spriteMaterial = new THREE.SpriteMaterial({
       map: texture,
       useScreenCoordinates: false,
-      alignment: spriteAlignment
     });
     var sprite = new THREE.Sprite(spriteMaterial);
-    sprite.scale.set(100, 50, 1.0);
+
+    sprite.scale.set(50, 25, 1.0);
     return sprite;
   };
 
