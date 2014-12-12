@@ -2,6 +2,22 @@
 (function() {
   "use strict";
 
+  // Adapted from https://github.com/HSLdevcom/navigator-proto/blob/master/src/routing.coffee#L40
+  var intepretJoreCode = function(routeId) {
+    if (routeId.match(/^(1|2|4).../))
+      return { mode : "BUS", routeType : 3, route : "" + (parseInt(routeId.substring(1))) };
+    else if (routeId.match(/^1019/))
+      return { mode : "FERRY", routeType : 4, route : "Ferry" };
+    else if (routeId.match(/^1300/))
+      return { mode : "SUBWAY", routeType : 1, route : routeId.substring(4, 5) };
+    else if (routeId.match(/^300/))
+      return { mode : "RAIL", routeType : 2, route : routeId.substring(4, 5) };
+    else if (routeId.match(/^10(0|10)/))
+      return { mode : "TRAM", routeType : 0, route : "" + (parseInt(routeId.substring(2, 4))) };
+    else // unknown, assume bus
+      return { mode : "BUS", routeType : 3, route : routeId };
+  };
+
   /**
    * Blueprint sensor output
    * @author Tapani Jämsä - playsign.net
