@@ -61,12 +61,6 @@
       side: THREE.BackSide
     });*/
 
-    var material = new THREE.LineBasicMaterial({
-      color: 0xff0000,
-      //vertexColors: ,
-      linewidth: 5
-    });
-
     _.each(data, function(feature) {
       var geom = new THREE.Geometry();
       _.each(feature.linecoords, function(coord, index) {
@@ -74,10 +68,14 @@
         geom.vertices.push(new THREE.Vector3( geoCoord.x, 10, geoCoord.y ));
       });
 
-      // Use choropleth range colour if defined, else random
-      /*var colour = (self.options.colourRange) ? new THREE.Color(scaleColour(feature.value)) : new THREE.Color(0xffffff * Math.random());
+      //var colour = new THREE.Color(0xffffff * Math.random());
+      var colour = new THREE.Color(0xff0000);
 
-      self.applyVertexColors(geom, colour);*/
+      var material = new THREE.LineBasicMaterial({
+        color: colour,
+        //vertexColors: ,
+        linewidth: 5
+      });
 
       var line = new THREE.Line( geom, material );
       self.add(line);
