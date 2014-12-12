@@ -369,13 +369,13 @@
     var intersects = self.doRaycast(self.mouse.x, self.mouse.y, self.poisArray);
 
     // if there is one (or more) intersections
-    if (intersects.length > 0 && intersects[0].object.visible) {
-      // console.log(intersects[0]);
-      self.intersectedObject = intersects[0].object;
-    } else {
+    // if (intersects.length > 0 && intersects[0].object.visible) {
+    //   // console.log(intersects[0]);
+    //   self.intersectedObject = intersects[0].object;
+    // } else {
       // If no ray hits, pass on to lollipopmenu
       self.lollipopMenu.onMouseDown(self.mouse.x, self.mouse.y);
-    }
+    // }
   };
 
 
