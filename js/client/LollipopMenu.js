@@ -176,6 +176,7 @@ LollipopMenu.prototype = {
   openDialog: function(item) {
     var self = this;
     var image_str = "";
+    var i = item;
     if (item.media != null)
         image_str = "<img src='" + item.media + "' alt='Mountain View' style='width:auto;height:220px;'>";
     $("body").append("<div id='" + item.id + "' title='" + item.header + "'>" +
@@ -186,12 +187,13 @@ LollipopMenu.prototype = {
           width: 500,
           height: "auto",
           close: function(ev, ui) {
-            self.closeDialog();
+            self.closeDialog(i);
           }
         });
   },
   
-  closeDialog: function() {
+  closeDialog: function(item) {
+    $("#" + item.id).remove();
     this.currentDialog = null;  
   },
   
