@@ -175,9 +175,13 @@ LollipopMenu.prototype = {
   
   openDialog: function(item) {
     var self = this;
+    var image_str = "";
+    if (item.media != null)
+        image_str = "<img src='" + item.media + "' alt='Mountain View' style='width:auto;height:220px;'>";
     $("body").append("<div id='" + item.id + "' title='" + item.header + "'>" +
-                     "<p>" + item.description + "</p>" + 
+                     "<p>" + item.description + "</p>" + image_str +
                      "</div>");
+    
     this.currentDialog = $("#" + item.id).dialog({
           width: 500,
           height: "auto",
