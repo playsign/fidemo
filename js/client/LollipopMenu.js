@@ -58,6 +58,35 @@ var LollipopMenu = function(owner) {
   this.mouseDownY = 0;
 
   this.avatarMoveDelay = 1.0;
+  
+  // Helsinki issue objects
+  this.issueItems = {};
+  this.issueIconMaterials = {};
+  this.issueIconMaterials.open = new THREE.SpriteMaterial({
+    map: THREE.ImageUtils.loadTexture(IssueItem.Icons.OPEN),
+    color: "rgb(216,136,0)",
+    fog: true,
+    depthWrite : false
+  });
+  this.issueIconMaterials.inprogress = new THREE.SpriteMaterial({
+    map: THREE.ImageUtils.loadTexture(IssueItem.Icons.INPROGRESS),
+    color: "rgb(216,136,0)",
+    fog: true,
+    depthWrite : false
+  });
+  this.issueIconMaterials.closed = new THREE.SpriteMaterial({
+    map: THREE.ImageUtils.loadTexture(IssueItem.Icons.CLOSED),
+    color: "rgb(216,136,0)",
+    fog: true,
+    depthWrite : false
+  });
+  this.issueIconMaterials.unknown = new THREE.SpriteMaterial({
+    map: THREE.ImageUtils.loadTexture(IssueItem.Icons.UNKNOWN),
+    color: "rgb(216,136,0)",
+    fog: true,
+    depthWrite : false
+  });
+  this.issueInstances = [];
 
   this.selection = 0; // 0 = none, 1 = photos, 2 = properties etc.
 };
@@ -121,13 +150,71 @@ LollipopMenu.prototype = {
     var intersectPoint = ray.intersectPlane(this.worldPlane, null);
     return intersectPoint;
   },
+  
+  getIssueMaterial: function(status){
+      if (status == "open")
+          return this.issueIconMaterials.open;
+      else if(status == "inprogress")
+          return this.issueIconMaterials.inprogress;
+      else if(status == "closed")
+          return this.issueIconMaterials.closed;
+      else
+          return this.issueIconMaterials.unknown;
+  },
+  
+  createIssueIcons: function() {
+      var world = this.owner.options.globalData.world;
+      var item = null;
+      var sprite = null;
+      
+      for (var i in this.issueItems)
+      {
+          item = this.issueItems[i];
+          sprite = new THREE.Sprite(this.getIssueMaterial(item.status));
+          sprite.scale.set(20, 20, 20);
+          sprite.position.copy(world.project(item.latLon, world.zoom));
+          sprite.position.set(sprite.position.x, 60, sprite.position.y);
+          this.issueInstances.push(sprite);
+          this.owner.add(sprite);
+      }
+  },
+  
+  removeIssueIcons: function() {
+      this.issueItems = {};
+      for(var i in this.issueInstances)
+          this.owner.remove(this.issueInstances[i]);
+      this.issueInstances = [];
+  },
 
   createMenu : function(pos) {
     if (this.isShowing()) {
         this.hideMenu(); // If already showing, hide the old first
     }
 
-    //Animate the circle to new position
+    if (this.owner.options.globalData != null && this.owner.options.globalData.world != null)
+    {
+        var point = new VIZI.Point(pos.x, pos.z);
+        var w = this.owner.options.globalData.world;
+        var latLong = w.unproject(point, w.zoom);
+        var that = this;
+        this.removeIssueIcons();
+        
+        var callback = function(result) {
+            var item = null;
+            for(var i in result) {
+                item = result[i];
+                if (item instanceof IssueItem) {
+                    that.issueItems[item.id] = item;
+                }
+            }
+            that.createIssueIcons();
+            
+            that = null;
+        };
+        HelsinkiIssues.RequestIssues(latLong.lat, latLong.lon, 300, callback);
+    }
+
+    // Animate the circle to new position
     if (this.owner.options.globalData != null && this.owner.options.globalData.animator != null)
 	{
 		this.owner.options.globalData.animator.SetPosition(pos);
