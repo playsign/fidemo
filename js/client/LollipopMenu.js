@@ -109,7 +109,8 @@ LollipopMenu.prototype = {
       }
       else {
         // Raycast to icons and perform selection, hide/reopen menu if none hit
-        if (!this.doSelectionRaycast(x, y)) {
+        if (!this.doSelectionRaycast(x, y) &&
+            !this.doIconRaycast(x, y)) {
           var pos = this.planeRaycast(x, y);
           var distVec = new THREE.Vector3();
           distVec.subVectors(pos, this.lastShowPos);
@@ -162,6 +163,34 @@ LollipopMenu.prototype = {
           return this.issueIconMaterials.unknown;
   },
   
+  doIconRaycast : function(x, y) {
+    var intersections = this.owner.doRaycast(x, y, this.issueInstances);
+    for (var i = 0; i < intersections.length; ++i)
+    {
+      //console.log(intersections[i]);
+      this.openDialog(intersections[i].object.item);
+    }
+    return intersections.length > 0;
+  },
+  
+  openDialog: function(item) {
+    var self = this;
+    $("body").append("<div id='" + item.id + "' title='" + item.header + "'>" +
+                     "<p>" + item.description + "</p>" + 
+                     "</div>");
+    this.currentDialog = $("#" + item.id).dialog({
+          width: 500,
+          height: "auto",
+          close: function(ev, ui) {
+            self.closeDialog();
+          }
+        });
+  },
+  
+  closeDialog: function() {
+    this.currentDialog = null;  
+  },
+  
   createIssueIcons: function() {
       var world = this.owner.options.globalData.world;
       var item = null;
@@ -174,6 +203,7 @@ LollipopMenu.prototype = {
           sprite.scale.set(20, 20, 20);
           sprite.position.copy(world.project(item.latLon, world.zoom));
           sprite.position.set(sprite.position.x, 60, sprite.position.y);
+          sprite.item = item;
           this.issueInstances.push(sprite);
           this.owner.add(sprite);
       }

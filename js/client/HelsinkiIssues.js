@@ -1,7 +1,11 @@
-var IssueItem = function(id, latLon, status) {
+var IssueItem = function(id, latLon, status, header, description, media, address) {
     this.id = id;
     this.latLon = latLon;
     this.status = status;
+    this.header = header;
+    this.description = description;
+    this.media = media;
+    this.address = address;
 };
 
 IssueItem.prototype = {
@@ -14,7 +18,10 @@ IssueItem.parse = function(jsonData) {
     var id = jsonData.service_request_id;
     var latLon = new VIZI.LatLon(jsonData.lat, jsonData.long);
     var status = jsonData.status;
-    return new IssueItem(id, latLon, status);
+    var description = jsonData.description;
+    var header = description.substring(0, 32) + "...";
+    var media = jsonData.media_url;
+    return new IssueItem(id, latLon, status, header, description, media, "");
 };
 
 IssueItem.Icons = {
