@@ -67,6 +67,9 @@ var FiwareDemo = IApplication.$extend(
        if (this.globalData != null && this.globalData.animator != null)
            this.globalData.animator.Update(frametime);
            
+       if (this.globalData != null && this.globalData.labelCull != null)
+           this.globalData.labelCull.Update(frametime);
+           
     },
 
     onKeyEvent : function(event)

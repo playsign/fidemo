@@ -32,7 +32,7 @@
   // Initialise instance and start automated processes
   VIZI.BlueprintOutputStreets.prototype.init = function() {
     var self = this;
-
+    
     self.emit("initialised");
   };
 
@@ -62,6 +62,11 @@
 
       self.add(textFront);
       self.add(textBack);
+      
+      if (self.options.globalData && self.options.globalData.labelCull) {
+        self.options.globalData.labelCull.Add(textFront);
+        self.options.globalData.labelCull.Add(textBack);
+      }
     }
   };
 

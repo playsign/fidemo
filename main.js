@@ -36,6 +36,15 @@ try
             console.error(exception);
         });
 
+    // Label application
+    $.getScript("js/client/LabelCull.js")
+        .done(function(/*script, textStatus*/) {
+            globalData.labelCull = new LabelCull(globalData);
+        })
+        .fail(function(jqxhr, settings, exception) {
+            console.error(exception);
+        });
+        
     // Free camera application
     $.getScript("build/webtundra/application/freecamera.js")
         .done(function(/*script, textStatus*/) {
@@ -371,6 +380,7 @@ if (santanderLatLon !== undefined) {
   switchboardData.addToWorld(world);
 
   var streetLabelsConfig = getStreetLabelsConfig();
+  streetLabelsConfig.output.options.globalData = globalData;
   var switchboardStreets = new VIZI.BlueprintSwitchboard(streetLabelsConfig);
   switchboardStreets.addToWorld(world);
 }
