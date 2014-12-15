@@ -205,7 +205,9 @@
         // TODO rotation and scale
       };
       self.handleTransformUpdate(self.pois[vehicleId], newTransfrom);
-      self.pois[vehicleId].arrow.rotation.set(THREE.Math.degToRad(180), THREE.Math.degToRad(bearing), 0);
+      if (bearing) {
+        self.pois[vehicleId].arrow.rotation.set(THREE.Math.degToRad(180), THREE.Math.degToRad(bearing), 0);
+      }
     } else {
       // CREATE NEW
       var pin = new THREE.Object3D();
@@ -232,25 +234,25 @@
       self.poisArray.push(pin);
       self.updatePoiVisibility(pin); // Set initial visibility according to lollipopmenu selection mode
 
-      // Arrow
+      pin.add(pinSprite);
 
+      // Arrow
       var newMaterial = self.arrow.material.clone();
       var info = intepretJoreCode(name);
       if (info.mode == "TRAM") {
-        newMaterial.materials[0].map = THREE.ImageUtils.loadTexture("data/2d/arrow_diffuse_ratikka.png");
+        newMaterial.materials[0].map = THREE.ImageUtils.loadTexture("data/3d/arrow_diffuse_ratikka.png");
       } else if (info.mode == "SUBWAY") {
-        newMaterial.materials[0].map = THREE.ImageUtils.loadTexture("data/2d/arrow_diffuse_metro.png");
+        newMaterial.materials[0].map = THREE.ImageUtils.loadTexture("data/3d/arrow_diffuse_metro.png");
       } else {
-        newMaterial.materials[0].map = THREE.ImageUtils.loadTexture("data/2d/arrow_diffuse_bussi.png");
+        newMaterial.materials[0].map = THREE.ImageUtils.loadTexture("data/3d/arrow_diffuse_bussi.png");
       }
 
-      var arrowMesh = new THREE.Mesh(self.arrow.geometry.clone(), newMaterial);
-      arrowMesh.rotation.set(THREE.Math.degToRad(180),THREE.Math.degToRad(bearing),0);
-
-      // Add children
-      pin.add(pinSprite);
-      pin.add(arrowMesh);
-      pin.arrow = arrowMesh;
+      if (bearing) {
+        var arrowMesh = new THREE.Mesh(self.arrow.geometry.clone(), newMaterial);
+        arrowMesh.rotation.set(THREE.Math.degToRad(180), THREE.Math.degToRad(bearing), 0);
+        pin.add(arrowMesh);
+        pin.arrow = arrowMesh;
+      }
 
       self.updatePoiVisibility(pin); // Set initial visibility according to lollipopmenu selection mode
 
