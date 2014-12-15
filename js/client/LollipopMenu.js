@@ -60,6 +60,7 @@ var LollipopMenu = function(owner) {
   this.avatarMoveDelay = 1.0;
   
   // Helsinki issue objects
+  this.issueRequestId = "";
   this.issueItems = {};
   this.issueIconMaterials = {};
   this.issueIconMaterials.open = new THREE.SpriteMaterial({
@@ -167,7 +168,6 @@ LollipopMenu.prototype = {
     var intersections = this.owner.doRaycast(x, y, this.issueInstances);
     for (var i = 0; i < intersections.length; ++i)
     {
-      //console.log(intersections[i]);
       this.openDialog(intersections[i].object.item);
     }
     return intersections.length > 0;
@@ -179,8 +179,9 @@ LollipopMenu.prototype = {
     var i = item;
     if (item.media != null)
         image_str = "<img src='" + item.media + "' alt='Mountain View' style='width:auto;height:220px;'>";
+        
     $("body").append("<div id='" + item.id + "' title='" + item.header + "'>" +
-                     "<p>" + item.description + "</p>" + image_str +
+                         "<p>" + item.description + "</p>" + image_str +
                      "</div>");
     
     this.currentDialog = $("#" + item.id).dialog({
@@ -235,7 +236,11 @@ LollipopMenu.prototype = {
         var that = this;
         this.removeIssueIcons();
         
-        var callback = function(result) {
+        var callback = function(id, result) {
+            // if old request ignore.
+            if (that.issueRequestId != id)
+                return;
+            
             var item = null;
             for(var i in result) {
                 item = result[i];
@@ -247,7 +252,7 @@ LollipopMenu.prototype = {
             
             that = null;
         };
-        HelsinkiIssues.RequestIssues(latLong.lat, latLong.lon, 300, callback);
+        this.issueRequestId = HelsinkiIssues.RequestIssues(latLong.lat, latLong.lon, 300, callback);
     }
 
     // Animate the circle to new position

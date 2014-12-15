@@ -44,7 +44,19 @@ IssueItem.Icons = {
 
 var HelsinkiIssues = function() {};
 
+HelsinkiIssues.RequestIndex = 0;
+HelsinkiIssues.NextIndex = function() {
+    if (HelsinkiIssues.RequestIndex >= 32767)
+        HelsinkiIssues.RequestIndex = 0;
+    
+    return HelsinkiIssues.RequestIndex++;
+};
+
+// Request Helsinki issues from the web serivice. When request is handled callback
+// function is triggered. To track request
 HelsinkiIssues.RequestIssues = function( lat, long, radius, callback ) {
+    
+    var requestId = HelsinkiIssues.NextIndex();
     var fullUrl = "https://asiointi.hel.fi/palautews/rest/v1/requests.json?lat=" + lat + "&long=" + long + "&radius=" + radius;
     console.log("Requesting Helsinki issues url: " + fullUrl);
 
@@ -68,16 +80,18 @@ HelsinkiIssues.RequestIssues = function( lat, long, radius, callback ) {
                 for(var i in issueItems)
                     issues.push(IssueItem.parse(issueItems[i]));
 
-                readySignal.dispatch(issues);
+                readySignal.dispatch(requestId, issues);
 
                 readySignal = null;
                 that = null;
             }
             else if (xhr.status === 404) {
                 console.error("Get get helsinki issue items failed: " + xhr.responseText);
-                readySignal.dispatch([]);
+                readySignal.dispatch(requestId, []);
             }
         }
     };
+    
     xhr.send(null);
+    return requestId;
 };
