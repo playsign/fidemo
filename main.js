@@ -2,6 +2,8 @@
 // NOTE was: WebTundra ships with three r62 but it picks up the later included r69 from vizi.js!
 // NOW: removed the three r62 from WTs deps and index.html has vizi, for three, first now
 
+function noop() {}
+
 // Global data object is used to share data between blueprints and Tundra-Client.
 var globalData = {};
 
@@ -24,7 +26,7 @@ try
         client.log.infoC("client reset is a no-op now.");
     };
 
-    var freecamera, cbclient, demoapp, chat, userPresence, animator;
+    var /*freecamera,*/ cbclient, demoapp, chat, userPresence;
     var infoDialog, usernameDialog;
 
     // Free camera application
@@ -33,6 +35,7 @@ try
             globalData.animator = new BuildingAnimation();
         })
         .fail(function(jqxhr, settings, exception) {
+            noop(jqxhr, settings);
             console.error(exception);
         });
 
@@ -42,17 +45,19 @@ try
             globalData.labelCull = new LabelCull(globalData);
         })
         .fail(function(jqxhr, settings, exception) {
+            noop(jqxhr, settings);
             console.error(exception);
         });
         
-    // Free camera application
-    $.getScript("build/webtundra/application/freecamera.js")
-        .done(function(/*script, textStatus*/) {
-            freecamera = new FreeCameraApplication();
-        })
-        .fail(function(jqxhr, settings, exception) {
-            console.error(exception);
-        });
+    // Free camera application, commented out as not used for anything.
+    // $.getScript("build/webtundra/application/freecamera.js")
+        // .done(function(/*script, textStatus*/) {
+            // freecamera = new FreeCameraApplication();
+        // })
+        // .fail(function(jqxhr, settings, exception) {
+            // noop(jqxhr, settings);
+            // console.error(exception);
+        // });
 
     // Fiware demo application
     $.getScript("js/client/tundra-client.js")
@@ -61,6 +66,7 @@ try
             demoapp.globalData = globalData;
         })
         .fail(function(jqxhr, settings, exception) {
+            noop(jqxhr, settings);
             console.error(exception);
         });
 
@@ -71,6 +77,7 @@ try
             cbclient.runTests();
         })
         .fail(function(jqxhr, settings, exception) {
+            noop(jqxhr, settings);
             console.error(exception);
         });
 
@@ -80,6 +87,7 @@ try
           poicommentclient = new PoiComment();
         })
         .fail(function(jqxhr, settings, exception) {
+          noop(jqxhr, settings);
           console.error(exception);
         }
       );
@@ -104,6 +112,7 @@ try
                 userPresence = new UserPresenceApplication();
             })
             .fail(function(jqxhr, settings, exception) {
+                noop(jqxhr, settings);
                 console.error(exception);
             });
 
@@ -115,6 +124,7 @@ try
                 // chat.initUi(); // Uncomment to test chat UI in standalone mode
             })
             .fail(function(jqxhr, settings, exception) {
+                noop(jqxhr, settings);
                 console.error(exception);
             });
 
@@ -526,7 +536,7 @@ var buildingsConfig = {
       tile: "tile"
     }
   }]
-}
+};
 
 var switchboardBuildings = new VIZI.BlueprintSwitchboard(buildingsConfig);
 switchboardBuildings.addToWorld(world);
