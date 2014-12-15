@@ -67,7 +67,7 @@
     // MODELS & MATERIALS
 
     self.modelYpos = 10;
-    self.spriteYpos = 30;
+    self.spriteYpos = 20;
 
     var jsonLoader = new THREE.JSONLoader();
     self.assetPaths = {
@@ -76,7 +76,7 @@
       arrow: 'data/3d/arrow.js',
       bus: 'data/2d/bussi.png',
       tram: 'data/2d/ratikka.png',
-      metro: 'data/2d/jokujuna.png',
+      metro: 'data/2d/metro.png',
     };
 
     self.modelCount = 0;
@@ -212,8 +212,8 @@
       
       // Sprite
       var pinSprite = self.makePinSprite(name);
-      pinSprite.translateX(12);
-      pinSprite.translateY(12);
+      // pinSprite.translateX(12);
+      pinSprite.translateY(25);
 
       pin.name = name;
       pin.description = desc;
@@ -233,7 +233,18 @@
       self.updatePoiVisibility(pin); // Set initial visibility according to lollipopmenu selection mode
 
       // Arrow
-      var arrowMesh = new THREE.Mesh(self.arrow.geometry.clone(), self.arrow.material.clone());
+
+      var newMaterial = self.arrow.material.clone();
+      var info = intepretJoreCode(name);
+      if (info.mode == "TRAM") {
+        newMaterial.materials[0].map = THREE.ImageUtils.loadTexture("data/2d/arrow_diffuse_ratikka.png");
+      } else if (info.mode == "SUBWAY") {
+        newMaterial.materials[0].map = THREE.ImageUtils.loadTexture("data/2d/arrow_diffuse_metro.png");
+      } else {
+        newMaterial.materials[0].map = THREE.ImageUtils.loadTexture("data/2d/arrow_diffuse_bussi.png");
+      }
+
+      var arrowMesh = new THREE.Mesh(self.arrow.geometry.clone(), newMaterial);
       arrowMesh.rotation.set(THREE.Math.degToRad(180),THREE.Math.degToRad(bearing),0);
 
       // Add children
@@ -368,8 +379,8 @@
     var self = this;
     console.log("load arrow model");
     var material = new THREE.MeshFaceMaterial(materials);
+    material.materials[0].emissive = new THREE.Color(0xffffff);
     self.arrow = new THREE.Mesh(geometry, material);
-
     self.updateModelCount();
   };
 
@@ -588,7 +599,7 @@
 
     var canvas = document.createElement('canvas');
     canvas.width = "512";
-    canvas.height = "256";
+    canvas.height = "512";
     var context = canvas.getContext('2d');
 
 
@@ -631,9 +642,10 @@
       map: texture,
       useScreenCoordinates: false,
     });
+
     var sprite = new THREE.Sprite(spriteMaterial);
 
-    sprite.scale.set(50, 25, 1.0);
+    sprite.scale.set(25, 25, 1.0);
     return sprite;
   };
 
