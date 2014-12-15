@@ -17,9 +17,13 @@
     self.triggers = [{
         name: "initialised",
         arguments: []
+      },
+      {
+        name: "requestUpdatePath",
+        arguments: []
       }
     ];
-	
+    
     self.actions = [{
         name: "outputOverpass",
         arguments: ["overpass"]
@@ -27,18 +31,31 @@
     ];
 
     self.world;
-	
-	self.pois = {};
-	self.poisArray = [];
+    
+    self.pins = [];
 
     // MODELS & MATERIALS
 
     self.modelYpos = 10;
-    self.spriteYpos = 30;
+    self.spriteYpos = 40;
 
     // Pin sprite material
-    var pinMap = THREE.ImageUtils.loadTexture("data/2d/icon_restaurant.png");
+    var pinMap = THREE.ImageUtils.loadTexture("data/2d/icon_cafe.png");
     self.pinMaterialCafe = new THREE.SpriteMaterial({
+      map: pinMap,
+      color: 0xffffff,
+      fog: true
+    });
+    
+    pinMap = THREE.ImageUtils.loadTexture("data/2d/icon_bar.png");
+    self.pinMaterialBar = new THREE.SpriteMaterial({
+      map: pinMap,
+      color: 0xffffff,
+      fog: true
+    });
+    
+    pinMap = THREE.ImageUtils.loadTexture("data/2d/icon_restaurant.png");
+    self.pinMaterialRestaurant = new THREE.SpriteMaterial({
       map: pinMap,
       color: 0xffffff,
       fog: true
@@ -57,8 +74,8 @@
       color: 0xffffff,
       fog: true
     });
-	
-	   pinMap = THREE.ImageUtils.loadTexture("data/2d/icon_hospital.png");
+    
+       pinMap = THREE.ImageUtils.loadTexture("data/2d/icon_hospital.png");
     self.pinMaterialHealthcare = new THREE.SpriteMaterial({
       map: pinMap,
       color: 0xffffff,
@@ -72,12 +89,10 @@
   VIZI.BlueprintOutputOverpass.prototype.init = function() {
     var self = this;
 
-   // self.emit("initialised");
-	//TODO: Call this only from onLollipopPositionChanged & figure out how to update overpassConfig input options path before request
-	self.emit("requestOverpassData");	
-	if(self.options.globalData.lollipopMenu != null)
-		self.options.globalData.lollipopMenu.positionChanged.add(self.onLollipopPositionChanged, self);
-	overpassConfig.output.options.currentlatLong = world.center;
+    //requestOverpassData is called also when receiving new long lat position from lollipopmenu (onLollipopPositionChanged)
+    self.emit("requestOverpassData");	
+    if(self.options.globalData.lollipopMenu != null)
+        self.options.globalData.lollipopMenu.positionChanged.add(self.onLollipopPositionChanged, self);
   };
 
   VIZI.BlueprintOutputOverpass.prototype.outputOverpass = function(data) {
@@ -96,13 +111,14 @@
         }
         objectDescription.push(variable + ": " + data[i][variable]);
       }
-	  var type = "";
-	  
-	  if(data[i].tags["amenity"] != null)
-		type = data[i].tags["amenity"];
-		
+      var type = "";
+      
+      if(data[i].tags["amenity"] != null)
+        type = data[i].tags["amenity"];
+        else  if(data[i].tags["shop"] != null)
+        type = "shop";
       var objectId = data[i].node;
-	  
+      
       self.createOverpass(objectLatitude, objectLongitude, objectName, objectDescription, objectId, type);
     }
   };
@@ -110,44 +126,54 @@
   VIZI.BlueprintOutputOverpass.prototype.createOverpass = function(lat, lon, name, desc, uuid, type) {
     var self = this;
 
+    for(var pin in self.pins)
+    {
+        if(self.pins[pin].uuid == uuid)
+        {
+            self.pins[pin].visible = true;
+            return;
+        }
+    }
     var pin;
-     // CREATE NEW
 
-	if(type == "cafe" || type == "bar" || type == "restaurant")
-		pin = new THREE.Sprite(self.pinMaterialCafe);
-	else if(type == "library" || type == "school" || type == "university" || type == "college" || type == "kindergarten")
-		pin = new THREE.Sprite(self.pinMaterialLibrary);
-	else if(type == "hospital")
-		pin = new THREE.Sprite(self.pinMaterialHealthcare);
-	else if(type == "shop")//TODO: add hospital
-	{
-		console.log(type);
-		pin = new THREE.Sprite(self.pinMaterialShop);
-	}
-		
-	pin.scale.set(25, 25, 25);
+    if(type == "cafe")
+        pin = new THREE.Sprite(self.pinMaterialCafe);
+    else if(type == "bar")
+        pin = new THREE.Sprite(self.pinMaterialBar);
+    else if(type == "restaurant")
+        pin = new THREE.Sprite(self.pinMaterialRestaurant);
+    else if(type == "library" || type == "school" || type == "university" || type == "college" || type == "kindergarten")
+        pin = new THREE.Sprite(self.pinMaterialLibrary);
+    else if(type == "hospital")
+        pin = new THREE.Sprite(self.pinMaterialHealthcare);
+    else if(type == "shop")
+        pin = new THREE.Sprite(self.pinMaterialShop);
+        
+    pin.scale.set(25, 25, 25);
 
-	pin.name = name;
-	pin.description = desc;
-	pin.uuid = uuid;
+    pin.name = name;
+    pin.description = desc;
+    pin.uuid = uuid;
 
-	var dgeocoord = new VIZI.LatLon(lat, lon);
-	var dscenepoint = self.world.project(dgeocoord);
+    var dgeocoord = new VIZI.LatLon(lat, lon);
+    var dscenepoint = self.world.project(dgeocoord);
 
-	pin.position.x = dscenepoint.x;
-	pin.position.y = self.spriteYpos;
-	pin.position.z = dscenepoint.y;
+    pin.position.x = dscenepoint.x;
+    pin.position.y = self.spriteYpos;
+    pin.position.z = dscenepoint.y;
 
-	pin.index = self.pois.length;
+    pin.index = self.pins.length;
 
-	self.pois[name] = pin;
-	// Add also to array for raycast
-	self.poisArray.push(pin);
+    self.pins[pin.index] = pin;
 
-	self.add(pin);
+    self.add(pin);
   };
  
-  
+    VIZI.BlueprintOutputOverpass.prototype.hideAllPins = function() {
+    var self = this;
+    for(var pin in self.pins)
+        self.pins[pin].visible = false;
+  };
  
   VIZI.BlueprintOutputOverpass.prototype.onAdd = function(world) {
     var self = this;
@@ -156,9 +182,11 @@
   };
   
     VIZI.BlueprintOutputOverpass.prototype.onLollipopPositionChanged = function(latLong) {
-		var self = this;
-	//	self.options.globalData.currentPos = latLong;
-	//	self.emit("requestOverpassData");		
+        var self = this;
+        self.hideAllPins();
+        self.options.globalData.currentPos = latLong;
+        self.emit("requestUpdatePath"); //send info to BlueprintInputData to update path
+        self.emit("requestOverpassData");		
    };
 
  }());

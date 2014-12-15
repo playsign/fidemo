@@ -3,15 +3,7 @@ function getOverpassConfig() {
     input: {
       type: "BlueprintInputData",
       options: {
-        path: "http://overpass-api.de/api/interpreter?data=[out:json];((node(around:300.0,"+globalData.currentPos.lat+","+globalData.currentPos.lon+")[amenity~%22cafe%22];);(._;node(w);););out;"+
-		"((node(around:300.0,"+globalData.currentPos.lat+","+globalData.currentPos.lon+")[amenity~%22bar%22];);(._;node(w);););out;" +
-		"((node(around:300.0,"+globalData.currentPos.lat+","+globalData.currentPos.lon+")[amenity~%22restaurant%22];);(._;node(w);););out;" +
-		"((node(around:300.0,"+globalData.currentPos.lat+","+globalData.currentPos.lon+")[amenity~%22library%22];);(._;node(w);););out;" +
-		"((node(around:300.0,"+globalData.currentPos.lat+","+globalData.currentPos.lon+")[amenity~%22school%22];);(._;node(w);););out;" +
-		"((node(around:300.0,"+globalData.currentPos.lat+","+globalData.currentPos.lon+")[amenity~%22university%22];);(._;node(w);););out;" +
-		"((node(around:300.0,"+globalData.currentPos.lat+","+globalData.currentPos.lon+")[amenity~%22college%22];);(._;node(w);););out;" +
-		"((node(around:300.0,"+globalData.currentPos.lat+","+globalData.currentPos.lon+")[amenity~%22kindergarten%22];);(._;node(w);););out;" +
-		"((node(around:300.0,"+globalData.currentPos.lat+","+globalData.currentPos.lon+")[amenity~%22hospital%22];);(._;node(w);););out;",
+        path: globalData.overpassInputPath(),
       }
     },
     output: {
@@ -27,7 +19,17 @@ function getOverpassConfig() {
         actionName: "requestData",
         actionArguments: [],
         actionOutput: {}
-      }, {
+      },
+      {
+        triggerObject: "output",
+        triggerName: "requestUpdatePath",
+        triggerArguments: [],
+        actionObject: "input",
+        actionName: "updateOverpassPath",
+        actionArguments: [],
+        actionOutput: {}
+      },
+      {
         triggerObject: "input",
         triggerName: "dataReceived",
         triggerArguments: ["dataJSON"],
@@ -47,7 +49,7 @@ function getOverpassConfig() {
               // Eg. document.placemark[n].point.coordinates
               coordinates: ["lat", "lon"], // get coordinates from properties of the JSON          
               node: "id",
-			  tags: "tags",
+              tags: "tags",
             }
           }
         }

@@ -22,10 +22,9 @@
 
     self.actions = [
       {name: "requestData", arguments: []}
-    ];
-	self.actions = [{
-        name: "updatePath",
-        arguments: ["newPath"]
+    ,{
+        name: "updateOverpassPath",
+        arguments: []
       }
     ];
   };
@@ -38,11 +37,12 @@
     self.emit("initialised");
   };
   
-  VIZI.BlueprintInputData.prototype.updatePath = function(newPath)  {
-	console.log("_______________new path" + newPath);
-	//self.options.path = newPath;
+  //use for updating path for Overpass request
+  VIZI.BlueprintInputData.prototype.updateOverpassPath = function(newPath)  {
+    var self = this;
+    self.options.path = self.options.globalData.overpassInputPath();
   };
-	
+    
   VIZI.BlueprintInputData.prototype.requestData = function() {
     var self = this;
 
