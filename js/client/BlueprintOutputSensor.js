@@ -73,6 +73,7 @@
     self.assetPaths = {
       lightbulb: 'data/3d/lightbulb.js',
       thermometer: 'data/3d/thermometer.js',
+      arrow: 'data/3d/arrow.js',
       bus: 'data/2d/bussi.png',
       tram: 'data/2d/ratikka.png',
       metro: 'data/2d/jokujuna.png',
@@ -85,6 +86,10 @@
 
     // Thermometer model
     jsonLoader.load(self.assetPaths.thermometer, self.loadThermometerModel.bind(self));
+
+    // Arrow model
+    jsonLoader.load(self.assetPaths.arrow, self.loadArrowModel.bind(self));
+
 
     // Bus image
     self.busImg = new Image();
@@ -143,6 +148,7 @@
       if (data[i] === undefined) {
         continue;
       }
+
       var boxLongitude = data[i].coordinates[1];
       var boxLatitude = data[i].coordinates[0];
       var boxName = "Sensor";
@@ -157,7 +163,7 @@
 
       if (data[i].categories) {
         boxName = data[i].lineref; //data[i].name; 'name' is a vehicle ID and has no value for us
-        self.createPin(boxLatitude, boxLongitude, boxName, boxDescription, boxId);
+        self.createPin(boxLatitude, boxLongitude, boxName, boxDescription, boxId, data[i].bearing);
       } else if (data[i].light) {
         var lux = parseFloat(data[i].light, 10);
         self.createLightbulb(boxLatitude, boxLongitude, boxName, boxDescription, boxId, lux);
@@ -187,7 +193,7 @@
   };
 
   // TODO: rename
-  VIZI.BlueprintOutputSensor.prototype.createPin = function(lat, lon, name, desc, uuid) {
+  VIZI.BlueprintOutputSensor.prototype.createPin = function(lat, lon, name, desc, uuid, bearing) {
     var self = this;
 
     var dgeocoord = new VIZI.LatLon(lat, lon);
@@ -199,48 +205,45 @@
         // TODO rotation and scale
       };
       self.handleTransformUpdate(self.pois[name], newTransfrom);
+      self.pois[name].arrow.rotation.set(THREE.Math.degToRad(180),THREE.Math.degToRad(bearing),0);
     } else {
       // CREATE NEW
+      var pin = new THREE.Object3D();
+      
+      // Sprite
       var pinSprite = self.makePinSprite(name);
+      pinSprite.translateX(12);
+      pinSprite.translateY(12);
 
-      pinSprite.name = name;
-      pinSprite.description = desc;
-      pinSprite.uuid = uuid;
+      pin.name = name;
+      pin.description = desc;
+      pin.uuid = uuid;
       //pin.scale.set(20, 20, 20);
       //was with ludo's icons
 
-      pinSprite.position.x = dscenepoint.x;
-      pinSprite.position.y = self.spriteYpos;
-      pinSprite.position.z = dscenepoint.y;
+      pin.position.x = dscenepoint.x;
+      pin.position.y = self.spriteYpos;
+      pin.position.z = dscenepoint.y;
 
-      pinSprite.index = self.pois.length;
+      pin.index = self.pois.length;
 
-      self.pois[name] = pinSprite;
+      self.pois[name] = pin;
       // Add also to array for raycast
-      self.poisArray.push(pinSprite);
-      self.updatePoiVisibility(pinSprite); // Set initial visibility according to lollipopmenu selection mode
+      self.poisArray.push(pin);
+      self.updatePoiVisibility(pin); // Set initial visibility according to lollipopmenu selection mode
 
+      // Arrow
+      var arrowMesh = new THREE.Mesh(self.arrow.geometry.clone(), self.arrow.material.clone());
+      arrowMesh.rotation.set(THREE.Math.degToRad(180),THREE.Math.degToRad(bearing),0);
 
-      // NUMBER SPRITE
-      var textSprite = self.makePinSprite(name, {
-        fontsize: 12,
-        borderColor: {
-          r: 195,
-          g: 123,
-          b: 0,
-          a: 1.0
-        },
-        backgroundColor: {
-          r: 255,
-          g: 255,
-          b: 255,
-          a: 0.8
-        }
-      });
+      // Add children
+      pin.add(pinSprite);
+      pin.add(arrowMesh);
+      pin.arrow = arrowMesh;
 
-      self.updatePoiVisibility(pinSprite); // Set initial visibility according to lollipopmenu selection mode
+      self.updatePoiVisibility(pin); // Set initial visibility according to lollipopmenu selection mode
 
-      self.add(pinSprite);
+      self.add(pin);
     }
 
 
@@ -357,6 +360,15 @@
     var material = new THREE.MeshFaceMaterial(materials);
     material.materials[0].emissive = new THREE.Color(0xffffff);
     self.thermometer = new THREE.Mesh(geometry, material);
+
+    self.updateModelCount();
+  };
+
+  VIZI.BlueprintOutputSensor.prototype.loadArrowModel = function(geometry, materials) {
+    var self = this;
+    console.log("load arrow model");
+    var material = new THREE.MeshFaceMaterial(materials);
+    self.arrow = new THREE.Mesh(geometry, material);
 
     self.updateModelCount();
   };
