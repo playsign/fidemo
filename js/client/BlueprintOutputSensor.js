@@ -205,7 +205,7 @@
         // TODO rotation and scale
       };
       self.handleTransformUpdate(self.pois[vehicleId], newTransfrom);
-	self.pois[name].arrow.rotation.set(THREE.Math.degToRad(180),THREE.Math.degToRad(bearing),0);
+      self.pois[vehicleId].arrow.rotation.set(THREE.Math.degToRad(180), THREE.Math.degToRad(bearing), 0);
     } else {
       // CREATE NEW
       var pin = new THREE.Object3D();
