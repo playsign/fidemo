@@ -783,8 +783,12 @@ var InfoDialog = Class.$extend(
             "top"              : 5
         });
 
-        this.ui.labelField = $("<div/>", { id : "label" });
-        this.ui.labelField.text("Hi! This is FIDEMO.");
+        // this.ui.labelField = $("<div/>", { id : "label" });
+        // this.ui.labelField.text("Hi! This is FIDEMO.");
+        this.ui.labelField = $("<a/>", { id : "viziAttribution" });
+        this.ui.labelField.text("Powered by ViziCities");
+        this.ui.labelField.prop("href", "http://vizicities.com");
+        this.ui.labelField.prop("target", "_blank");
         var buttonStyle = { "border" : "1px solid gray", "text" : "align:center" };
         this.ui.closeButton = createButton("closeButton", "Close", buttonStyle);
         this.ui.dialog.append(this.ui.labelField);
