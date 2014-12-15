@@ -133,7 +133,7 @@
     // Lollipop menu
     self.lollipopMenu = new LollipopMenu(self);
     self.lollipopMenu.selectionChanged.add(self.onLollipopSelectionChanged, self);
-	self.options.globalData.lollipopMenu = self.lollipopMenu;
+    self.options.globalData.lollipopMenu = self.lollipopMenu;
   };
 
   VIZI.BlueprintOutputSensor.prototype.outputSensor = function(data) {

@@ -383,10 +383,25 @@ var treesConfig = getTreesConfig();
 var switchboardTrees = new VIZI.BlueprintSwitchboard(treesConfig);
 switchboardTrees.addToWorld(world);
 
+
 // overpass data
 globalData.currentPos = world.center;
+globalData.overpassInputPath = function() {
+    return "http://overpass-api.de/api/interpreter?data=[out:json];((node(around:300.0,"+globalData.currentPos.lat+","+globalData.currentPos.lon+")[amenity~%22cafe%22];);(._;node(w);););out;"+
+        "((node(around:300.0,"+globalData.currentPos.lat+","+globalData.currentPos.lon+")[amenity~%22bar%22];);(._;node(w);););out;" +
+        "((node(around:300.0,"+globalData.currentPos.lat+","+globalData.currentPos.lon+")[amenity~%22restaurant%22];);(._;node(w);););out;" +
+        "((node(around:300.0,"+globalData.currentPos.lat+","+globalData.currentPos.lon+")[amenity~%22library%22];);(._;node(w);););out;" +
+        "((node(around:300.0,"+globalData.currentPos.lat+","+globalData.currentPos.lon+")[amenity~%22school%22];);(._;node(w);););out;" +
+        "((node(around:300.0,"+globalData.currentPos.lat+","+globalData.currentPos.lon+")[amenity~%22university%22];);(._;node(w);););out;" +
+        "((node(around:300.0,"+globalData.currentPos.lat+","+globalData.currentPos.lon+")[amenity~%22college%22];);(._;node(w);););out;" +
+        "((node(around:300.0,"+globalData.currentPos.lat+","+globalData.currentPos.lon+")[amenity~%22kindergarten%22];);(._;node(w);););out;" +
+        "((node(around:300.0,"+globalData.currentPos.lat+","+globalData.currentPos.lon+")[amenity~%22hospital%22];);(._;node(w);););out;" +
+        "((node(around:300.0,"+globalData.currentPos.lat+","+globalData.currentPos.lon+")[shop];);(._;node(w);););out;";
+};
+
 var overpassConfig = getOverpassConfig();
 
+overpassConfig.input.options.globalData = globalData;
 overpassConfig.output.options.globalData = globalData;
 
 var switchboardOverpass = new VIZI.BlueprintSwitchboard(overpassConfig);
