@@ -67,15 +67,16 @@
     // MODELS & MATERIALS
 
     self.modelYpos = 10;
-    self.spriteYpos = 30;
+    self.spriteYpos = 20;
 
     var jsonLoader = new THREE.JSONLoader();
     self.assetPaths = {
       lightbulb: 'data/3d/lightbulb.js',
       thermometer: 'data/3d/thermometer.js',
+      arrow: 'data/3d/arrow.js',
       bus: 'data/2d/bussi.png',
       tram: 'data/2d/ratikka.png',
-      metro: 'data/2d/jokujuna.png',
+      metro: 'data/2d/metro.png',
     };
 
     self.modelCount = 0;
@@ -85,6 +86,10 @@
 
     // Thermometer model
     jsonLoader.load(self.assetPaths.thermometer, self.loadThermometerModel.bind(self));
+
+    // Arrow model
+    jsonLoader.load(self.assetPaths.arrow, self.loadArrowModel.bind(self));
+
 
     // Bus image
     self.busImg = new Image();
@@ -143,6 +148,7 @@
       if (data[i] === undefined) {
         continue;
       }
+
       var boxLongitude = data[i].coordinates[1];
       var boxLatitude = data[i].coordinates[0];
       var boxName = "Sensor";
@@ -157,7 +163,7 @@
 
       if (data[i].categories) {
         boxName = data[i].lineref;
-        self.createPin(boxLatitude, boxLongitude, boxName, boxDescription, boxId, data[i].name); // 'name' is a vehicle ID
+        self.createPin(boxLatitude, boxLongitude, boxName, boxDescription, boxId, data[i].name, data[i].bearing); // 'name' is a vehicle ID
       } else if (data[i].light) {
         var lux = parseFloat(data[i].light, 10);
         self.createLightbulb(boxLatitude, boxLongitude, boxName, boxDescription, boxId, lux);
@@ -187,7 +193,7 @@
   };
 
   // TODO: rename
-  VIZI.BlueprintOutputSensor.prototype.createPin = function(lat, lon, name, desc, uuid, vehicleId) {
+  VIZI.BlueprintOutputSensor.prototype.createPin = function(lat, lon, name, desc, uuid, vehicleId, bearing) {
     var self = this;
 
     var dgeocoord = new VIZI.LatLon(lat, lon);
@@ -199,48 +205,58 @@
         // TODO rotation and scale
       };
       self.handleTransformUpdate(self.pois[vehicleId], newTransfrom);
+      if (bearing) {
+        self.pois[vehicleId].arrow.rotation.set(THREE.Math.degToRad(180), THREE.Math.degToRad(bearing), 0);
+      }
     } else {
       // CREATE NEW
+      var pin = new THREE.Object3D();
+      
+      // Sprite
       var pinSprite = self.makePinSprite(name);
+      // pinSprite.translateX(12);
+      pinSprite.translateY(25);
 
-      pinSprite.name = name;
-      pinSprite.description = desc;
-      pinSprite.uuid = uuid;
+      pin.name = name;
+      pin.description = desc;
+      pin.uuid = uuid;
       //pin.scale.set(20, 20, 20);
       //was with ludo's icons
 
-      pinSprite.position.x = dscenepoint.x;
-      pinSprite.position.y = self.spriteYpos;
-      pinSprite.position.z = dscenepoint.y;
+      pin.position.x = dscenepoint.x;
+      pin.position.y = self.spriteYpos;
+      pin.position.z = dscenepoint.y;
 
-      pinSprite.index = self.pois.length;
+      pin.index = self.pois.length;
 
-      self.pois[vehicleId] = pinSprite;
+      self.pois[vehicleId] = pin;
       // Add also to array for raycast
-      self.poisArray.push(pinSprite);
-      self.updatePoiVisibility(pinSprite); // Set initial visibility according to lollipopmenu selection mode
+      self.poisArray.push(pin);
+      self.updatePoiVisibility(pin); // Set initial visibility according to lollipopmenu selection mode
 
+      pin.add(pinSprite);
 
-      // NUMBER SPRITE
-      var textSprite = self.makePinSprite(name, {
-        fontsize: 12,
-        borderColor: {
-          r: 195,
-          g: 123,
-          b: 0,
-          a: 1.0
-        },
-        backgroundColor: {
-          r: 255,
-          g: 255,
-          b: 255,
-          a: 0.8
-        }
-      });
+      // Arrow
+      var newMaterial = self.arrow.material.clone();
+      var info = intepretJoreCode(name);
+      if (info.mode == "TRAM") {
+        newMaterial.materials[0].map = THREE.ImageUtils.loadTexture("data/3d/arrow_diffuse_ratikka.png");
+      } else if (info.mode == "SUBWAY") {
+        newMaterial.materials[0].map = THREE.ImageUtils.loadTexture("data/3d/arrow_diffuse_metro.png");
+      } else {
+        newMaterial.materials[0].map = THREE.ImageUtils.loadTexture("data/3d/arrow_diffuse_bussi.png");
+      }
 
-      self.updatePoiVisibility(pinSprite); // Set initial visibility according to lollipopmenu selection mode
+      if (bearing) {
+        var arrowMesh = new THREE.Mesh(self.arrow.geometry.clone(), newMaterial);
+        arrowMesh.rotation.set(THREE.Math.degToRad(180), THREE.Math.degToRad(bearing), 0);
+        pin.add(arrowMesh);
+        pin.arrow = arrowMesh;
+      }
 
-      self.add(pinSprite);
+      self.updatePoiVisibility(pin); // Set initial visibility according to lollipopmenu selection mode
+
+      self.add(pin);
     }
 
 
@@ -358,6 +374,15 @@
     material.materials[0].emissive = new THREE.Color(0xffffff);
     self.thermometer = new THREE.Mesh(geometry, material);
 
+    self.updateModelCount();
+  };
+
+  VIZI.BlueprintOutputSensor.prototype.loadArrowModel = function(geometry, materials) {
+    var self = this;
+    console.log("load arrow model");
+    var material = new THREE.MeshFaceMaterial(materials);
+    material.materials[0].emissive = new THREE.Color(0xffffff);
+    self.arrow = new THREE.Mesh(geometry, material);
     self.updateModelCount();
   };
 
@@ -576,7 +601,7 @@
 
     var canvas = document.createElement('canvas');
     canvas.width = "512";
-    canvas.height = "256";
+    canvas.height = "512";
     var context = canvas.getContext('2d');
 
 
@@ -619,9 +644,10 @@
       map: texture,
       useScreenCoordinates: false,
     });
+
     var sprite = new THREE.Sprite(spriteMaterial);
 
-    sprite.scale.set(50, 25, 1.0);
+    sprite.scale.set(25, 25, 1.0);
     return sprite;
   };
 
