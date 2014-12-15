@@ -224,9 +224,8 @@ var ChatApplication = IApplication.$extend(
         this.ui.container.append(this.ui.chatLog);
         this.ui.container.append(this.ui.userlist);
 
-        this.fw.ui.createTaskbar(true);
         this.fw.ui.taskbar.append(this.ui.container);
-        this.fw.ui.addAction();
+        TundraSDK.framework.ui.createTaskbar(true); // TODO this should not be necessary to call but otherwise get no chat visible
 
         this.eventSubscriptions.push(this.fw.ui.onWindowResize(this, this.onWindowResize));
         this.onWindowResize();

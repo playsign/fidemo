@@ -84,35 +84,35 @@ try
         }
       );
 
-    // User presence (avatar)
-    $.getScript("js/client/user-presence.js")
-        .done(function(/*script, textStatus*/) {
-            userPresence = new UserPresenceApplication();
-        })
-        .fail(function(jqxhr, settings, exception) {
-            console.error(exception);
-        });
+    // Information dialog
+    var showInfo = TundraSDK.framework.ui.addAction("Information",
+        TundraSDK.framework.asset.getLocalAssetPath("../../img/ic_info_outline_24px.svg"));
+    showInfo.click(function(e)
+    {
+        if (infoDialog)
+            infoDialog.setVisible(!infoDialog.isVisible());
+        e.preventDefault();
+        e.stopPropagation();
+    });
 
-    // Connected to server
+    // If connected to a server avatar and chat features will be available.
     client.onConnected(null, function()
     {
+        // User presence (avatar)
+        $.getScript("js/client/user-presence.js")
+            .done(function(/*script, textStatus*/) {
+                userPresence = new UserPresenceApplication();
+            })
+            .fail(function(jqxhr, settings, exception) {
+                console.error(exception);
+            });
+
         // Chat
         $.getScript("js/client/chat.js")
             .done(function(/*script, textStatus*/) {
                 // Note that chat is not initialized fully until we're connected to the server.
                 chat = new ChatApplication();
                 // chat.initUi(); // Uncomment to test chat UI in standalone mode
-
-                // Information dialog
-                var showInfo = TundraSDK.framework.ui.addAction(
-                    "Information", TundraSDK.framework.asset.getLocalAssetPath("../../img/ic_info_outline_24px.svg"));
-                showInfo.click(function(e)
-                {
-                    if (infoDialog)
-                        infoDialog.setVisible(!infoDialog.isVisible());
-                    e.preventDefault();
-                    e.stopPropagation();
-                });
             })
             .fail(function(jqxhr, settings, exception) {
                 console.error(exception);
@@ -138,6 +138,7 @@ try
 
     // Disconnected from server
     client.onDisconnected(null, function() {
+        // TODO hide chat/username functionality?
     });
 
     // Mouse pressed
