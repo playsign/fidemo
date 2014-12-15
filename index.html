@@ -117,8 +117,10 @@
             //Use vertex color's red channel as a gradient step value
             vGradientCol = mix(gradientColor1.rgb, gradientColor2.rgb, smoothstep(gradientColor1.a, gradientColor2.a, color.r));
             vGradientCol = mix(vGradientCol, gradientColor3.rgb, smoothstep(gradientColor2.a, gradientColor3.a, color.r));
-
+            
+            //vColor = vec4(color.rgb, 1.0); //Uncomment to debug vertex colors
             gl_Position = projectionMatrix * modelViewMatrix * vec4( lpos, 1.0 );
+            
         }
 
   </script>
@@ -158,16 +160,12 @@
             vec3 ambientFactor = mix(ambientColor*0.55, ambientColor, clamp((worldpos.y*0.02), 0.0,1.0));
             
             
-            //ambientFactor + (finalcol * vGradientCol.rgb)*LdotN*lightpower + ambientColor*0.5*vColor.g + ringcol;
             float lightmask = LdotN*lightpower - (1.0 - clamp((worldpos.y*0.05), 0.0,1.0)*2.0);
             vec3 baseColor = mix(shadowColor, litColor, lightmask );
-            //baseColor = vec3(lightmask);
             
-            //finalcol = mix(ambientColor+LdotN*0.05, baseColor, vColor.g + (1.0-mask2)*vColor.z) + ringcol;
             finalcol = mix(baseColor,ambientColor+LdotN*0.25, mask2) + ringcol;
-            //finalcol = vec3(vColor.z,vColor.z,vColor.z);
             gl_FragColor = vec4(finalcol ,1.0);
-
+            //gl_FragColor = vColor; //Uncomment to debug vertex colors
         }
         
   </script>

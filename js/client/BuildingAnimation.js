@@ -15,8 +15,8 @@ var BuildingAnimation = function() {
             
             
             //light blue overlay, white buildings
-            litColor: { type: "c", value: new THREE.Color("rgb(244,240,231)")},
-            shadowColor: { type: "c", value: new THREE.Color("rgb(182,212,227)")},
+            litColor: { type: "c", value: new THREE.Color("rgb(234,230,221)")},
+            shadowColor: { type: "c", value: new THREE.Color("rgb(172,202,217)")},
             ambientColor: { type: "c", value: new THREE.Color("rgb(149,158,163)")},
             
             gradientColor1: { type: "v4", value: new THREE.Vector4(1.0,1.0,1.0,0.0)},
