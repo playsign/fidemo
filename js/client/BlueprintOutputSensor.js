@@ -162,8 +162,8 @@
       var boxId = data[i].node;
 
       if (data[i].categories) {
-        boxName = data[i].lineref; //data[i].name; 'name' is a vehicle ID and has no value for us
-        self.createPin(boxLatitude, boxLongitude, boxName, boxDescription, boxId, data[i].bearing);
+        boxName = data[i].lineref;
+        self.createPin(boxLatitude, boxLongitude, boxName, boxDescription, boxId, data[i].name, data[i].bearing); // 'name' is a vehicle ID
       } else if (data[i].light) {
         var lux = parseFloat(data[i].light, 10);
         self.createLightbulb(boxLatitude, boxLongitude, boxName, boxDescription, boxId, lux);
@@ -193,19 +193,19 @@
   };
 
   // TODO: rename
-  VIZI.BlueprintOutputSensor.prototype.createPin = function(lat, lon, name, desc, uuid, bearing) {
+  VIZI.BlueprintOutputSensor.prototype.createPin = function(lat, lon, name, desc, uuid, vehicleId, bearing) {
     var self = this;
 
     var dgeocoord = new VIZI.LatLon(lat, lon);
     var dscenepoint = self.world.project(dgeocoord);
-    if (self.pois[name]) {
+    if (self.pois[vehicleId]) {
       // UPDATE
       var newTransfrom = {
         position: new THREE.Vector3( dscenepoint.x, self.spriteYpos, dscenepoint.y )
         // TODO rotation and scale
       };
-      self.handleTransformUpdate(self.pois[name], newTransfrom);
-      self.pois[name].arrow.rotation.set(THREE.Math.degToRad(180),THREE.Math.degToRad(bearing),0);
+      self.handleTransformUpdate(self.pois[vehicleId], newTransfrom);
+	self.pois[name].arrow.rotation.set(THREE.Math.degToRad(180),THREE.Math.degToRad(bearing),0);
     } else {
       // CREATE NEW
       var pin = new THREE.Object3D();
@@ -227,7 +227,7 @@
 
       pin.index = self.pois.length;
 
-      self.pois[name] = pin;
+      self.pois[vehicleId] = pin;
       // Add also to array for raycast
       self.poisArray.push(pin);
       self.updatePoiVisibility(pin); // Set initial visibility according to lollipopmenu selection mode
@@ -594,10 +594,10 @@
 
     // IMAGE
     var info = intepretJoreCode(name);
-    //console.log(name + " is route " + info.route + " and is a " + info.mode);
-    if (info.mode == "TRAM") { // if (name.indexOf('RHKL') > -1) {
+    // console.log(name + " is route " + info.route + " and is a " + info.mode);
+    if (info.mode == "TRAM") {
       context.drawImage(self.tramImg, 0, 0);
-    } else if (info.mode == "SUBWAY") { // } else if (name.indexOf('metro') > -1) {
+    } else if (info.mode == "SUBWAY") {
       context.drawImage(self.metroImg, 0, 0);
     } else {
       context.drawImage(self.busImg, 0, 0);
