@@ -71,19 +71,19 @@ var LollipopMenu = function(owner) {
   });
   this.issueIconMaterials.inprogress = new THREE.SpriteMaterial({
     map: THREE.ImageUtils.loadTexture(IssueItem.Icons.INPROGRESS),
-    color: "rgb(216,136,0)",
+    color: "rgb(255,255,255)",
     fog: true,
     depthWrite : false
   });
   this.issueIconMaterials.closed = new THREE.SpriteMaterial({
     map: THREE.ImageUtils.loadTexture(IssueItem.Icons.CLOSED),
-    color: "rgb(216,136,0)",
+    color: "rgb(255,255,255)",
     fog: true,
     depthWrite : false
   });
   this.issueIconMaterials.unknown = new THREE.SpriteMaterial({
     map: THREE.ImageUtils.loadTexture(IssueItem.Icons.UNKNOWN),
-    color: "rgb(216,136,0)",
+    color: "rgb(255,255,255)",
     fog: true,
     depthWrite : false
   });
