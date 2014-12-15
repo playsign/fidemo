@@ -172,7 +172,7 @@
       model.uvs = [ Array.apply( [], model.uvs ) ];
       
       //model.vertices[i].y = model.vertices[i].y + 1;
-	  
+
       // Keep getting a "Maximum call stack size exceeded" error here
       //model.faces = Array.apply( [], model.faces );
       var faces = [];
@@ -374,7 +374,7 @@
           found = _.find(manualBuildings.buildings, function( value ) {
             return _.find(value.ids, function( id ) {
                 if (id == feature.id) {
-                    building = value;
+                  building = value;
                   return true;
                 }
                 return false;
@@ -485,7 +485,7 @@
 
     // Move merged geom to 0,0 and return offset
     var offset = combinedGeom.center();
-
+   
     var exportedGeom = combinedGeom.toJSON();
 
     // Convert exported geom into a typed array
@@ -494,7 +494,11 @@
     // var colorsArray = new Float64Array( exportedGeom.colors );
     // Seems to be manually set to have 1 array in the uvs array
     // https://github.com/mrdoob/three.js/blob/master/examples/js/exporters/GeometryExporter.js#L231
-    var uvsArray = new Float64Array( exportedGeom.data.uvs[0] );
+    var uvsArray;
+    if (exportedGeom.data.uvs)
+        uvsArray = new Float64Array( exportedGeom.data.uvs[0] );
+    else
+        uvsArray = new Float64Array();
     var facesArray = new Float64Array( exportedGeom.data.faces );
 
     // Store geom typed array as Three.js model object

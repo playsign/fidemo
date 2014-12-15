@@ -424,8 +424,33 @@ var highpolyBuildingsConfig = {
         model: "data/3d/tuomiokirkko.js",
         ids: ["4253123"]
     }, {
+        model: "data/3d/eduskuntatalo.js",
+        ids: ["158575956"]
+    }, {
+        model: "data/3d/kansallismuseo.js",
+        ids: ["124681352"]
+    }, {
+        model: "data/3d/kiasma.js",
+        ids: ["8042215"]
+    }, {
+        model: "data/3d/stockmann.js",
+        ids: ["122595241"]
+    }, {
         model: "",
-        ids: ["234872439", "234871242", "234870674"]
+        ids: [
+            // tuomiokirkko
+            "234872439", "234871242", "234870674",
+            // eduskuntatalo
+            "158575955", "89533460", "89533458",
+            // Kansallismuseo
+            "2761859235",
+            // Kiasma
+            "89538798", "89538802", "122595236", "122595218",
+            // Postitalo
+            "54401309", "54401321", "89534178", "89534180", "89534181", "89534183", "89534184",
+            // Sokos-building
+            "122595238", "89384331", "89384333", "89384389", "89384330", "89384334"
+            ]
     }]
 };
 
