@@ -64,8 +64,13 @@
       self.add(textBack);
       
       if (self.options.globalData && self.options.globalData.labelCull) {
-        self.options.globalData.labelCull.Add(textFront);
-        self.options.globalData.labelCull.Add(textBack);
+        if (!data[i].important) {
+            self.options.globalData.labelCull.Add(textFront);
+            self.options.globalData.labelCull.Add(textBack);
+        } else {
+            self.options.globalData.labelCull.AddImportant(textFront);
+            self.options.globalData.labelCull.AddImportant(textBack);
+        }
       }
     }
   };

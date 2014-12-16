@@ -97,7 +97,8 @@
   {
     "Lon":24.941196,
     "Lat":60.17113,
-    "Name":"Central railway station"
+    "Name":"Central railway station",
+    "Important":true
   },
   {
     "Lon":24.902640,
@@ -112,12 +113,14 @@
   {
     "Lon":24.941067,
     "Lat":60.187212,
-    "Name":"Linnanmäki"
+    "Name":"Linnanmäki",
+    "Important":true
   },
   {
     "Lon":24.930184,
     "Lat":60.205274,
-    "Name":"Hartwall Arena"
+    "Name":"Hartwall Arena",
+    "Important":true
   },
   {
     "Lon":24.999046,
@@ -127,82 +130,92 @@
   {
     "Lon":24.92402,
     "Lat":60.17912,
-    "Name":"Töölö"
+    "Name":"Töölö",
+    "Important":true
   },
   {
     "Lon":24.91870,
     "Lat":60.17357,
-    "Name":"Etu-Töölö"
+    "Name":"Etu-Töölö",
+    "Important":true
   },
   {
     "Lon":24.91478,
     "Lat":60.16731,
-    "Name":"Lapinlahti"
+    "Name":"Lapinlahti",
+    "Important":true
   },
   {
     "Lon":24.91400,
     "Lat":60.16200,
-    "Name":"Ruoholahti"
+    "Name":"Ruoholahti",
+    "Important":true
   },
   {
     "Lon":24.91667,
     "Lat":60.19167,
-    "Name":"Laakso"
+    "Name":"Laakso",
+    "Important":true
   },
   {
     "Lon":24.95702,
     "Lat":60.19444,
-    "Name":"Vallila"
+    "Name":"Vallila",
+    "Important":true
   },
   {
     "Lon":24.92917,
     "Lat":60.16250,
-    "Name":"Hietalahti"
+    "Name":"Hietalahti",
+    "Important":true
   },
   {
     "Lon":24.95639,
     "Lat":60.17222,
-    "Name":"Kruunuhaka"
+    "Name":"Kruunuhaka",
+    "Important":true
   },
   {
     "Lon":24.94897,
     "Lat":60.16520,
-    "Name":"Kaartinkaupunki"
+    "Name":"Kaartinkaupunki",
+    "Important":true
   },
   {
     "Lon":24.93806,
     "Lat":60.16167,
-    "Name":"Punavuori"
-  },
-  {
-    "Lon":24.93806,
-    "Lat":60.16167,
-    "Name":"Punavuori"
+    "Name":"Punavuori",
+    "Important":true
   },
   {
     "Lon":24.968061,
     "Lat":60.166322,
-    "Name":"Katajanokka"
+    "Name":"Katajanokka",
+    "Important":true
   },
   {
     "Lon":24.95694,
     "Lat":60.15694,
-    "Name":"Kaivopuisto"
+    "Name":"Kaivopuisto",
+    "Important":true
   },
   {
     "Lon":24.93833,
     "Lat":60.15639,
-    "Name":"Eira"
+    "Name":"Eira",
+    "Important":true
   },
   {
     "Lon":24.92904,
     "Lat":60.15628,
-    "Name":"Munkkisaari"
+    "Name":"Munkkisaari",
+    "Important":true
   },
   {
     "Lon":24.91417,
     "Lat":60.15583,
-    "Name":"Länsisatama"
+    "Name":"Länsisatama",
+    "Important":true
   },
   {
     "Lon":24.93297,
@@ -217,7 +230,8 @@
   {
     "Lon":24.95373,
     "Lat":60.16762,
-    "Name":"Kauppatori"
+    "Name":"Kauppatori",
+    "Important":true
   },
   {
     "Lon":24.95208,
@@ -227,6 +241,7 @@
   {
     "Lon":24.94555,
     "Lat":60.16890,
-    "Name":"Aleksanterinkatu"
+    "Name":"Aleksanterinkatu",
+    "Important":true
   }
 ]
