@@ -163,6 +163,10 @@
 
       if (data[i].categories) {
         boxName = data[i].lineref;
+        if(boxName === undefined){
+          console.warn("line ref undefined");
+          continue;
+        }
         self.createPin(boxLatitude, boxLongitude, boxName, boxDescription, boxId, data[i].name, data[i].bearing); // 'name' is a vehicle ID
       } else if (data[i].light) {
         var lux = parseFloat(data[i].light, 10);
@@ -255,7 +259,7 @@
       }
 
       // Number sprite
-      var textSprite = self.makeTextSprite(name, {
+      var textSprite = self.makeTextSprite(info.route, {
         fontsize: 12,
         borderColor: {
           r: 0,
@@ -270,6 +274,10 @@
           a: 0.8
         }
       });
+      textSprite.translateY(35);
+      textSprite.renderDepth = -99999999;
+      
+      pin.add(textSprite);
 
       self.updatePoiVisibility(pin); // Set initial visibility according to lollipopmenu selection mode
 
@@ -729,8 +737,10 @@
     var spriteMaterial = new THREE.SpriteMaterial({
       map: texture,
       useScreenCoordinates: false,
-      alignment: spriteAlignment
+      alignment: spriteAlignment,
+      depthTest: false
     });
+
     var sprite = new THREE.Sprite(spriteMaterial);
     sprite.scale.set(100, 50, 1.0);
     return sprite;
