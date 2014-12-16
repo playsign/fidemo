@@ -741,9 +741,34 @@
       depthTest: false
     });
 
-    var sprite = new THREE.Sprite(spriteMaterial);
-    sprite.scale.set(100, 50, 1.0);
-    return sprite;
+
+
+
+
+
+
+
+
+
+    var distances = [50,300,1000,2000,8000];
+
+
+
+    var lod = new THREE.LOD();
+
+    for (var i = 0; i < distances.length; i++) {
+      var sprite = new THREE.Sprite(spriteMaterial);
+      sprite.scale.set(100 * (i+1), 50* (i+1), 1.0);
+      sprite.updateMatrix();
+      sprite.matrixAutoUpdate = false;
+      lod.addLevel(sprite, distances[i]);
+    }
+    lod.updateMatrix();
+    lod.matrixAutoUpdate = false;
+
+
+
+    return lod;
   };
 
   VIZI.BlueprintOutputSensor.prototype.roundRect = function(ctx, x, y, w, h, r) {

@@ -7292,6 +7292,16 @@ if (typeof window === undefined) {
       throw new Error("Camera is required for render");
     }
 
+                    self.scene.traverse( function ( object ) {
+
+                    if ( object instanceof THREE.LOD ) {
+
+                        object.update( camera.camera );
+
+                    }
+
+                } );
+
     self.renderer.render(self.scene, camera.camera);
   };
 
