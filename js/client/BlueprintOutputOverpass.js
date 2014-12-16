@@ -134,7 +134,7 @@
             return;
         }
     }
-    var pin;
+    var pin = undefined;
 
     if(type == "cafe")
         pin = new THREE.Sprite(self.pinMaterialCafe);
@@ -148,7 +148,13 @@
         pin = new THREE.Sprite(self.pinMaterialHealthcare);
     else if(type == "shop")
         pin = new THREE.Sprite(self.pinMaterialShop);
-        
+    
+    if (pin === undefined)
+    {
+      console.warn("Pin type", type, "not supported");
+      return;
+    }
+
     pin.scale.set(25, 25, 25);
 
     pin.name = name;
