@@ -758,8 +758,16 @@ var UsernameDialog = Class.$extend(
         TundraSDK.framework.ui.addWidgetToScene(this.ui.dialog);
         this.ui.dialog.hide();
 
-        this.ui.okButton.click(this.onOkPressed.bind(this));
-        this.ui.cancelButton.click(this.hide.bind(this));
+        this.ui.okButton.click(function(e) {
+            this.onOkPressed();
+            e.preventDefault();
+            e.stopPropagation();
+        }.bind(this));
+        this.ui.cancelButton.click(function(e) {
+            this.hide();
+            e.preventDefault();
+            e.stopPropagation();
+        }.bind(this));
     },
 
     show : function() { this.ui.dialog.fadeIn(); },

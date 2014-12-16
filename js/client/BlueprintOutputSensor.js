@@ -396,6 +396,11 @@
     // the following line would stop any other event handler from firing
     // (such as the mouse's TrackballControls)
     // event.preventDefault();
+    // Only react to mouse events on the 3D canvas. This is neccesary as Tundra InputAPI
+    // is not used. Multiple systems are in play at the same time.
+    if (event.target !== undefined && typeof event.target.localName === "string" &&
+        event.target.localName.toLowerCase() !== "canvas")
+      return;
 
     // update the mouse variable
     self.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -413,6 +418,11 @@
     if (!self.raycastsEnabled) {
       return;
     }
+    // Only react to mouse events on the 3D canvas. This is neccesary as Tundra InputAPI
+    // is not used. Multiple systems are in play at the same time.
+    if (event.target !== undefined && typeof event.target.localName === "string" &&
+        event.target.localName.toLowerCase() !== "canvas")
+      return;
 
     // the following line would stop any other event handler from firing
     // (such as the mouse's TrackballControls)
@@ -443,6 +453,11 @@
     if (!self.raycastsEnabled) {
       return;
     }
+    // Only react to mouse events on the 3D canvas. This is neccesary as Tundra InputAPI
+    // is not used. Multiple systems are in play at the same time.
+    if (event.target !== undefined && typeof event.target.localName === "string" &&
+        event.target.localName.toLowerCase() !== "canvas")
+      return;
 
     // the following line would stop any other event handler from firing
     // (such as the mouse's TrackballControls)
