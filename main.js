@@ -264,6 +264,11 @@ console.log("FIDEMO: created scene", threejs.scene);
 var santanderLatLon;
 var helsinkiLatLon;
 
+//NOTE: we have own cam controls & rendering - perhaps don't even need a VIZI cam?
+var vizicam = new VIZI.Camera({
+    aspect: viewport.clientWidth / viewport.clientHeight,
+    near: 30
+});
 var world = new VIZI.World({
     viewport: viewport,
     // center: new VIZI.LatLon(40.01000594412381, -105.2727379358738), // Collada
@@ -271,10 +276,7 @@ var world = new VIZI.World({
     // center: santanderLatLon = new VIZI.LatLon(43.47195, -3.79909),
     center: helsinkiLatLon = new VIZI.LatLon(60.17096119799872, 24.94066956044796), // Helsinki
     threejs: threejs,
-    camera: camera = new VIZI.Camera({
-      aspect: viewport.clientWidth / viewport.clientHeight,
-      near: 30
-    })
+    camera: vizicam
 });
 globalData.world = world;
 
@@ -285,9 +287,13 @@ if (client !== undefined)
 // TODO Move Vizi attribution overlay to the top right corner, for now hide it altogether.
 world.attribution.container.style.display = "none";
 
-var controls = new VIZI.ControlsMap(world.camera);
+//var controls = new VIZI.ControlsMap(world.camera);
+//var controls = new VIZI.ControlsOrbit(world.camera);
 //override change emitting as the unload & load code is not good in 0.2.0 yet
-controls.onChange = function() {}; 
+//controls.onChange = function() {};
+var controls = new THREE.OrbitControls( world.camera.camera );
+controls.damping = 0.2;
+
 
 // MAP
 
