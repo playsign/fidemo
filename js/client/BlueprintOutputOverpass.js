@@ -76,7 +76,7 @@
           type = "shop";
       
       if(self.options.globalData.pinView != null)
-        self.options.globalData.pinView.showPin(type, self, latLong, objectDescription, objectId, data[i].tags);
+        self.options.globalData.pinView.addPin(type, self, latLong, objectDescription, objectId, data[i].tags);
     }
   };
 

@@ -59,6 +59,8 @@ var LollipopMenu = function(owner) {
 
   this.avatarMoveDelay = 1.0;
   
+  this.selectionState = 0;
+  
   // Helsinki issue objects
   this.issueRequestId = "";
   this.issueItems = {};
@@ -253,6 +255,7 @@ LollipopMenu.prototype = {
             that = null;
         };
         this.issueRequestId = HelsinkiIssues.RequestIssues(latLong.lat, latLong.lon, 300, callback);
+        this.selectionState = 0;
     }
 
     // Animate the circle to new position
@@ -353,6 +356,8 @@ LollipopMenu.prototype = {
         this.setSelection(intersections[i].object.selectionNumber);
         break;
       }
+      else
+        this.updateSelectionState();
     }
     return intersections.length > 0;
   },
@@ -430,10 +435,22 @@ LollipopMenu.prototype = {
       this.selection = newSel;
       this.updateScale();
       this.selectionChanged.dispatch(this.selection);
+       
+      if(this.selectionState == 0 || this.selectionState == null)
+        this.selectionState = 1;
+      else
+        this.selectionState = 0;
     }
+    this.updateSelectionState();
   },
   
   getSelection : function() {
     return this.selection;
+  },
+  
+  //call selectionUpdate from PinView
+  updateSelectionState : function()
+  {
+     this.selectionState = this.owner.options.globalData.pinView.selectionUpdate(this.selection, this.selectionState);
   }
 }
