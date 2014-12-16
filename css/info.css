@@ -1,9 +1,9 @@
 /* Customized CSS for jQuery UI: simple info button and box. */
 
-.ui-widget-content 
+.ui-widget-content
 {
-    font-size:12px;
-    font-family: georgia;
+    font-family: Verdana,Arial,sans-serif;
+    font-size:11px;
 }
 
 /* trim space around info button */
