@@ -39,7 +39,8 @@ function getStreetLabelsConfig(){
             transformation: { // Object with a property for each action argument name and a string representation of the hierarchy to get from itemsProperties to the specific piece of data you require.
               // Eg. document.placemark[n].point.coordinates
               coordinates: ["Lon", "Lat"], // get coordinates from properties of the JSON          
-              name: "Name"
+              name: "Name",
+              important: "Important"
             }
           }
         }
