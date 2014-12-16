@@ -281,6 +281,8 @@ var controls = new VIZI.ControlsMap(world.camera);
 //override change emitting as the unload & load code is not good in 0.2.0 yet
 controls.onChange = function() {}; 
 
+world.scene.renderer.sortObjects = false;
+
 // MAP
 
 // This configuration is the public-facing part of the API and will usually be the only part of it you ever need to deal with.
