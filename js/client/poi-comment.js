@@ -9,7 +9,7 @@ var PoiComment = IApplication.$extend({
         var that = this;
         this.ui = {};
 
-        $.getScript("http://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js")
+        $.getScript("//ajax.googleapis.com/ajax/libs/webfont/1/webfont.js")
         .done(function() {
             WebFont.load({
                 google: {
