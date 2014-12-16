@@ -275,7 +275,7 @@
         }
       });
       textSprite.translateY(35);
-      textSprite.renderDepth = -99999999;
+      textSprite.renderDepth = -1;
       
       pin.add(textSprite);
 
