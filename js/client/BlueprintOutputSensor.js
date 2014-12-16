@@ -160,6 +160,11 @@
         boxDescription.push(variable + ": " + data[i][variable]);
       }
       var boxId = data[i].node;
+      if (boxId === undefined)
+      {
+        console.warn("OutputSensor: No node for", data[i].name)
+        continue;
+      }
 
       if (data[i].categories) {
         boxName = data[i].lineref;
