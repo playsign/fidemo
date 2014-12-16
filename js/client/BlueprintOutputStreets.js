@@ -59,6 +59,12 @@
       textFront.position.y = textBack.position.y = 40;
       textFront.position.z = textBack.position.z = dscenepoint.y;
       textBack.rotation.y = Math.PI;
+      
+      if (data[i].rotation) {
+        var rotation = data[i].rotation * Math.PI / 180;
+        textFront.rotation.y -= rotation;
+        textBack.rotation.y -= rotation;
+      }
 
       self.add(textFront);
       self.add(textBack);

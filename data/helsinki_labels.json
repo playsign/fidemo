@@ -12,12 +12,14 @@
   {
     "Lon":24.9233922,
     "Lat":60.1846275,
-    "Name":"Mannerheimintie"
+    "Name":"Mannerheimintie",
+    "Rotation":55
   },
   {
     "Lon":24.93917,
     "Lat":60.16945,
-    "Name":"Mannerheimintie"
+    "Name":"Mannerheimintie",
+    "Rotation":55
   },
   {
     "Lon":24.9511096,
