@@ -159,7 +159,7 @@
         }
         boxDescription.push(variable + ": " + data[i][variable]);
       }
-      var boxId = data[i].node;
+      var boxId = data[i].name; // 'node' that was used earlier has been removed
       if (boxId === undefined)
       {
         console.warn("OutputSensor: No node for", data[i].name)
