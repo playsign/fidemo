@@ -79,9 +79,8 @@
         self.options.globalData.pinView.addPin(type, self, latLong, objectDescription, objectId, data[i].tags);
     }
   };
-
   
-    VIZI.BlueprintOutputOverpass.prototype.hideAllPins = function() {
+  VIZI.BlueprintOutputOverpass.prototype.hideAllPins = function() {
     var self = this;
     if(self.options.globalData.pinView != null)
         self.options.globalData.pinView.hidePinsByOwner(self);

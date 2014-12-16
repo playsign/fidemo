@@ -16,9 +16,13 @@ try
         asset : {
             localStoragePath : "build/webtundra"
         },
-            taskbar : true,
-            console : true
+        taskbar : true,
+        console : true
     });
+
+    // Let Tundra know about the Vizi camera
+    if (world !== undefined && world.camera !== undefined && world.camera.camera !== undefined)
+        client.renderer.camera = world.camera.camera;
 
     /* TundraClient onWebSocketConnectionClosed calls 'that.reset()' which clears scene
     -- we don't want that here, at least to support standalone dev, but probably not for prod either */
@@ -153,7 +157,7 @@ try
 
     // Mouse pressed
     client.input.onMousePress(null, function(mouse) {
-        if (!mouse.leftDown)
+        if (!mouse.leftDown || mouse.targetNodeName !== "canvas")
             return;
 
         // var serverEnt = client.scene.entityByName("FIWARE Demo Application"); //"Test Cube");
@@ -161,8 +165,8 @@ try
             // serverEnt.exec(EntityAction.Server, "TestAction");
 
         var result = client.renderer.raycast();
-        // console.log(result);
-        if (result.entity) //&& result.entity.name === "Boulder")
+        //console.log(result.entity);
+        if (result.entity != null) //&& result.entity.name === "Boulder")
         {
             result.entity.exec(EntityAction.Server, "MousePress");
         }
@@ -273,6 +277,10 @@ var world = new VIZI.World({
     })
 });
 globalData.world = world;
+
+// Let Tundra know about the camera
+if (client !== undefined)
+    client.renderer.camera = world.camera.camera;
 
 // TODO Move Vizi attribution overlay to the top right corner, for now hide it altogether.
 world.attribution.container.style.display = "none";
@@ -750,8 +758,16 @@ var UsernameDialog = Class.$extend(
         TundraSDK.framework.ui.addWidgetToScene(this.ui.dialog);
         this.ui.dialog.hide();
 
-        this.ui.okButton.click(this.onOkPressed.bind(this));
-        this.ui.cancelButton.click(this.hide.bind(this));
+        this.ui.okButton.click(function(e) {
+            this.onOkPressed();
+            e.preventDefault();
+            e.stopPropagation();
+        }.bind(this));
+        this.ui.cancelButton.click(function(e) {
+            this.hide();
+            e.preventDefault();
+            e.stopPropagation();
+        }.bind(this));
     },
 
     show : function() { this.ui.dialog.fadeIn(); },
