@@ -69,6 +69,8 @@
 
     self.modelYpos = 10;
     self.spriteYpos = 20;
+    self.pinPosY = 10;
+    self.numberSpriteOffsetY = 15;
 
     var jsonLoader = new THREE.JSONLoader();
     self.assetPaths = {
@@ -292,10 +294,9 @@
 
       pinSprite.scale.set(25, 25, 1.0);
 
-      // pinSprite.translateX(12);
-      var pinPosY = 10;
+      // pinSprite.translateX(12);      
 
-      pinSprite.translateY(pinPosY);
+      pinSprite.translateY(self.pinPosY);
 
       pin.name = name;
       pin.description = desc;
@@ -334,7 +335,7 @@
       if (bearing) {
         var arrowMesh = new THREE.Mesh(self.arrow.geometry.clone(), newMaterial);
         arrowMesh.rotation.set(THREE.Math.degToRad(180), THREE.Math.degToRad(bearing), 0);
-        arrowMesh.translateY(-pinPosY);
+        arrowMesh.translateY(-self.pinPosY);
         pin.add(arrowMesh);
         pin.arrow = arrowMesh;
       }
@@ -342,7 +343,7 @@
       // Number sprite
       if (numberBG) {
         var textSprite = self.makeTextSprite(info.route, numberBG);
-        textSprite.translateY(pinPosY+15);
+        textSprite.translateY(self.pinPosY+self.numberSpriteOffsetY);
         textSprite.renderDepth = -1;
 
         pin.add(textSprite);
