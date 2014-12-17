@@ -706,13 +706,13 @@
       parameters.fontface : "Arial";
 
     var fontsize = parameters.hasOwnProperty("fontsize") ?
-      parameters.fontsize : 200;
+      parameters.fontsize : 29;
 
     var spriteAlignment = new THREE.Vector2(0, 1);
 
     var canvas = document.createElement('canvas');
-        canvas.width = "512";
-    canvas.height = "256";
+        canvas.width = "64";
+    canvas.height = "32";
 
     var context = canvas.getContext('2d');
     context.font = "Bold " + fontsize + "px " + fontface;
