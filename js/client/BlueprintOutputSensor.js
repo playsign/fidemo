@@ -753,7 +753,7 @@
     });
 
     var sprite = new THREE.Sprite(spriteMaterial);
-    sprite.scale.set(100, 50, 1.0);
+
     return sprite;
   };
 
@@ -885,7 +885,7 @@
         v2.setFromMatrixPosition(self.textSprites[i].matrixWorld);
 
         var distance = v1.distanceTo(v2);
-        distance *= 0.05;
+        distance *= 0.03;
 
         self.textSprites[i].scale.set(distance, distance * 0.5, 1.0);
       }
