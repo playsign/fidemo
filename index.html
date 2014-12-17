@@ -133,9 +133,7 @@
             vGradientCol = mix(gradientColor1.rgb, gradientColor2.rgb, smoothstep(gradientColor1.a, gradientColor2.a, color.r));
             vGradientCol = mix(vGradientCol, gradientColor3.rgb, smoothstep(gradientColor2.a, gradientColor3.a, color.r));
             
-            //vColor = vec4(color.rgb, 1.0); //Uncomment to debug vertex colors
             gl_Position = projectionMatrix * modelViewMatrix * vec4( lpos, 1.0 );
-            
         }
 
   </script>
@@ -179,8 +177,7 @@
             vec3 baseColor = mix(shadowColor, litColor, lightmask );
             
             finalcol = mix(baseColor,ambientColor+LdotN*0.25, mask2) + ringcol;
-            gl_FragColor = vec4(finalcol ,1.0);
-            //gl_FragColor = vColor; //Uncomment to debug vertex colors
+            gl_FragColor = vec4(finalcol * vGradientCol,1.0);
         }
         
   </script>
