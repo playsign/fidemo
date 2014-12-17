@@ -56,6 +56,7 @@
 
     self.pois = {};
     self.poisArray = [];
+    self.textSprites = [];
 
     // listeners
     document.addEventListener('mousemove', self.onDocumentMouseMove.bind(self), false);
@@ -77,6 +78,9 @@
       bus: 'data/2d/bussi.png',
       tram: 'data/2d/ratikka.png',
       metro: 'data/2d/metro.png',
+      busNumberBG: 'data/2d/bussi_numerotausta.png',
+      tramNumberBG: 'data/2d/ratikka_numerotausta.png',
+      metroNumberBG: 'data/2d/metro_numerotausta.png',
     };
 
     self.modelCount = 0;
@@ -109,6 +113,27 @@
     self.metroImg = new Image();
     self.metroImg.src = self.assetPaths.metro;
     self.metroImg.onload = function() {
+      self.updateModelCount();
+    };
+
+    // busNumberBG image
+    self.busNumberBG = new Image();
+    self.busNumberBG.src = self.assetPaths.busNumberBG;
+    self.busNumberBG.onload = function() {
+      self.updateModelCount();
+    };
+
+    // tramNumberBG image
+    self.tramNumberBG = new Image();
+    self.tramNumberBG.src = self.assetPaths.tramNumberBG;
+    self.tramNumberBG.onload = function() {
+      self.updateModelCount();
+    };
+
+    // metroNumberBG image
+    self.metroNumberBG = new Image();
+    self.metroNumberBG.src = self.assetPaths.metroNumberBG;
+    self.metroNumberBG.onload = function() {
       self.updateModelCount();
     };
 
@@ -243,12 +268,16 @@
       // Arrow
       var newMaterial = self.arrow.material.clone();
       var info = intepretJoreCode(name);
+      var numberBG;
       if (info.mode == "TRAM") {
         newMaterial.materials[0].map = THREE.ImageUtils.loadTexture("data/3d/arrow_diffuse_ratikka.png");
+        numberBG = self.tramNumberBG;
       } else if (info.mode == "SUBWAY") {
         newMaterial.materials[0].map = THREE.ImageUtils.loadTexture("data/3d/arrow_diffuse_metro.png");
+        numberBG = self.metroNumberBG;
       } else {
         newMaterial.materials[0].map = THREE.ImageUtils.loadTexture("data/3d/arrow_diffuse_bussi.png");
+        numberBG = self.busNumberBG;
       }
 
       if (bearing) {
@@ -259,25 +288,12 @@
       }
 
       // Number sprite
-      var textSprite = self.makeTextSprite(info.route, {
-        fontsize: 12,
-        borderColor: {
-          r: 0,
-          g: 0,
-          b: 255,
-          a: 1.0
-        },
-        backgroundColor: {
-          r: 100,
-          g: 100,
-          b: 255,
-          a: 0.8
-        }
-      });
-      textSprite.translateY(35);
+      var textSprite = self.makeTextSprite(info.route, numberBG);
+      textSprite.translateY(40);
       textSprite.renderDepth = -1;
       
       pin.add(textSprite);
+       self.textSprites.push(textSprite);
 
       self.updatePoiVisibility(pin); // Set initial visibility according to lollipopmenu selection mode
 
@@ -593,6 +609,7 @@
     var self = this;
     self.lollipopMenu.onTick(delta);
     self.updateInterpolations(delta);
+    self.updateTextSprites();
   };
 
   VIZI.BlueprintOutputSensor.prototype.onLollipopSelectionChanged = function(newSel) {
@@ -676,7 +693,7 @@
     return sprite;
   };
 
-  VIZI.BlueprintOutputSensor.prototype.makeTextSprite = function(message, parameters) {
+  VIZI.BlueprintOutputSensor.prototype.makeTextSprite = function(message, background, parameters) {
     var self = this;
 
     if (parameters === undefined) parameters = {};
@@ -685,50 +702,60 @@
       parameters.fontface : "Arial";
 
     var fontsize = parameters.hasOwnProperty("fontsize") ?
-      parameters.fontsize : 18;
+      parameters.fontsize : 200;
 
     var borderThickness = parameters.hasOwnProperty("borderThickness") ?
       parameters.borderThickness : 4;
 
-    var borderColor = parameters.hasOwnProperty("borderColor") ?
-      parameters.borderColor : {
-      r: 0,
-      g: 0,
-      b: 0,
-      a: 1.0
-    };
+    // var borderColor = parameters.hasOwnProperty("borderColor") ?
+    //   parameters.borderColor : {
+    //   r: 0,
+    //   g: 0,
+    //   b: 0,
+    //   a: 1.0
+    // };
 
-    var backgroundColor = parameters.hasOwnProperty("backgroundColor") ?
-      parameters.backgroundColor : {
-      r: 255,
-      g: 255,
-      b: 255,
-      a: 1.0
-    };
+    // var backgroundColor = parameters.hasOwnProperty("backgroundColor") ?
+    //   parameters.backgroundColor : {
+    //   r: 255,
+    //   g: 255,
+    //   b: 255,
+    //   a: 1.0
+    // };
 
     var spriteAlignment = new THREE.Vector2(0, 1);
 
     var canvas = document.createElement('canvas');
+        canvas.width = "512";
+    canvas.height = "256";
+
     var context = canvas.getContext('2d');
     context.font = "Bold " + fontsize + "px " + fontface;
 
-    // get size data (height depends only on font size)
-    var metrics = context.measureText(message);
-    var textWidth = metrics.width;
+    // // get size data (height depends only on font size)
+    // var metrics = context.measureText(message);
+    // var textWidth = metrics.width;
 
-    // background color
-    context.fillStyle = "rgba(" + backgroundColor.r + "," + backgroundColor.g + "," + backgroundColor.b + "," + backgroundColor.a + ")";
-    // border color
-    context.strokeStyle = "rgba(" + borderColor.r + "," + borderColor.g + "," + borderColor.b + "," + borderColor.a + ")";
+    // // background color
+    // context.fillStyle = "rgba(" + backgroundColor.r + "," + backgroundColor.g + "," + backgroundColor.b + "," + backgroundColor.a + ")";
+    // // border color
+    // context.strokeStyle = "rgba(" + borderColor.r + "," + borderColor.g + "," + borderColor.b + "," + borderColor.a + ")";
 
-    context.lineWidth = borderThickness;
-    self.roundRect(context, borderThickness / 2, borderThickness / 2, textWidth + borderThickness, fontsize * 1.4 + borderThickness, 6);
-    // 1.4 is extra height factor for text below baseline: g,j,p,q.
+    // context.lineWidth = borderThickness;
+    // self.roundRect(context, xOffset+borderThickness / 2, borderThickness / 2, textWidth + borderThickness, fontsize * 1.4 + borderThickness+xOffset, 6);
+    // // 1.4 is extra height factor for text below baseline: g,j,p,q.
+
+
+    // background
+    context.drawImage(background, 0, 0);
 
     // text color
-    context.fillStyle = "rgba(0, 0, 0, 1.0)";
+    context.fillStyle = "rgba(255, 255, 255, 1.0)";
 
-    context.fillText(message, borderThickness, fontsize + borderThickness);
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+
+    context.fillText(message, canvas.width * 0.5, canvas.height * 0.5); // void fillText(in DOMString text, in float x, in float y, [optional] in float maxWidth);
 
     // canvas contents will be used for a texture
     var texture = new THREE.Texture(canvas);
@@ -746,23 +773,23 @@
     return sprite;
   };
 
-  VIZI.BlueprintOutputSensor.prototype.roundRect = function(ctx, x, y, w, h, r) {
-    var self = this;
+  // VIZI.BlueprintOutputSensor.prototype.roundRect = function(ctx, x, y, w, h, r) {
+  //   var self = this;
 
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.lineTo(x + w - r, y);
-    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-    ctx.lineTo(x + w, y + h - r);
-    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-    ctx.lineTo(x + r, y + h);
-    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-    ctx.lineTo(x, y + r);
-    ctx.quadraticCurveTo(x, y, x + r, y);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-  };
+  //   ctx.beginPath();
+  //   ctx.moveTo(x + r, y);
+  //   ctx.lineTo(x + w - r, y);
+  //   ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  //   ctx.lineTo(x + w, y + h - r);
+  //   ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  //   ctx.lineTo(x + r, y + h);
+  //   ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  //   ctx.lineTo(x, y + r);
+  //   ctx.quadraticCurveTo(x, y, x + r, y);
+  //   ctx.closePath();
+  //   ctx.fill();
+  //   ctx.stroke();
+  // };
 
 // "updateFromTransform" from https://github.com/realXtend/WebTundra/blob/master/src/view/ThreeView.js
   VIZI.BlueprintOutputSensor.prototype.handleTransformUpdate = function(threeMesh, newTransform) {
@@ -862,6 +889,25 @@
     self.interpolations.push(newInterp);
   };
 
+  VIZI.BlueprintOutputSensor.prototype.updateTextSprites = function() {
+    var self = this;
+
+    if (this.textSprites.length > 1) {
+      var v1 = new THREE.Vector3();
+      var v2 = new THREE.Vector3();
+
+      for (var i = self.textSprites.length - 1; i >= 0; i--) {
+        v1.setFromMatrixPosition(self.world.camera.camera.matrixWorld);
+        v2.setFromMatrixPosition(self.textSprites[i].matrixWorld);
+
+        var distance = v1.distanceTo(v2);
+        distance *= 0.05;
+
+        self.textSprites[i].scale.set(distance, distance * 0.5, 1.0);
+      }
+
+    }
+  };
   // "updateInterpolations" from https://github.com/realXtend/WebTundra/blob/master/src/view/ThreeView.js
   VIZI.BlueprintOutputSensor.prototype.updateInterpolations = function(delta) {
     var self = this;
