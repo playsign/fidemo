@@ -7292,7 +7292,6 @@ if (typeof window === undefined) {
       throw new Error("Camera is required for render");
     }
 
-self.scene.updateMatrixWorld();
                     self.scene.traverse( function ( object ) {
 
                     if ( object instanceof THREE.LOD ) {
