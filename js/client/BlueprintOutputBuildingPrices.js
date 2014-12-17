@@ -56,7 +56,7 @@
         {
             var buildingPrices = self.options.globalData.buildingPrices;
             var normalizedPrice = (buildingPricesById[id] - buildingPrices.min) / (buildingPrices.max - buildingPrices.min);
-            self.options.priceMap.SetValue(lat, lon, normalizedPrice);
+            self.options.globalData.priceMap.SetValue(lat, lon, normalizedPrice);
         }
 
         // Commented out test code to create 3d text of the price information

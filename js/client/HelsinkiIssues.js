@@ -1,3 +1,6 @@
+"use strict";
+
+// Data object to store Helsinki issue data
 var IssueItem = function(id, latLon, status, header, description, media, address) {
     this.id = id;
     this.latLon = latLon;
@@ -52,8 +55,9 @@ HelsinkiIssues.NextIndex = function() {
     return HelsinkiIssues.RequestIndex++;
 };
 
-// Request Helsinki issues from the web serivice. When request is handled callback
-// function is triggered. To track request
+// Request Helsinki issues from the web service. When request is handled callback
+// function is triggered. To keep what request is being responded request id is
+// returned to callback, this way we can drop requests that are too old.
 HelsinkiIssues.RequestIssues = function( lat, long, radius, callback ) {
     
     var requestId = HelsinkiIssues.NextIndex();

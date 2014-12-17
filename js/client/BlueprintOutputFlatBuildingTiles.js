@@ -161,7 +161,7 @@
     }
 
     // Load buildings in a Web Worker
-    self.worker(self.world.origin, self.world.originZoom, buildings, self.options.manualBuildings, self.options.priceMap).then(function(result) {
+    self.worker(self.world.origin, self.world.originZoom, buildings, self.options.manualBuildings, self.options.globalData.priceMap).then(function(result) {
       var model = result.model;
       var offset = result.offset;
 
