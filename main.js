@@ -291,9 +291,7 @@ world.attribution.container.style.display = "none";
 //var controls = new VIZI.ControlsOrbit(world.camera);
 //override change emitting as the unload & load code is not good in 0.2.0 yet
 //controls.onChange = function() {};
-var controls = new THREE.OrbitControls(world.camera.camera, TundraSDK.framework.renderer.renderer.domElement);
-controls.damping = 0.2;
-
+globalData.controls = new THREE.PanAndOrbitControls(world.camera.camera, TundraSDK.framework.renderer.renderer.domElement);
 
 // MAP
 
@@ -378,8 +376,8 @@ var mapConfig = {
   }]
 };
 
-var switchboardMap = new VIZI.BlueprintSwitchboard(mapConfig);
-switchboardMap.addToWorld(world);
+//var switchboardMap = new VIZI.BlueprintSwitchboard(mapConfig);
+//switchboardMap.addToWorld(world);
 
 
 // DATA

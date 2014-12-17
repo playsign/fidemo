@@ -21,7 +21,7 @@
 //      controls.target.z = 150;
 // Simple substitute "OrbitControls" and the control should work as-is.
 
-THREE.OrbitControls = function ( object, domElement ) {
+THREE.PanAndOrbitControls = function ( object, domElement ) {
 
 	this.object = object;
 	this.domElement = ( domElement !== undefined ) ? domElement : document;
@@ -212,7 +212,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 		} else {
 
 			// camera neither orthographic or perspective
-			console.warn( 'WARNING: OrbitControls.js encountered an unknown camera type - pan disabled.' );
+			console.warn( 'WARNING: PanAndOrbitControls.js encountered an unknown camera type - pan disabled.' );
 
 		}
 
@@ -340,6 +340,16 @@ THREE.OrbitControls = function ( object, domElement ) {
 		return theta
 
 	};
+
+    	this.followLollipop = function ( lollipopMenu ) {
+            console.log("LOLLIPOP: " + lollipopMenu);
+            lollipopMenu.positionChanged.add(this.onLollipopPositionChanged, self);
+            this.lollipopMenu = lollipopMenu;
+        };
+
+        this.onLollipopPositionChanged = function ( ) {
+            console.log("LOLLIPOP: " + this.lollipopMenu);
+        }
 
 	function getAutoRotationAngle() {
 
@@ -672,4 +682,4 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 };
 
-THREE.OrbitControls.prototype = Object.create( THREE.EventDispatcher.prototype );
+THREE.PanAndOrbitControls.prototype = Object.create( THREE.EventDispatcher.prototype );

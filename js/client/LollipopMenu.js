@@ -92,6 +92,8 @@ var LollipopMenu = function(owner) {
   this.issueInstances = [];
 
   this.selection = 0; // 0 = none, 1 = photos, 2 = properties etc.
+
+  this.owner.options.globalData.controls.followLollipop(this);  
 };
 
 LollipopMenu.prototype = {
