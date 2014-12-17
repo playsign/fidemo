@@ -83,6 +83,27 @@
       metroNumberBG: 'data/2d/metro_numerotausta.png',
     };
 
+    // busNumberBG image
+    self.busNumberBG = new Image();
+    self.busNumberBG.src = self.assetPaths.busNumberBG;
+    self.busNumberBG.onload = function() {
+      self.updateModelCount();
+    };
+
+    // tramNumberBG image
+    self.tramNumberBG = new Image();
+    self.tramNumberBG.src = self.assetPaths.tramNumberBG;
+    self.tramNumberBG.onload = function() {
+      self.updateModelCount();
+    };
+
+    // metroNumberBG image
+    self.metroNumberBG = new Image();
+    self.metroNumberBG.src = self.assetPaths.metroNumberBG;
+    self.metroNumberBG.onload = function() {
+      self.updateModelCount();
+    };
+
     self.modelCount = 0;
 
     // Lightbulb model
@@ -116,31 +137,34 @@
       self.updateModelCount();
     };
 
-    // busNumberBG image
-    self.busNumberBG = new Image();
-    self.busNumberBG.src = self.assetPaths.busNumberBG;
-    self.busNumberBG.onload = function() {
-      self.updateModelCount();
-    };
 
-    // tramNumberBG image
-    self.tramNumberBG = new Image();
-    self.tramNumberBG.src = self.assetPaths.tramNumberBG;
-    self.tramNumberBG.onload = function() {
-      self.updateModelCount();
-    };
-
-    // metroNumberBG image
-    self.metroNumberBG = new Image();
-    self.metroNumberBG.src = self.assetPaths.metroNumberBG;
-    self.metroNumberBG.onload = function() {
-      self.updateModelCount();
-    };
+    // Sprite materials
 
     var pinMap = THREE.ImageUtils.loadTexture("data/2d/pointer.png");
     self.pinMaterialFocus = new THREE.SpriteMaterial({
       map: pinMap,
       color: "rgb(216,136,0)",
+      fog: true
+    });
+
+    pinMap = THREE.ImageUtils.loadTexture("data/2d/bussi.png");
+    self.pinMaterialBus = new THREE.SpriteMaterial({
+      map: pinMap,
+      color: 0xffffff,
+      fog: true
+    });
+
+    pinMap = THREE.ImageUtils.loadTexture("data/2d/ratikka.png");
+    self.pinMaterialTram = new THREE.SpriteMaterial({
+      map: pinMap,
+      color: 0xffffff,
+      fog: true
+    });
+
+    pinMap = THREE.ImageUtils.loadTexture("data/2d/metro.png");
+    self.pinMaterialMetro = new THREE.SpriteMaterial({
+      map: pinMap,
+      color: 0xffffff,
       fog: true
     });
     
@@ -238,11 +262,28 @@
         self.pois[vehicleId].arrow.rotation.set(THREE.Math.degToRad(180), THREE.Math.degToRad(bearing), 0);
       }
     } else {
-      // CREATE NEW
+
+            // CREATE NEW
       var pin = new THREE.Object3D();
-      
+
+    // IMAGE
+    var info = intepretJoreCode(name);
+
+
       // Sprite
-      var pinSprite = self.makePinSprite(name);
+      var pinSprite;
+
+      // console.log(name + " is route " + info.route + " and is a " + info.mode);
+      if (info.mode == "TRAM") {
+        pinSprite = new THREE.Sprite(self.pinMaterialTram);
+      } else if (info.mode == "SUBWAY") {
+        pinSprite = new THREE.Sprite(self.pinMaterialMetro);
+      } else {
+        pinSprite = new THREE.Sprite(self.pinMaterialBus);
+      }
+
+      pinSprite.scale.set(25, 25, 1.0);
+
       // pinSprite.translateX(12);
       pinSprite.translateY(25);
 
@@ -267,7 +308,6 @@
 
       // Arrow
       var newMaterial = self.arrow.material.clone();
-      var info = intepretJoreCode(name);
       var numberBG;
       if (info.mode == "TRAM") {
         newMaterial.materials[0].map = THREE.ImageUtils.loadTexture("data/3d/arrow_diffuse_ratikka.png");
@@ -288,13 +328,16 @@
       }
 
       // Number sprite
-      var textSprite = self.makeTextSprite(info.route, numberBG);
-      textSprite.translateY(40);
-      textSprite.renderDepth = -1;
-      
-      pin.add(textSprite);
-       self.textSprites.push(textSprite);
+      if (numberBG) {
+        var textSprite = self.makeTextSprite(info.route, numberBG);
+        textSprite.translateY(40);
+        textSprite.renderDepth = -1;
 
+        pin.add(textSprite);
+        self.textSprites.push(textSprite);
+      } else {
+        console.warn("No number background loaded");
+      }
       self.updatePoiVisibility(pin); // Set initial visibility according to lollipopmenu selection mode
 
       self.add(pin);
@@ -632,65 +675,6 @@
     if (self.modelCount == Object.keys(self.assetPaths).length) {
       self.emit("assets ready");
     }
-  };
-
-  VIZI.BlueprintOutputSensor.prototype.makePinSprite = function(name) {
-    var self = this;
-
-    var fontface = "Arial";
-
-    var fontsize = 64;
-
-    var canvas = document.createElement('canvas');
-    canvas.width = "512";
-    canvas.height = "512";
-    var context = canvas.getContext('2d');
-
-
-    // IMAGE
-    var info = intepretJoreCode(name);
-    // console.log(name + " is route " + info.route + " and is a " + info.mode);
-    if (info.mode == "TRAM") {
-      context.drawImage(self.tramImg, 0, 0);
-    } else if (info.mode == "SUBWAY") {
-      context.drawImage(self.metroImg, 0, 0);
-    } else {
-      context.drawImage(self.busImg, 0, 0);
-    }
-
-
-    // TEXT
-
-    context.font = "Bold " + fontsize + "px " + fontface;
-
-    name = info.route; //name.slice(-3);
-
-    // get size data (height depends only on font size)
-    var metrics = context.measureText(name);
-    var textWidth = metrics.width;
-
-    // text color
-    context.fillStyle = "rgba(255, 255, 255, 1.0)";
-
-    context.textAlign = "left";
-    context.textBaseline = "top";
-
-    context.fillText(name, 270, 92, 160);
-
-
-    // canvas contents will be used for a texture
-    var texture = new THREE.Texture(canvas);
-    texture.needsUpdate = true;
-
-    var spriteMaterial = new THREE.SpriteMaterial({
-      map: texture,
-      useScreenCoordinates: false,
-    });
-
-    var sprite = new THREE.Sprite(spriteMaterial);
-
-    sprite.scale.set(25, 25, 1.0);
-    return sprite;
   };
 
   VIZI.BlueprintOutputSensor.prototype.makeTextSprite = function(message, background, parameters) {
