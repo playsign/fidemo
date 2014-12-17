@@ -11,7 +11,7 @@ function getBuildingPricesConfig() {
     input: {
       type: "BlueprintInputData",
       options: {
-        path: "http://overpass-api.de/api/interpreter?data=[out:json];((node(around:1000.0,"+world.center.lat+","+world.center.lon+")[\"addr:postcode\"];);(._;node(w);););out;",
+        path: "http://overpass-api.de/api/interpreter?data=[out:json];((node(around:1500.0,"+world.center.lat+","+world.center.lon+")[\"addr:postcode\"];);(._;node(w);););out;",
         repeat: false,
       }
     },
