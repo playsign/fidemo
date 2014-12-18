@@ -11,7 +11,13 @@ function getBuildingPricesConfig() {
     input: {
       type: "BlueprintInputData",
       options: {
-        path: "http://overpass-api.de/api/interpreter?data=[out:json];((node(around:1000.0,"+world.center.lat+","+world.center.lon+")[\"addr:postcode\"];);(._;node(w);););out;",
+        path: "http://overpass-api.de/api/interpreter?data=[out:json];((node(around:1000.0,"+world.center.lat+","+world.center.lon+")[\"addr:postcode\"];);(._;node(w);););out 400;" + 
+              "((node(around:1000.0,60.1825,24.9213)[\"addr:postcode\"];);(._;node(w);););out 200;" +
+              "((node(around:1000.0,60.18376,24.95039)[\"addr:postcode\"];);(._;node(w);););out 200;" +
+              "((node(around:500.0,60.16102,24.94925)[\"addr:postcode\"];);(._;node(w);););out 200;" +
+              "((node(around:500.0,60.16651,24.96793)[\"addr:postcode\"];);(._;node(w);););out 100;" +
+              "((node(around:500.0,60.16201,24.92039)[\"addr:postcode\"];);(._;node(w);););out 100;" +
+              "((node(around:1000.0,60.15487,24.93028)[\"addr:postcode\"];);(._;node(w);););out 100;",
         repeat: false,
       }
     },

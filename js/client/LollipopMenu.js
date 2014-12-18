@@ -21,6 +21,7 @@ var LollipopMenu = function(owner) {
     "data/2d/icon_properties.png",
     "data/2d/icon_services.png",
     "data/2d/icon_transportation.png"
+    
   ];
   for (var i = 0; i < iconTexNames.length; ++i) {
     this.iconMats.push(
@@ -59,6 +60,8 @@ var LollipopMenu = function(owner) {
 
   this.avatarMoveDelay = 1.0;
   
+  this.selectionState = 0;
+  
   // Helsinki issue objects
   this.issueRequestId = "";
   this.issueItems = {};
@@ -90,6 +93,8 @@ var LollipopMenu = function(owner) {
   this.issueInstances = [];
 
   this.selection = 0; // 0 = none, 1 = photos, 2 = properties etc.
+
+  this.owner.options.globalData.controls.followLollipop(this);  
 };
 
 LollipopMenu.prototype = {
@@ -133,7 +138,7 @@ LollipopMenu.prototype = {
     var point = new VIZI.Point(pos.x, pos.z);
     var w = this.owner.options.globalData.world;
     var latLong = w.unproject(point, w.zoom);
-    this.positionChanged.dispatch(latLong);
+    this.positionChanged.dispatch(latLong, pos.clone());
   },
   
   onMouseMove : function(x, y) {
@@ -253,6 +258,7 @@ LollipopMenu.prototype = {
             that = null;
         };
         this.issueRequestId = HelsinkiIssues.RequestIssues(latLong.lat, latLong.lon, 300, callback);
+        this.selectionState = 0;
     }
 
     // Animate the circle to new position
@@ -353,6 +359,8 @@ LollipopMenu.prototype = {
         this.setSelection(intersections[i].object.selectionNumber);
         break;
       }
+      else
+        this.updateSelectionState();
     }
     return intersections.length > 0;
   },
@@ -430,10 +438,32 @@ LollipopMenu.prototype = {
       this.selection = newSel;
       this.updateScale();
       this.selectionChanged.dispatch(this.selection);
+       
+      if(this.selectionState == 0 || this.selectionState == null)
+        this.selectionState = 1;
+      else
+        this.selectionState = 0;
+      
+      if (this.owner.options.globalData != null && this.owner.options.globalData.animator != null){
+        if(this.selection == 2){
+          this.owner.options.globalData.animator.EnableHeatmap(true);
+        }
+        else{
+          this.owner.options.globalData.animator.EnableHeatmap(false);
+        }
+        this.owner.options.globalData.animator.ResetAnimated();
+      }
     }
+    this.updateSelectionState();
   },
   
   getSelection : function() {
     return this.selection;
+  },
+  
+  //call selectionUpdate from PinView
+  updateSelectionState : function()
+  {
+     this.selectionState = this.owner.options.globalData.pinView.selectionUpdate(this.selection, this.selectionState);
   }
 }

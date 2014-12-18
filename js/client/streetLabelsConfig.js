@@ -40,6 +40,7 @@ function getStreetLabelsConfig(){
               // Eg. document.placemark[n].point.coordinates
               coordinates: ["Lon", "Lat"], // get coordinates from properties of the JSON          
               name: "Name",
+              rotation: "Rotation",
               important: "Important"
             }
           }

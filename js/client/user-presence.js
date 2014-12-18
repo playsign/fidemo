@@ -19,8 +19,31 @@ var UserPresenceApplication = IApplication.$extend(
         this.fw.scene.onEntityAction(this, this.onEntityAction);
 
         // Hook to frame update to process smoothed movements
-        this.movements = {}
+        this.movements = {};
         this.updateSub = this.fw.frame.onUpdate(this, this.runSmoothedMovements);
+
+        // Tooltip
+        this.ui = {};
+        this.ui.tooltip = $("<div/>", { id : "tooltip" });
+        this.ui.tooltip.css(
+        {
+            "border"           : "0px",
+            "border-radius"    : 4,
+            "padding"          : 3,
+            "padding-left"     : 5,
+            "padding-right"    : 5,
+            "position"         : "absolute",
+            "width"            : "auto",
+            "height"           : "auto",
+            "font-family"      : "Arial",
+            "font-size"        : "14pt",
+            "color"            : "color: rgb(56,56,56)",
+            "background-color" : "color: rgb(214,214,214)"
+        });
+        this.ui.tooltip.hide();
+        this.fw.ui.addWidgetToScene(this.ui.tooltip);
+
+        TundraSDK.framework.input.onMouseMove(this, this.onMouseMove);
     },
 
     onEntityCreated : function(entity)
@@ -33,6 +56,27 @@ var UserPresenceApplication = IApplication.$extend(
         }
     },
 
+    onMouseMove : function(event)
+    {
+        if (event.targetNodeName !== "canvas")
+            return;
+        var hit = this.fw.renderer.raycast();
+        var avatarData = hit.entity ? hit.entity.component("DynamicComponent", "AvatarData") : null;
+        var showTooltip = false;
+        if (avatarData)
+        {
+            this.setTooltip(hit.entity.description);
+            showTooltip = true;
+        }
+
+        if (showTooltip)
+        {
+            var p = this.defaultTooltipPosition();
+            this.setTooltipPosition(p.x, p.y);
+        }
+        this.setTooltipVisible(showTooltip);
+    },
+
     onComponentCreated : function(entity, component)
     {
         if (component.typeId == 25 && component.name == "AvatarData" && component.color !== undefined)
@@ -41,6 +85,7 @@ var UserPresenceApplication = IApplication.$extend(
             {
                 entity.mesh.onMeshLoaded(this, function(parentEntity, meshComponent, meshAsset)
                 {
+                    noop(parentEntity, meshComponent);
                     var material = meshAsset.getSubmesh(0).material.clone();
                     material.color = component.color.toThreeColor();
                     meshAsset.getSubmesh(0).material = material;
@@ -115,4 +160,20 @@ var UserPresenceApplication = IApplication.$extend(
             }
         }
     },
+
+    // Fade in/out
+    setTooltipVisible : function(visible) { if (visible != this.isTooltipVisible()) { if (visible) this.ui.tooltip.fadeIn(); else this.ui.tooltip.fadeOut(); } },
+    isTooltipVisible : function() { return this.ui.tooltip.is(":visible"); },
+    setTooltip : function(text)
+    {
+        if (text != this.ui.tooltip.text())
+            this.ui.tooltip.text(text);
+    },
+    // Sets the position of the tooltip. Does not let the UI go outside of the window.
+    setTooltipPosition : function(x, y) { setWidgetPosition(this.ui.tooltip, x, y); }, // setWidgetPosition() from main.js
+    defaultTooltipPosition : function()
+    {
+        return { x : this.fw.input.mouse.x + 25, y : this.fw.input.mouse.y + this.ui.tooltip.height() };
+    },
 });
+noop(UserPresenceApplication);

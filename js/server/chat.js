@@ -94,6 +94,11 @@ ServerControl.prototype.OnSetUsername = function(newUsername, connectionId)
     me.Exec(4/*EntityAction.Peers*/, Msg.ServerSendMessage, msg);
     me.Exec(4/*EntityAction.Peers*/, Msg.RemoveUserFromList, oldUsername, connection.id);
     me.Exec(4/*EntityAction.Peers*/, Msg.NewUserConnected, newUsername, connection.id);
+
+    // TODO This would cleaner design in avatar application but for now done here for simplicity.
+    var avatar = scene.EntityByName("UserPresence" + connectionId);
+    if (avatar)
+        avatar.description = newUsername;
 };
 
 if (server.IsRunning())

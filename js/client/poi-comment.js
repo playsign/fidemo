@@ -261,23 +261,30 @@ var PoiComment = IApplication.$extend({
     {
         //Empty message count
         this.ui.messageCount = 0;
+        var that = this;
+
+        var callback = function(json) {
+            if (json === "") {
+                that.addUiComment(0, "Fetchind data from context broker failed. Context broker is down.");
+                that.ui.messageCount++;
+                return;
+            }
+
+            var obj = JSON.parse(json);
+            var attrs = obj.contextResponses[0].contextElement.attributes;
+            for (var i in attrs)
+            {
+                var value = attrs[i].value;
+                if (value !== "")
+                {
+                    that.addUiComment(i, value);
+                    that.ui.messageCount++;
+                }
+            }
+        };
 
         //Load poi comments and add to widget.
-        var json = cbclient.getContextBrokerItems(itemid, itemid);
-        if (json === "")
-            return;
-
-        var obj = JSON.parse(json);
-        var attrs = obj.contextResponses[0].contextElement.attributes;
-        for (var i in attrs)
-        {
-            var value = attrs[i].value;
-            if (value !== "")
-            {
-                this.addUiComment(i, value);
-                this.ui.messageCount++;
-            }
-        }
+        cbclient.getContextBrokerItems(itemid, itemid, callback);
 
     },
 

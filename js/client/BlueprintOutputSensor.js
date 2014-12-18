@@ -68,6 +68,9 @@
 
     self.modelYpos = 10;
     self.spriteYpos = 20;
+    self.pinPosY = 10;
+    self.numberSpriteOffsetY = 15;
+    self.pinIconScale = 25;
 
     var jsonLoader = new THREE.JSONLoader();
     self.assetPaths = {
@@ -77,6 +80,30 @@
       bus: 'data/2d/bussi.png',
       tram: 'data/2d/ratikka.png',
       metro: 'data/2d/metro.png',
+      busNumberBG: 'data/2d/bussi_numerotausta.png',
+      tramNumberBG: 'data/2d/ratikka_numerotausta.png',
+      metroNumberBG: 'data/2d/metro_numerotausta.png',
+    };
+
+    // busNumberBG image
+    self.busNumberBG = new Image();
+    self.busNumberBG.src = self.assetPaths.busNumberBG;
+    self.busNumberBG.onload = function() {
+      self.updateModelCount();
+    };
+
+    // tramNumberBG image
+    self.tramNumberBG = new Image();
+    self.tramNumberBG.src = self.assetPaths.tramNumberBG;
+    self.tramNumberBG.onload = function() {
+      self.updateModelCount();
+    };
+
+    // metroNumberBG image
+    self.metroNumberBG = new Image();
+    self.metroNumberBG.src = self.assetPaths.metroNumberBG;
+    self.metroNumberBG.onload = function() {
+      self.updateModelCount();
     };
 
     self.modelCount = 0;
@@ -112,13 +139,40 @@
       self.updateModelCount();
     };
 
+
+    // Sprite materials
+
     var pinMap = THREE.ImageUtils.loadTexture("data/2d/pointer.png");
     self.pinMaterialFocus = new THREE.SpriteMaterial({
       map: pinMap,
       color: "rgb(216,136,0)",
       fog: true
     });
-    
+
+    pinMap = THREE.ImageUtils.loadTexture("data/2d/bussi.png");
+    self.pinMaterialBus = new THREE.SpriteMaterial({
+      map: pinMap,
+      color: 0xffffff,
+      fog: true,
+      depthTest: false
+    });
+
+    pinMap = THREE.ImageUtils.loadTexture("data/2d/ratikka.png");
+    self.pinMaterialTram = new THREE.SpriteMaterial({
+      map: pinMap,
+      color: 0xffffff,
+      fog: true,
+      depthTest: false
+    });
+
+    pinMap = THREE.ImageUtils.loadTexture("data/2d/metro.png");
+    self.pinMaterialMetro = new THREE.SpriteMaterial({
+      map: pinMap,
+      color: 0xffffff,
+      fog: true,
+      depthTest: false
+    });
+
     // INTERPOLATION
 
     self.interpolations = [];
@@ -159,15 +213,18 @@
         }
         boxDescription.push(variable + ": " + data[i][variable]);
       }
-      var boxId = data[i].node;
-      if (boxId === undefined)
-      {
+      var boxId = data[i].name; // 'node' that was used earlier has been removed
+      if (boxId === undefined) {
         console.warn("OutputSensor: No node for", data[i].name)
         continue;
       }
 
       if (data[i].categories) {
         boxName = data[i].lineref;
+        if (boxName === undefined) {
+          console.warn("line ref undefined");
+          continue;
+        }
         self.createPin(boxLatitude, boxLongitude, boxName, boxDescription, boxId, data[i].name, data[i].bearing); // 'name' is a vehicle ID
       } else if (data[i].light) {
         var lux = parseFloat(data[i].light, 10);
@@ -206,21 +263,39 @@
     if (self.pois[vehicleId]) {
       // UPDATE
       var newTransfrom = {
-        position: new THREE.Vector3( dscenepoint.x, self.spriteYpos, dscenepoint.y )
+        position: new THREE.Vector3(dscenepoint.x, self.spriteYpos, dscenepoint.y)
         // TODO rotation and scale
       };
       self.handleTransformUpdate(self.pois[vehicleId], newTransfrom);
-      if (bearing) {
+      if (bearing && self.pois[vehicleId].arrow) {
         self.pois[vehicleId].arrow.rotation.set(THREE.Math.degToRad(180), THREE.Math.degToRad(bearing), 0);
       }
     } else {
+
       // CREATE NEW
       var pin = new THREE.Object3D();
-      
+
+      // IMAGE
+      var info = intepretJoreCode(name);
+
+
       // Sprite
-      var pinSprite = self.makePinSprite(name);
-      // pinSprite.translateX(12);
-      pinSprite.translateY(25);
+      var pinIcon;
+
+      // console.log(name + " is route " + info.route + " and is a " + info.mode);
+      if (info.mode == "TRAM") {
+        pinIcon = new THREE.Sprite(self.pinMaterialTram);
+      } else if (info.mode == "SUBWAY") {
+        pinIcon = new THREE.Sprite(self.pinMaterialMetro);
+      } else {
+        pinIcon = new THREE.Sprite(self.pinMaterialBus);
+      }
+
+      pinIcon.scale.set(self.pinIconScale, self.pinIconScale, self.pinIconScale);
+
+      // pinIcon.translateX(12);      
+
+      pinIcon.translateY(self.pinPosY);
 
       pin.name = name;
       pin.description = desc;
@@ -239,26 +314,43 @@
       self.poisArray.push(pin);
       self.updatePoiVisibility(pin); // Set initial visibility according to lollipopmenu selection mode
 
-      pin.add(pinSprite);
+      pin.add(pinIcon);
+      pin.icon = pinIcon;
 
       // Arrow
       var newMaterial = self.arrow.material.clone();
-      var info = intepretJoreCode(name);
+
+      var numberBG;
       if (info.mode == "TRAM") {
-        newMaterial.materials[0].map = THREE.ImageUtils.loadTexture("data/3d/arrow_diffuse_ratikka.png");
+        newMaterial.color = new THREE.Color(0x1E9A5F);
+        numberBG = self.tramNumberBG;
       } else if (info.mode == "SUBWAY") {
-        newMaterial.materials[0].map = THREE.ImageUtils.loadTexture("data/3d/arrow_diffuse_metro.png");
+        newMaterial.color = new THREE.Color(0xF85F1E);
+        numberBG = self.metroNumberBG;
       } else {
-        newMaterial.materials[0].map = THREE.ImageUtils.loadTexture("data/3d/arrow_diffuse_bussi.png");
+        newMaterial.color = new THREE.Color(0x1E95BA);
+        numberBG = self.busNumberBG;
       }
 
       if (bearing) {
         var arrowMesh = new THREE.Mesh(self.arrow.geometry.clone(), newMaterial);
         arrowMesh.rotation.set(THREE.Math.degToRad(180), THREE.Math.degToRad(bearing), 0);
-        pin.add(arrowMesh);
+        arrowMesh.scale.set(0.35,0.35,0.35);
+        pinIcon.add(arrowMesh);
         pin.arrow = arrowMesh;
       }
 
+      // Number sprite
+      if (numberBG) {
+        var textSprite = self.makeTextSprite(info.route, numberBG);
+        textSprite.translateY(self.pinPosY + self.numberSpriteOffsetY);
+        textSprite.renderDepth = -1;
+
+        pin.add(textSprite);
+        pin.textSprite = textSprite;
+      } else {
+        console.warn("No number background loaded");
+      }
       self.updatePoiVisibility(pin); // Set initial visibility according to lollipopmenu selection mode
 
       self.add(pin);
@@ -385,8 +477,7 @@
   VIZI.BlueprintOutputSensor.prototype.loadArrowModel = function(geometry, materials) {
     var self = this;
     console.log("load arrow model");
-    var material = new THREE.MeshFaceMaterial(materials);
-    material.materials[0].emissive = new THREE.Color(0xffffff);
+    var material = new THREE.MeshBasicMaterial();
     self.arrow = new THREE.Mesh(geometry, material);
     self.updateModelCount();
   };
@@ -399,7 +490,7 @@
     // Only react to mouse events on the 3D canvas. This is neccesary as Tundra InputAPI
     // is not used. Multiple systems are in play at the same time.
     if (event.target !== undefined && typeof event.target.localName === "string" &&
-        event.target.localName.toLowerCase() !== "canvas")
+      event.target.localName.toLowerCase() !== "canvas")
       return;
 
     // update the mouse variable
@@ -421,7 +512,7 @@
     // Only react to mouse events on the 3D canvas. This is neccesary as Tundra InputAPI
     // is not used. Multiple systems are in play at the same time.
     if (event.target !== undefined && typeof event.target.localName === "string" &&
-        event.target.localName.toLowerCase() !== "canvas")
+      event.target.localName.toLowerCase() !== "canvas")
       return;
 
     // the following line would stop any other event handler from firing
@@ -441,8 +532,8 @@
     //   // console.log(intersects[0]);
     //   self.intersectedObject = intersects[0].object;
     // } else {
-      // If no ray hits, pass on to lollipopmenu
-      self.lollipopMenu.onMouseDown(self.mouse.x, self.mouse.y);
+    // If no ray hits, pass on to lollipopmenu
+    self.lollipopMenu.onMouseDown(self.mouse.x, self.mouse.y);
     // }
   };
 
@@ -456,7 +547,7 @@
     // Only react to mouse events on the 3D canvas. This is neccesary as Tundra InputAPI
     // is not used. Multiple systems are in play at the same time.
     if (event.target !== undefined && typeof event.target.localName === "string" &&
-        event.target.localName.toLowerCase() !== "canvas")
+      event.target.localName.toLowerCase() !== "canvas")
       return;
 
     // the following line would stop any other event handler from firing
@@ -588,6 +679,7 @@
     var self = this;
     self.lollipopMenu.onTick(delta);
     self.updateInterpolations(delta);
+    self.updatePois();
   };
 
   VIZI.BlueprintOutputSensor.prototype.onLollipopSelectionChanged = function(newSel) {
@@ -612,49 +704,36 @@
     }
   };
 
-  VIZI.BlueprintOutputSensor.prototype.makePinSprite = function(name) {
+  VIZI.BlueprintOutputSensor.prototype.makeTextSprite = function(message, background, parameters) {
     var self = this;
 
-    var fontface = "Arial";
+    if (parameters === undefined) parameters = {};
 
-    var fontsize = 64;
+    var fontface = parameters.hasOwnProperty("fontface") ?
+      parameters.fontface : "Arial";
+
+    var fontsize = parameters.hasOwnProperty("fontsize") ?
+      parameters.fontsize : 29;
+
+    var spriteAlignment = new THREE.Vector2(0, 1);
 
     var canvas = document.createElement('canvas');
-    canvas.width = "512";
-    canvas.height = "512";
+    canvas.width = "64";
+    canvas.height = "32";
+
     var context = canvas.getContext('2d');
-
-
-    // IMAGE
-    var info = intepretJoreCode(name);
-    // console.log(name + " is route " + info.route + " and is a " + info.mode);
-    if (info.mode == "TRAM") {
-      context.drawImage(self.tramImg, 0, 0);
-    } else if (info.mode == "SUBWAY") {
-      context.drawImage(self.metroImg, 0, 0);
-    } else {
-      context.drawImage(self.busImg, 0, 0);
-    }
-
-
-    // TEXT
-
     context.font = "Bold " + fontsize + "px " + fontface;
 
-    name = info.route; //name.slice(-3);
-
-    // get size data (height depends only on font size)
-    var metrics = context.measureText(name);
-    var textWidth = metrics.width;
+    // background
+    context.drawImage(background, 0, 0);
 
     // text color
     context.fillStyle = "rgba(255, 255, 255, 1.0)";
 
-    context.textAlign = "left";
-    context.textBaseline = "top";
+    context.textAlign = "center";
+    context.textBaseline = "middle";
 
-    context.fillText(name, 270, 92, 160);
-
+    context.fillText(message, canvas.width * 0.5, canvas.height * 0.5); // void fillText(in DOMString text, in float x, in float y, [optional] in float maxWidth);
 
     // canvas contents will be used for a texture
     var texture = new THREE.Texture(canvas);
@@ -663,33 +742,16 @@
     var spriteMaterial = new THREE.SpriteMaterial({
       map: texture,
       useScreenCoordinates: false,
+      alignment: spriteAlignment,
+      depthTest: false
     });
 
     var sprite = new THREE.Sprite(spriteMaterial);
 
-    sprite.scale.set(25, 25, 1.0);
     return sprite;
   };
 
-  VIZI.BlueprintOutputSensor.prototype.roundRect = function(ctx, x, y, w, h, r) {
-    var self = this;
-
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.lineTo(x + w - r, y);
-    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-    ctx.lineTo(x + w, y + h - r);
-    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-    ctx.lineTo(x + r, y + h);
-    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-    ctx.lineTo(x, y + r);
-    ctx.quadraticCurveTo(x, y, x + r, y);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-  };
-
-// "updateFromTransform" from https://github.com/realXtend/WebTundra/blob/master/src/view/ThreeView.js
+  // "updateFromTransform" from https://github.com/realXtend/WebTundra/blob/master/src/view/ThreeView.js
   VIZI.BlueprintOutputSensor.prototype.handleTransformUpdate = function(threeMesh, newTransform) {
     var self = this;
 
@@ -743,8 +805,8 @@
     //   // Scale
     //   // copyXyz(ptv.scale, threeMesh.scale);
     // }
-    
-        // Create new interpolation
+
+    // Create new interpolation
 
     // // position
     // var endPos = new THREE.Vector3();
@@ -785,6 +847,39 @@
     };
 
     self.interpolations.push(newInterp);
+  };
+
+  VIZI.BlueprintOutputSensor.prototype.updatePois = function() {
+    var self = this;
+
+    var distance;
+
+    if (self.poisArray.length > 1) {
+      var v1 = new THREE.Vector3();
+      var v2 = new THREE.Vector3();
+
+      for (var i = self.poisArray.length - 1; i >= 0; i--) {
+        v1.setFromMatrixPosition(self.world.camera.camera.matrixWorld);
+        v2.setFromMatrixPosition(self.poisArray[i].matrixWorld);
+
+        distance = v1.distanceTo(v2);
+        var newScale = distance * 0.03;
+
+        // Scale text sprite
+        if (self.poisArray[i].textSprite) {
+          self.poisArray[i].textSprite.scale.set(newScale, newScale * 0.5, 1.0);
+        }
+
+        // Scale icon
+        if (self.poisArray[i].icon) {
+          newScale = distance * 0.1;
+
+          if (newScale < self.pinIconScale) {
+            self.poisArray[i].icon.scale.set(newScale, newScale, newScale);
+          }
+        }
+      }
+    }
   };
 
   // "updateInterpolations" from https://github.com/realXtend/WebTundra/blob/master/src/view/ThreeView.js

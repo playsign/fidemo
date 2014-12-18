@@ -12,24 +12,37 @@ var ContextBrokerClient = IApplication.$extend({
     // get first 1000 context elements by type and id
     // @param type as type of context element e.g. POI
     // @param id as id of the context elemeny e.g. POI1 or wildcard .* or PO.*
-    getContextBrokerItems : function(type, id) {
+    getContextBrokerItems : function(type, id, callback) {
 
         var json = "{ \"entities\": [ { \"type\": \"" + type + "\", \"isPattern\": \"true\", \"id\": \"" + id + "\" }]}";
 
         var xhr = new XMLHttpRequest();
-        xhr.open("POST", _cburl + "/ngsi10/queryContext?limit=1000", false);
+        xhr.open("POST", _cburl + "/ngsi10/queryContext?limit=1000", true);
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.setRequestHeader("Accept", "application/json");
         xhr.setRequestHeader("X-Auth-Token", _cbtoken);
+
+
+        var readySignal = new signals.Signal();
+        readySignal.addOnce(callback);
+
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4)
+            {
+                if (xhr.status === 200) {
+                    console.log("Get context broker items succeeded!")
+                    readySignal.dispatch(xhr.responseText);
+                    readySignal = null;
+                }
+                else if (xhr.status === 404) {
+                    console.log("Get context broker item failed 1: " + xhr.responseText);
+                    readySignal.dispatch("");
+                }
+            }
+        };
+
         xhr.send(json);
 
-        if (xhr.status === 200) {
-            console.log("Get context broker items succeeded!");
-            return xhr.responseText;
-        } else if (xhr.status === 404) {
-            console.log("Get context broker item failed: " + xhr.responseText);
-        }
-        return "";
     },
 
     // get context element by its id

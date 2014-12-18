@@ -33,10 +33,26 @@ try
     var /*freecamera,*/ cbclient, demoapp, chat, userPresence;
     var infoDialog, usernameDialog;
 
-    // Free camera application
+    // Building material animation
     $.getScript("js/client/BuildingAnimation.js")
         .done(function(/*script, textStatus*/) {
             globalData.animator = new BuildingAnimation();
+        })
+        .fail(function(jqxhr, settings, exception) {
+            noop(jqxhr, settings);
+            console.error(exception);
+        });
+
+    // Apartment price map
+    $.getScript("js/client/ApartmentPriceMap.js")
+        .done(function(/*script, textStatus*/) {
+            var priceMap = new PriceMap(new VIZI.LatLon(60.1431, 24.89018),
+                                        new VIZI.LatLon(60.19559, 24.9902),
+                                        10);
+            for(var y = 0; y < priceMap.resolution; ++y)                         
+                for(var x = 0; x < priceMap.resolution; ++x)
+                    priceMap._setValue(x, y, 0.0);
+            globalData.priceMap = priceMap;
         })
         .fail(function(jqxhr, settings, exception) {
             noop(jqxhr, settings);
@@ -264,6 +280,11 @@ console.log("FIDEMO: created scene", threejs.scene);
 var santanderLatLon;
 var helsinkiLatLon;
 
+//NOTE: we have own cam controls & rendering - perhaps don't even need a VIZI cam?
+var vizicam = new VIZI.Camera({
+    aspect: viewport.clientWidth / viewport.clientHeight,
+    near: 30
+});
 var world = new VIZI.World({
     viewport: viewport,
     // center: new VIZI.LatLon(40.01000594412381, -105.2727379358738), // Collada
@@ -271,10 +292,7 @@ var world = new VIZI.World({
     // center: santanderLatLon = new VIZI.LatLon(43.47195, -3.79909),
     center: helsinkiLatLon = new VIZI.LatLon(60.17096119799872, 24.94066956044796), // Helsinki
     threejs: threejs,
-    camera: camera = new VIZI.Camera({
-      aspect: viewport.clientWidth / viewport.clientHeight,
-      near: 30
-    })
+    camera: vizicam
 });
 globalData.world = world;
 
@@ -285,9 +303,12 @@ if (client !== undefined)
 // TODO Move Vizi attribution overlay to the top right corner, for now hide it altogether.
 world.attribution.container.style.display = "none";
 
-var controls = new VIZI.ControlsMap(world.camera);
+//var controls = new VIZI.ControlsMap(world.camera);
+//var controls = new VIZI.ControlsOrbit(world.camera);
 //override change emitting as the unload & load code is not good in 0.2.0 yet
-controls.onChange = function() {}; 
+//controls.onChange = function() {};
+globalData.controls = new THREE.PanAndOrbitControls(world.camera.camera, TundraSDK.framework.renderer.renderer.domElement);
+//globalData.controls.autoRotate = true;
 
 // MAP
 
@@ -296,7 +317,7 @@ var mapConfig = {
   input: {
     type: "BlueprintInputMapTiles", // String representation of the input module you want to use (this is the same as the input module filename).
     options: { // Used to provide options for the input; in most cases this will at least include a path to the data source (local or remote).
-        tilePath: "https://a.tiles.mapbox.com/v4/tapanij.kai3hkpp/{z}/{x}/{y}@2x.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6IlhHVkZmaW8ifQ.hAMX5hSW-QnTeRCMAy9A8Q&update=i2x0h" // tapanij custom
+        tilePath: "https://a.tiles.mapbox.com/v3/examples.map-i86l3621/{z}/{x}/{y}@2x.png"
     }
   },
   output: {
@@ -442,8 +463,25 @@ switchboardOverpass.addToWorld(world);
 
 
 // BUILDING PRICES
-
 var buildingPricesConfig = getBuildingPricesConfig();
+
+buildingPricesConfig.output.options.globalData = globalData;
+
+var min = 999999;
+var max = 0;
+
+for(var i in buildingPricesByPostCode)
+{
+    if (buildingPricesByPostCode[i] < min)
+        min = buildingPricesByPostCode[i];
+    if (buildingPricesByPostCode[i] > max)
+        max = buildingPricesByPostCode[i];
+}
+
+globalData.buildingPrices = {};
+globalData.buildingPrices.min = min;
+globalData.buildingPrices.max = max;
+
 var switchboardBuildingPrices = new VIZI.BlueprintSwitchboard(buildingPricesConfig);
 switchboardBuildingPrices.addToWorld(world);
 
@@ -681,6 +719,7 @@ var update = function() {
     var delta = clock.getDelta();
 
     world.onTick(delta);
+    globalData.controls.update(delta);
     // world.render();
     //render ourself now that we create (or pass) the scene & renderer
     threejs.renderer.render(threejs.scene, world.camera.camera);

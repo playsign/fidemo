@@ -49,8 +49,8 @@
       var lat = data[i].coordinates[1];
       var name = data[i].name;
         
-      var textFront = self.makeTextPlane(name, 260, 65, "Arial", 32, 'white', 'black');
-      var textBack = self.makeTextPlane(name, 260, 65, "Arial", 32, 'white', 'black');
+      var textFront = self.makeTextPlane(name, 260, 65, "Arial", 32, "rgb(255,255,255)", "rgb(3,96,217)");
+      var textBack = self.makeTextPlane(name, 260, 65, "Arial", 32, "rgb(255,255,255)", "rgb(3,96,217)");
         
       var dgeocoord = new VIZI.LatLon(lat, lon);
       var dscenepoint = self.world.project(dgeocoord);
@@ -59,6 +59,12 @@
       textFront.position.y = textBack.position.y = 40;
       textFront.position.z = textBack.position.z = dscenepoint.y;
       textBack.rotation.y = Math.PI;
+      
+      if (data[i].rotation) {
+        var rotation = data[i].rotation * Math.PI / 180;
+        textFront.rotation.y -= rotation;
+        textBack.rotation.y -= rotation;
+      }
 
       self.add(textFront);
       self.add(textBack);

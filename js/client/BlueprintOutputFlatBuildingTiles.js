@@ -144,29 +144,31 @@
 
     var loader = new THREE.JSONLoader();
 	
-	var material = null;
-	if (self.options.globalData != null && self.options.globalData.animator != null)
+    var material = null;
+    if (self.options.globalData != null && self.options.globalData.animator != null)
     {
-		material = self.options.globalData.animator.material;
+        material = self.options.globalData.animator.material;
     }
-	else
-	{
-		material = new THREE.MeshLambertMaterial({
-			color: 0xeeeeee,
-			ambient: 0x0000ff,
-			shading: THREE.FlatShading,
-			fragmentShader: (document.getElementById( 'fs-effect' ).textContent)
-		});
+    else
+    {
+        material = new THREE.MeshLambertMaterial({
+            color: 0xeeeeee,
+            ambient: 0x0000ff,
+            shading: THREE.FlatShading,
+            vertexColors:THREE.VertexColors,
+            fragmentShader: (document.getElementById( 'fs-effect' ).textContent)
+        });
     }
 
     // Load buildings in a Web Worker
-    self.worker(self.world.origin, self.world.originZoom, buildings, self.options.manualBuildings).then(function(result) {
+    self.worker(self.world.origin, self.world.originZoom, buildings, self.options.manualBuildings, self.options.globalData.priceMap).then(function(result) {
       var model = result.model;
       var offset = result.offset;
 
       // Convert typed data back to arrays
       model.vertices = Array.apply( [], model.vertices );
       model.normals = Array.apply( [], model.normals );
+      model.colors = Array.apply( [], model.colors );
       // Wrap UVs within an array
       // https://github.com/mrdoob/three.js/blob/master/examples/js/exporters/GeometryExporter.js#L231
       model.uvs = [ Array.apply( [], model.uvs ) ];
@@ -323,9 +325,10 @@
 
   // TODO: Is this running before the Blueprint is initialised and taking up unnecessary memory?
   // TODO: Find a better way to replicate World state (origin, origin zoom, CRS, etc) so it doesn't have to be duplicated for every Blueprint
-  VIZI.BlueprintOutputFlatBuildingTiles.prototype.outputBuildingTileWorker = function(origin, originZoom, buildings, manualBuildings) {
+  VIZI.BlueprintOutputFlatBuildingTiles.prototype.outputBuildingTileWorker = function(origin, originZoom, buildings, manualBuildings, priceMap) {
     var self = this;
     var deferred = self.deferred();
+    var pMap = priceMap;
 
     // Set up CRS to replicate main thread
     var crs = VIZI.CRS.EPSG3857;
@@ -405,6 +408,7 @@
           var offset = new VIZI.Point();
           var shape = new THREE.Shape();
           var points = [];
+          var lat = 0.0, lon = 0.0, count = 0;
           // TODO: Don't manually use first set of coordinates (index 0)
           _.each(feature.outline[0], function(coord, index) {
             var latLon = new VIZI.LatLon(coord[1], coord[0]);
@@ -428,7 +432,13 @@
             } else {
               shape.lineTo( geoCoord.x + offset.x, geoCoord.y + offset.y );
             }
+            
+            lat += latLon.lat;
+            lon += latLon.lon;
+            count++;
           });
+          lat = lat / count;
+          lon = lon / count;
 
           // TODO: Don't have random height logic in here
           var height = (feature.height) ? feature.height : 5 + Math.random() * 10;
@@ -446,6 +456,39 @@
           geom.computeFaceNormals();
           
           var mesh = new THREE.Mesh(geom);
+          var f, n;
+          
+          var getValue = function(map, lat, lon) {
+                var p = {x:0,y:0};
+                if (lat >= map.latLongMax.lat)
+                    p.x = 1.0;
+                else if(lat <= map.latLongMin.lat)
+                    p.x = 0.0;
+                else
+                    p.x = (lat - map.latLongMin.lat)/(map.latLongMax.lat - map.latLongMin.lat);
+
+                if (lon >= map.latLongMax.lon)
+                    p.y = 1.0;
+                else if(lon <= map.latLongMin.lon)
+                    p.y = 0.0;
+                else
+                    p.y = (lon - map.latLongMin.lon)/(map.latLongMax.lon - map.latLongMin.lon);
+                
+                var x = Math.round(p.x * map.resolution);
+                var y = Math.round(p.y * map.resolution);
+                return map.data[x + (map.resolution * y)];
+          };
+          
+          var value = count > 0 ? getValue(priceMap, lat, lon) : 0.0;
+          for ( var i = 0; i < mesh.geometry.faces.length; i++ ) {
+
+              f  = mesh.geometry.faces[i];
+              n = ( f instanceof THREE.Face3 ) ? 3 : 4;
+              for( var j = 0; j < n; j++ ) {
+                  color = new THREE.Color(value, value, value);
+                  f.vertexColors[ j ] = color;
+              }
+          }
 
           mesh.position.y = height;
 
@@ -480,6 +523,7 @@
           mesh.uvsNeedUpdate = true;
           
           combinedGeom.merge(mesh.geometry, mesh.matrix);
+          //console.log(combinedGeom);
       }
     });
 
@@ -491,7 +535,8 @@
     // Convert exported geom into a typed array
     var verticesArray = new Float64Array( exportedGeom.data.vertices );
     var normalsArray = new Float64Array( exportedGeom.data.normals );
-    // var colorsArray = new Float64Array( exportedGeom.colors );
+    //var vertexColorsArray = new Float64Array( exportedGeom.data.color );
+    var colorsArray = new Float64Array( exportedGeom.data.colors );
     // Seems to be manually set to have 1 array in the uvs array
     // https://github.com/mrdoob/three.js/blob/master/examples/js/exporters/GeometryExporter.js#L231
     var uvsArray;
@@ -504,7 +549,7 @@
     // Store geom typed array as Three.js model object
     var model = {
       metadata: exportedGeom.metadata,
-      colors: exportedGeom.colors,
+      colors: colorsArray,//exportedGeom.colors,
       vertices: verticesArray,
       normals: normalsArray,
       uvs: uvsArray,
@@ -513,7 +558,7 @@
 
     var data = {model: model, offset: offset, highPolyModels: highPolyModels};
 
-    deferred.transferResolve(data, [model.vertices.buffer, model.normals.buffer, model.uvs.buffer, model.faces.buffer]);
+    deferred.transferResolve(data, [model.vertices.buffer, model.normals.buffer, model.uvs.buffer, model.faces.buffer, model.colors.buffer]);
   };
 
   VIZI.BlueprintOutputFlatBuildingTiles.prototype.onAdd = function(world) {
