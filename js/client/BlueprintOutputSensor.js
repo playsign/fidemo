@@ -56,7 +56,6 @@
 
     self.pois = {};
     self.poisArray = [];
-    self.textSprites = [];
 
     // listeners
     document.addEventListener('mousemove', self.onDocumentMouseMove.bind(self), false);
@@ -172,7 +171,7 @@
       fog: true,
       depthTest: false
     });
-    
+
     // INTERPOLATION
 
     self.interpolations = [];
@@ -214,15 +213,14 @@
         boxDescription.push(variable + ": " + data[i][variable]);
       }
       var boxId = data[i].name; // 'node' that was used earlier has been removed
-      if (boxId === undefined)
-      {
+      if (boxId === undefined) {
         console.warn("OutputSensor: No node for", data[i].name)
         continue;
       }
 
       if (data[i].categories) {
         boxName = data[i].lineref;
-        if(boxName === undefined){
+        if (boxName === undefined) {
           console.warn("line ref undefined");
           continue;
         }
@@ -264,7 +262,7 @@
     if (self.pois[vehicleId]) {
       // UPDATE
       var newTransfrom = {
-        position: new THREE.Vector3( dscenepoint.x, self.spriteYpos, dscenepoint.y )
+        position: new THREE.Vector3(dscenepoint.x, self.spriteYpos, dscenepoint.y)
         // TODO rotation and scale
       };
       self.handleTransformUpdate(self.pois[vehicleId], newTransfrom);
@@ -273,30 +271,30 @@
       }
     } else {
 
-            // CREATE NEW
+      // CREATE NEW
       var pin = new THREE.Object3D();
 
-    // IMAGE
-    var info = intepretJoreCode(name);
+      // IMAGE
+      var info = intepretJoreCode(name);
 
 
       // Sprite
-      var pinSprite;
+      var pinIcon;
 
       // console.log(name + " is route " + info.route + " and is a " + info.mode);
       if (info.mode == "TRAM") {
-        pinSprite = new THREE.Sprite(self.pinMaterialTram);
+        pinIcon = new THREE.Sprite(self.pinMaterialTram);
       } else if (info.mode == "SUBWAY") {
-        pinSprite = new THREE.Sprite(self.pinMaterialMetro);
+        pinIcon = new THREE.Sprite(self.pinMaterialMetro);
       } else {
-        pinSprite = new THREE.Sprite(self.pinMaterialBus);
+        pinIcon = new THREE.Sprite(self.pinMaterialBus);
       }
 
-      pinSprite.scale.set(25, 25, 1.0);
+      pinIcon.scale.set(25, 25, 1.0);
 
-      // pinSprite.translateX(12);      
+      // pinIcon.translateX(12);      
 
-      pinSprite.translateY(self.pinPosY);
+      pinIcon.translateY(self.pinPosY);
 
       pin.name = name;
       pin.description = desc;
@@ -315,7 +313,8 @@
       self.poisArray.push(pin);
       self.updatePoiVisibility(pin); // Set initial visibility according to lollipopmenu selection mode
 
-      pin.add(pinSprite);
+      pin.add(pinIcon);
+      pin.icon = pinIcon;
 
       // Arrow
       var newMaterial = self.arrow.material.clone();
@@ -335,19 +334,18 @@
       if (bearing) {
         var arrowMesh = new THREE.Mesh(self.arrow.geometry.clone(), newMaterial);
         arrowMesh.rotation.set(THREE.Math.degToRad(180), THREE.Math.degToRad(bearing), 0);
-        arrowMesh.translateY(-self.pinPosY);
-        pin.add(arrowMesh);
+        pinIcon.add(arrowMesh);
         pin.arrow = arrowMesh;
       }
 
       // Number sprite
       if (numberBG) {
         var textSprite = self.makeTextSprite(info.route, numberBG);
-        textSprite.translateY(self.pinPosY+self.numberSpriteOffsetY);
+        textSprite.translateY(self.pinPosY + self.numberSpriteOffsetY);
         textSprite.renderDepth = -1;
 
         pin.add(textSprite);
-        self.textSprites.push(textSprite);
+        pin.textSprite = textSprite;
       } else {
         console.warn("No number background loaded");
       }
@@ -490,7 +488,7 @@
     // Only react to mouse events on the 3D canvas. This is neccesary as Tundra InputAPI
     // is not used. Multiple systems are in play at the same time.
     if (event.target !== undefined && typeof event.target.localName === "string" &&
-        event.target.localName.toLowerCase() !== "canvas")
+      event.target.localName.toLowerCase() !== "canvas")
       return;
 
     // update the mouse variable
@@ -512,7 +510,7 @@
     // Only react to mouse events on the 3D canvas. This is neccesary as Tundra InputAPI
     // is not used. Multiple systems are in play at the same time.
     if (event.target !== undefined && typeof event.target.localName === "string" &&
-        event.target.localName.toLowerCase() !== "canvas")
+      event.target.localName.toLowerCase() !== "canvas")
       return;
 
     // the following line would stop any other event handler from firing
@@ -532,8 +530,8 @@
     //   // console.log(intersects[0]);
     //   self.intersectedObject = intersects[0].object;
     // } else {
-      // If no ray hits, pass on to lollipopmenu
-      self.lollipopMenu.onMouseDown(self.mouse.x, self.mouse.y);
+    // If no ray hits, pass on to lollipopmenu
+    self.lollipopMenu.onMouseDown(self.mouse.x, self.mouse.y);
     // }
   };
 
@@ -547,7 +545,7 @@
     // Only react to mouse events on the 3D canvas. This is neccesary as Tundra InputAPI
     // is not used. Multiple systems are in play at the same time.
     if (event.target !== undefined && typeof event.target.localName === "string" &&
-        event.target.localName.toLowerCase() !== "canvas")
+      event.target.localName.toLowerCase() !== "canvas")
       return;
 
     // the following line would stop any other event handler from firing
@@ -718,7 +716,7 @@
     var spriteAlignment = new THREE.Vector2(0, 1);
 
     var canvas = document.createElement('canvas');
-        canvas.width = "64";
+    canvas.width = "64";
     canvas.height = "32";
 
     var context = canvas.getContext('2d');
@@ -751,7 +749,7 @@
     return sprite;
   };
 
-// "updateFromTransform" from https://github.com/realXtend/WebTundra/blob/master/src/view/ThreeView.js
+  // "updateFromTransform" from https://github.com/realXtend/WebTundra/blob/master/src/view/ThreeView.js
   VIZI.BlueprintOutputSensor.prototype.handleTransformUpdate = function(threeMesh, newTransform) {
     var self = this;
 
@@ -805,8 +803,8 @@
     //   // Scale
     //   // copyXyz(ptv.scale, threeMesh.scale);
     // }
-    
-        // Create new interpolation
+
+    // Create new interpolation
 
     // // position
     // var endPos = new THREE.Vector3();
@@ -852,22 +850,23 @@
   VIZI.BlueprintOutputSensor.prototype.updateTextSprites = function() {
     var self = this;
 
-    if (this.textSprites.length > 1) {
+    if (self.poisArray.length > 1) {
       var v1 = new THREE.Vector3();
       var v2 = new THREE.Vector3();
 
-      for (var i = self.textSprites.length - 1; i >= 0; i--) {
+      for (var i = self.poisArray.length - 1; i >= 0; i--) {
         v1.setFromMatrixPosition(self.world.camera.camera.matrixWorld);
-        v2.setFromMatrixPosition(self.textSprites[i].matrixWorld);
+        v2.setFromMatrixPosition(self.poisArray[i].textSprite.matrixWorld);
 
         var distance = v1.distanceTo(v2);
         distance *= 0.03;
 
-        self.textSprites[i].scale.set(distance, distance * 0.5, 1.0);
+        self.poisArray[i].textSprite.scale.set(distance, distance * 0.5, 1.0);
       }
 
     }
   };
+
   // "updateInterpolations" from https://github.com/realXtend/WebTundra/blob/master/src/view/ThreeView.js
   VIZI.BlueprintOutputSensor.prototype.updateInterpolations = function(delta) {
     var self = this;
