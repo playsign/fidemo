@@ -196,6 +196,10 @@ THREE.PanAndOrbitControls = function ( object, domElement ) {
 	// pass in x,y of change desired in pixel space,
 	// right and down are positive
 	this.pan = function ( deltaX, deltaY ) {
+		//abort animation upon manual panning
+		if (panMovement.et != 1) {
+		    panMovement.et = -1
+		}
 
 		var element = scope.domElement === document ? scope.domElement.body : scope.domElement;
 
