@@ -93,6 +93,8 @@ var LollipopMenu = function(owner) {
   this.issueInstances = [];
 
   this.selection = 0; // 0 = none, 1 = photos, 2 = properties etc.
+
+  this.owner.options.globalData.controls.followLollipop(this);  
 };
 
 LollipopMenu.prototype = {
@@ -136,7 +138,7 @@ LollipopMenu.prototype = {
     var point = new VIZI.Point(pos.x, pos.z);
     var w = this.owner.options.globalData.world;
     var latLong = w.unproject(point, w.zoom);
-    this.positionChanged.dispatch(latLong);
+    this.positionChanged.dispatch(latLong, pos.clone());
   },
   
   onMouseMove : function(x, y) {

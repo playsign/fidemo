@@ -21,7 +21,7 @@
 //      controls.target.z = 150;
 // Simple substitute "OrbitControls" and the control should work as-is.
 
-THREE.OrbitControls = function ( object, domElement ) {
+THREE.PanAndOrbitControls = function ( object, domElement ) {
 
 	this.object = object;
 	this.domElement = ( domElement !== undefined ) ? domElement : document;
@@ -130,6 +130,16 @@ THREE.OrbitControls = function ( object, domElement ) {
 	var startEvent = { type: 'start'};
 	var endEvent = { type: 'end'};
 
+	// for animating pan in fidemo
+	// similar to the 'movement' data structure
+	// in user-presence.js runSmoothedMovements to reuse same anim code
+	var panMovement = {
+	    'et': -1, //not active
+	    'start': null, //copied from scope.target always
+	    'end': new THREE.Vector3(0, 0, 0),
+	    't': 1
+	}
+
 	this.rotateLeft = function ( angle ) {
 
 		if ( angle === undefined ) {
@@ -212,7 +222,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 		} else {
 
 			// camera neither orthographic or perspective
-			console.warn( 'WARNING: OrbitControls.js encountered an unknown camera type - pan disabled.' );
+			console.warn( 'WARNING: PanAndOrbitControls.js encountered an unknown camera type - pan disabled.' );
 
 		}
 
@@ -242,8 +252,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 	};
 
-	this.update = function () {
-
+	this.update = function (delta) {
 		var position = this.object.position;
 
 		offset.copy( position ).sub( this.target );
@@ -281,6 +290,8 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 		// restrict radius to be between desired limits
 		radius = Math.max( this.minDistance, Math.min( this.maxDistance, radius ) );
+
+		animatePan(delta);
 
 		// move target to panned location
 		this.target.add( pan );
@@ -340,6 +351,48 @@ THREE.OrbitControls = function ( object, domElement ) {
 		return theta
 
 	};
+
+    	this.followLollipop = function (lollipopMenu) {
+            console.log("LOLLIPOP: " + lollipopMenu);
+            lollipopMenu.positionChanged.add(onLollipopPositionChanged);
+        };
+
+        function onLollipopPositionChanged(latLong, scenePos) {
+	    panMovement.et = 0;
+	    panMovement.start = scope.target.clone();
+	    panMovement.end.x = scenePos.x;
+	    panMovement.end.z = scenePos.z;
+
+	    //ignore altiture - differs in lollipop's plane & cam code
+	    panMovement.end.y = panMovement.start.y;
+	    
+	    var diff = panMovement.end.clone().sub(panMovement.start);
+            //console.log("LOLLIPOP:", panMovement.start, panMovement.end, diff, diff.length());
+        }
+
+        function animatePan(delta) {
+	    var m = panMovement;
+
+	    if (m.et == -1) {
+		return;
+	    }
+	    m.et += delta;
+	    var t = m.et / m.t;
+            if (t > 1.0) { //finish
+                t = 1.0;
+		m.et = -1;
+	    }
+
+            t = Math.sin((t-0.5)*Math.PI)*0.5+0.5; // Movement curve, can be tweaked later
+
+	    var e = m.end.clone();
+	    var s = m.start.clone();
+
+	    var diff = e.sub(s);
+	    var next = diff.multiplyScalar(t);
+	    scope.target = s.add(next);
+	    //console.log(t, m.et, m.t, next);
+	}
 
 	function getAutoRotationAngle() {
 
@@ -672,4 +725,4 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 };
 
-THREE.OrbitControls.prototype = Object.create( THREE.EventDispatcher.prototype );
+THREE.PanAndOrbitControls.prototype = Object.create( THREE.EventDispatcher.prototype );
