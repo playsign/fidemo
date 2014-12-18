@@ -500,7 +500,8 @@
     self.setDialogPosition();
 
     // Lollipop also needs to handle move to keep icons straightened during rotate
-    self.lollipopMenu.onMouseMove(self.mouse.x, self.mouse.y);
+    //if no other hits, check raycast for rest of the icons
+    self.options.globalData.raycast.onMouseMove(self.mouse.x, self.mouse.y);
   };
 
   VIZI.BlueprintOutputSensor.prototype.onDocumentMouseDown = function(event) {
@@ -532,8 +533,8 @@
     //   // console.log(intersects[0]);
     //   self.intersectedObject = intersects[0].object;
     // } else {
-    // If no ray hits, pass on to lollipopmenu
-    self.lollipopMenu.onMouseDown(self.mouse.x, self.mouse.y);
+    
+    self.options.globalData.raycast.onMouseDown(self.mouse.x, self.mouse.y);
     // }
   };
 
@@ -609,8 +610,9 @@
         self.setDialogPosition();
       }
     } else {
-      // If no ray hits, pass on to lollipopmenu
-      self.lollipopMenu.onMouseUp(self.mouse.x, self.mouse.y);
+
+        //if no other hits, check raycast for rest of the icons
+      self.options.globalData.raycast.onMouseUp(self.mouse.x, self.mouse.y);
     }
 
     self.intersectedObject = undefined;

@@ -42,7 +42,7 @@ var LollipopMenu = function(owner) {
     this.iconAngles.push((this.minAngle + i * angleRange/(iconTexNames.length-1)) * (Math.PI/180));
   }
   this.iconDist = 0.9;
-  this.iconHeight = 0.35;
+  this.iconHeight = 0.95;
   this.lollipopScale = 40;
   this.iconScale = 30;
   this.iconSelectedScale = 35;
@@ -93,19 +93,27 @@ var LollipopMenu = function(owner) {
   this.issueInstances = [];
 
   this.selection = 0; // 0 = none, 1 = photos, 2 = properties etc.
-
+  this.owner.options.globalData.raycast.addObjectOwner(this);
   this.owner.options.globalData.controls.followLollipop(this);  
 };
 
 LollipopMenu.prototype = {
-  onMouseDown : function(x, y) {
-    this.mouseDownX = x;
-    this.mouseDownY = y;
-  },
 
-  onMouseUp : function(x, y) {
-    // Only show/hide menu if this is not a drag
-    if (x == this.mouseDownX && y == this.mouseDownY) {
+  getRaycastObjects : function() {
+    if(this.isShowing())
+        return this.iconSprites;
+    else
+        return;
+  },
+  
+  hoverObjects : function(intersections) {
+    this.hoverSelection = -1;
+    if(intersections.length != 0){
+      this.hoverSelection = intersections[0].object.selectionNumber - 1;
+    }
+  },
+  
+  onLollipopAreaMoveCheck : function(x, y) {
       if (!this.isShowing()) {
         var pos = this.planeRaycast(x, y);
         if (pos) {
@@ -115,8 +123,7 @@ LollipopMenu.prototype = {
       }
       else {
         // Raycast to icons and perform selection, hide/reopen menu if none hit
-        if (!this.doSelectionRaycast(x, y) &&
-            !this.doIconRaycast(x, y)) {
+        if (!this.doIconRaycast(x, y)) {
           var pos = this.planeRaycast(x, y);
           var distVec = new THREE.Vector3();
           distVec.subVectors(pos, this.lastShowPos);
@@ -130,7 +137,6 @@ LollipopMenu.prototype = {
           }
         }
       }
-    }
   },
   
   sendPositionChanged: function(pos)
@@ -143,10 +149,22 @@ LollipopMenu.prototype = {
   
   onMouseMove : function(x, y) {
     if (this.isShowing()){
-      this.updateIconPositions();
-      this.doHoverRaycast(x, y);
+      this.updateIconPositions(); 
     }
   },
+  
+  onMouseClick : function(intersections) {
+    for (var i = 0; i < intersections.length; ++i)
+    {
+      // If we raycast to already hit object, rather use the one that is unselected
+      if (this.selection != intersections[i].object.selectionNumber) {
+        this.setSelection(intersections[i].object.selectionNumber);
+        break;
+      }
+      else
+        this.updateSelectionState();
+    }
+ },
 
   planeRaycast : function(x, y) {
     var vector = new THREE.Vector3(x, y, 1);
@@ -170,6 +188,7 @@ LollipopMenu.prototype = {
   },
   
   doIconRaycast : function(x, y) {
+  
     var intersections = this.owner.doRaycast(x, y, this.issueInstances);
     for (var i = 0; i < intersections.length; ++i)
     {
@@ -348,21 +367,6 @@ LollipopMenu.prototype = {
       this.hoverSelection = intersections[0].object.selectionNumber - 1;
     }
     return this.hoverSelection;
-  },
-
-  doSelectionRaycast : function(x, y) {
-    var intersections = this.owner.doRaycast(x, y, this.iconSprites);
-    for (var i = 0; i < intersections.length; ++i)
-    {
-      // If we raycast to already hit object, rather use the one that is unselected
-      if (this.selection != intersections[i].object.selectionNumber) {
-        this.setSelection(intersections[i].object.selectionNumber);
-        break;
-      }
-      else
-        this.updateSelectionState();
-    }
-    return intersections.length > 0;
   },
   
   onTick : function(delta) {

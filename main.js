@@ -301,6 +301,7 @@ var world = new VIZI.World({
     camera: vizicam
 });
 globalData.world = world;
+globalData.raycast = new Raycast(world);
 
 // Let Tundra know about the camera
 if (client !== undefined)

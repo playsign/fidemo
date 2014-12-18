@@ -1,4 +1,5 @@
 
+//single Pin in PinView
 var Pin = function(material, type, owner, latLong, objectDescription, uuid, tags) {
     
     this.type = type;
@@ -8,9 +9,8 @@ var Pin = function(material, type, owner, latLong, objectDescription, uuid, tags
     this.modelYpos = 10;
     this.spriteYpos = 40;
     this.sprite = this.createSprite(material);
+    this.isHover = false;
     this.onHighlightArea = false; //defines if pin is on highlighted area, and if it is to be shown when type of pins is shown
-   // this.sprite.visible = false;
-   // this.show();
     return this;
 };
 
@@ -30,37 +30,145 @@ Pin.prototype = {
         sprite.position.x = dscenepoint.x;
         sprite.position.y = this.spriteYpos;
         sprite.position.z = dscenepoint.y;
-        
+        sprite.parentPin = this;
         return sprite;
     },
 
-    show : function() {
+    //always call show, do not use directly .sprite.visible from elsewhere
+    show : function() {   
         this.sprite.visible = true;
+        globalData.pinView.updatePinVisible(this.sprite, true);
     },
-
+    
+    //always call hide, do not use directly .sprite.visible from elsewhere
     hide : function() {
         this.sprite.visible = false;
+        globalData.pinView.updatePinVisible(this.sprite, false);
     },
     
-    onTooltip : function() {
+    hoverIn : function() {
+     //  console.log("in" + this.uuid);
+    },
     
+    hoverOut : function() {
+     //   console.log("out" + this.uuid);
     },
     
     onSelect : function() {
-    
+        console.log("select " + this.uuid);
     },
+    
+    onTooltip : function(visible) {
+        console.log("Show Tooltip " + visible);
+    },
+    
 };
 
+//Handles all the pins
 var PinView = function(lolliPopMenu) 
 {
   pinView = this;
   this.pins = [];
   this.pinTypes = [];
-  this.setPinMaterials(); 
+  this.setPinMaterials();
+  this.pinSpritesVisible = [];
+  this.hoverPin = null;
+  this.scalePins = [];
+  globalData.raycast.addObjectOwner(this);
   return this;
 };
 
 PinView.prototype = {
+
+      getRaycastObjects : function() {
+        return this.pinSpritesVisible;
+    },
+    
+    onMouseClick : function(intersections) {
+        if(intersections && intersections.length > 0)
+                intersections[0].object.parentPin.onSelect();
+    },
+    
+    hoverObjects : function(intersections) {
+        if(intersections)
+        {   if(intersections.length > 0)
+            {
+                this.checkHoverPin(intersections[0].object.parentPin);
+            }
+            else
+               this.checkHoverPin(null);
+        }
+        else
+            this.checkHoverPin(null);
+    },
+
+    checkHoverPin : function(pin){
+    
+        //set null
+        if(pin == null && this.hoverPin != null) 
+        {
+            this.hoverPin.hoverOut();
+            this.hoverPin = null;
+        }
+
+        else if(pin != null && this.hoverPin == null) //first time setup
+        {
+            this.hoverPin = pin;
+            this.hoverPin.hoverIn();
+        }  
+        //change hoverPin
+        else if(pin != this.hoverPin && this.hoverPin != null)
+        {
+            this.hoverPin.hoverOut();
+            this.hoverPin = pin;
+            this.hoverPin.hoverIn();
+        }
+    },
+    
+    addScalePin : function(pin) {
+        for(var i in this.scalePins)
+        {    
+            if(this.scalePins[i] == pin)
+                return;
+        }
+        this.scalePins[this.scalePins.length] = pin;
+    },
+    
+     removeScalePin : function(pin) {
+        for(var i in this.scalePins)
+            if(this.scalePins[i] == pin)
+                this.scalePins.splice(i,1);
+    },
+    
+    onTick : function(delta) {
+        for(var i in this.scalePins)
+        {
+            if( this.scalePins[i] != null)
+                this.scalePins[i].updateTween(delta);
+            if( this.scalePins[i] != null)
+                this.scalePins[i].updateScale(delta);
+        }
+    },
+    
+    updatePinVisible : function(sprite, visible) 
+    {
+        for(var i in this.pinSpritesVisible)
+        {
+            if(this.pinSpritesVisible[i] == sprite)
+                if(visible)   
+                    return; //pinSprite already in visible list, do nothing
+                else
+                {
+                   // console.log("delete");
+                    this.pinSpritesVisible.splice(i,1);
+
+                    return;
+                }
+        }
+        if(visible)
+            this.pinSpritesVisible[this.pinSpritesVisible.length] = sprite;
+       
+    },
   
     addPin : function(type, owner, latLong, objectDescription, uuid, tags) 
     {
@@ -160,7 +268,7 @@ PinView.prototype = {
         var selectionGroup = this.getPinTypeGroup(groupName);
         if(selectionGroup.length == 0)
         {
-            console.log("No selection group for gicen selection");
+            console.log("No selection group for given selection");
             return;
         }
         //show all
