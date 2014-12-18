@@ -1,8 +1,11 @@
 "use strict";
 
-var InfoDialog = function(id) {
+var InfoDialog = function(id, data) {
     this.id = id;
+    this.useRating = false;
+    
     this._init();
+    this.enableRating(this.useRating);
 };
 
 InfoDialog.prototype = {
@@ -13,11 +16,11 @@ InfoDialog.prototype = {
             autoOpen: true,
             draggable: true,
             resizable: false,
-            width: 756,
-            height: 576,
+            width: 450,
+            height: 400,
             close: function() {
                 self.close();
-            }
+            },
         });
     },
     
@@ -31,7 +34,11 @@ InfoDialog.prototype = {
     
     close: function() {
         $("#" + this.id).dialog("close");
+    },
+	
+    enableRating: function(enabled) {
+        var mode = enabled ? 'enabled' : 'disabled';
+        $("#top-content-right").children().attr(mode, mode);
+        this.enableRating = enabled;
     }
-	
-	
 };

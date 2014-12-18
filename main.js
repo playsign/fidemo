@@ -34,15 +34,30 @@ try
     var /*freecamera,*/ cbclient, demoapp, chat, userPresence;
     var infoDialog, usernameDialog;
 
-	// Start menu initialize
-    $.getScript("js/client/BuildingAnimation.js")
+    // Start menu initialize
+    $.getScript("js/client/UI/StartMenu.js")
         .done(function(/*script, textStatus*/) {
             var start = new StartMenu("startmenu");
 
-			$("#StartMenuButton").button().click(function( event ) {
-				event.preventDefault();
-				start.open();
-			});
+            $("#StartMenuButton").button().click(function( event ) {
+                    event.preventDefault();
+                    start.open();
+            });
+        })
+        .fail(function(jqxhr, settings, exception) {
+            noop(jqxhr, settings);
+            console.error(exception);
+        });
+        
+    // Start menu initialize
+    $.getScript("js/client/UI/HeatMapBar.js")
+        .done(function(/*script, textStatus*/) {
+            var bar = new HeatMapBar();
+            globalData.heatMapMenu = bar;
+            $("#StartMenuButton").button().click(function( event ) {
+                event.preventDefault();
+                bar.open();
+            });
         })
         .fail(function(jqxhr, settings, exception) {
             noop(jqxhr, settings);

@@ -355,9 +355,11 @@ LollipopMenu.prototype = {
       if (this.owner.options.globalData != null && this.owner.options.globalData.animator != null){
         if(this.selection == 5){
           this.owner.options.globalData.animator.EnableHeatmap(true);
+          this.owner.options.globalData.heatMapMenu.open();
         }
         else{
           this.owner.options.globalData.animator.EnableHeatmap(false);
+          this.owner.options.globalData.heatMapMenu.close();
         }
         this.owner.options.globalData.animator.ResetAnimated();
       }
