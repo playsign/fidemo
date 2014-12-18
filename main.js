@@ -39,7 +39,7 @@ try
         .done(function(/*script, textStatus*/) {
             var start = new StartMenu("startmenu");
 
-            $("#StartMenuButton").button().click(function( event ) {
+            $("#startmenu-button").button().click(function( event ) {
                     event.preventDefault();
                     start.open();
             });

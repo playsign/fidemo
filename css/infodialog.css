@@ -1,0 +1,54 @@
+#margin-area  {
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+#content {
+    height:100%;
+    
+}
+
+#top-content {
+    height:150px;
+    /*background-color: blue;*/
+}
+
+#top-content-one {
+    width:48%;
+}
+
+#top-content-two {
+
+}
+
+#top-content-left {
+    width:48%;
+    float:left;
+}
+
+#top-content-right {
+    width:48%;
+    float:right;
+}
+
+.line-object {
+    height:2px;
+    background:#B2B2B2;
+}
+
+.star_rating {
+  direction: rtl;
+  font-size: medium;
+}
+.star_rating > span {
+  display: inline-block;
+  position: relative;
+  width: 15px;
+}
+.star_rating > span:hover:before,
+.star_rating > span:hover ~ span:before {
+   content: "\2605";
+   position: absolute;
+}

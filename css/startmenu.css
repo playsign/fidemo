@@ -1,37 +1,48 @@
 #margin-area  {
-	margin-left: 50px;
-	margin-right: 25px;
-	margin-top: 25px;
-	margin-bottom: 25px;
+    margin-left: 50px;
+    margin-right: 25px;
+    margin-top: 25px;
+    margin-bottom: 25px;
 }
 
 #content {
-	height:270px;
+    height:270px;
 }
 
 #content-left {
-	width: 50%;
-	float: left;
+    width: 50%;
+    float: left;
 }
 
 #content-right {
-	margin-top:25px;
-	width: 45%;
-	float: right;
+    margin-top:25px;
+    width: 45%;
+    float: right;
 }
 
 #name-area {
-	padding-left: 15px;
-	padding-right: 15px;
-	padding-top: 5px;
-	padding-bottom: 10px;
-	background: -webkit-linear-gradient(#CCCCCC,#B2B2B2); /* For Safari 5.1 to 6.0 */
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 5px;
+    padding-bottom: 10px;
+    background: -webkit-linear-gradient(#CCCCCC,#B2B2B2); /* For Safari 5.1 to 6.0 */
     background: -o-linear-gradient(#CCCCCC,#B2B2B2); /* For Opera 11.1 to 12.0 */
     background: -moz-linear-gradient(#CCCCCC,#B2B2B2); /* For Firefox 3.6 to 15 */
     background: linear-gradient(#CCCCCC,#B2B2B2); /* Standard syntax (must be last) */
-	width:200px;
-	height:60px;
-	border: 1px solid black;
+    width:200px;
+    height:60px;
+    border: 1px solid black;
     border-radius: 3px;
-	box-shadow: 3px 3px 5px #888888;
+    box-shadow: 3px 3px 5px #888888;
+}
+
+#startmenu-button {
+    width:109px;
+    height:57px;
+    background:url(/data/2d/icon_help.png) no-repeat;
+    cursor:pointer;
+    border: none;
+    outline:none;
+    z-index: 1;
+    float:right;
 }
