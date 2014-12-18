@@ -70,6 +70,7 @@
     self.spriteYpos = 20;
     self.pinPosY = 10;
     self.numberSpriteOffsetY = 15;
+    self.pinIconScale = 25;
 
     var jsonLoader = new THREE.JSONLoader();
     self.assetPaths = {
@@ -290,7 +291,7 @@
         pinIcon = new THREE.Sprite(self.pinMaterialBus);
       }
 
-      pinIcon.scale.set(25, 25, 25);
+      pinIcon.scale.set(self.pinIconScale, self.pinIconScale, self.pinIconScale);
 
       // pinIcon.translateX(12);      
 
@@ -854,28 +855,32 @@
     var distance;
 
     if (self.poisArray.length > 1) {
-      // Scale text sprites
-
       var v1 = new THREE.Vector3();
       var v2 = new THREE.Vector3();
 
       for (var i = self.poisArray.length - 1; i >= 0; i--) {
         v1.setFromMatrixPosition(self.world.camera.camera.matrixWorld);
-        v2.setFromMatrixPosition(self.poisArray[i].textSprite.matrixWorld);
+        v2.setFromMatrixPosition(self.poisArray[i].matrixWorld);
 
         distance = v1.distanceTo(v2);
-        distance *= 0.03;
+        var newScale = distance * 0.03;
 
-        self.poisArray[i].textSprite.scale.set(distance, distance * 0.5, 1.0);
+        // Scale text sprite
+        if (self.poisArray[i].textSprite) {
+          self.poisArray[i].textSprite.scale.set(newScale, newScale * 0.5, 1.0);
+        }
+
+        // Scale icon
+        if (self.poisArray[i].icon) {
+          newScale = distance * 0.1;
+
+          if (newScale < self.pinIconScale) {
+            self.poisArray[i].icon.scale.set(newScale, newScale, newScale);
+          }
+        } else if (self.poisArray[i].icon.scale != self.pinIconScale) {
+          self.poisArray[i].icon.scale.set(self.pinIconScale, self.pinIconScale, self.pinIconScale);
+        }
       }
-
-      // // Scale icons
-      // var scaleStartPosY = self.spriteYpos + self.pinPosY;
-      // if (self.world.camera.camera.position.y < scaleStartPosY) {
-      //   distance = self.world.camera.camera.position.y - scaleStartPosY;
-      //   distance *= 0.03;
-      //   self.poisArray[i].pinIcon.scale.set(distance, distance * 0.5, 1.0);
-      // }
     }
   };
 
