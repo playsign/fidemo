@@ -8,7 +8,7 @@ var PriceMap = function(latLonMin, latLonMax, resolution) {
     this.totalSize = this.resolution * this.resolution;
     this.data = [];
     for(var i = 0; i < this.totalSize; i++)
-        this.data[i] = 0.0;
+        this.data[i] = -1.0;
 };
 
 PriceMap.prototype = {

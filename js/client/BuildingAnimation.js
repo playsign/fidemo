@@ -28,9 +28,9 @@ var BuildingAnimation = function() {
   this.shadowColorCost = new THREE.Color("rgb(155,155,155)");
   this.ambientColorCost = new THREE.Color("rgb(44,44,44)");
   var mult = 1.25;
-  this.gradientColor1Cost = new THREE.Vector4(0.498*mult, 0.835*mult, 0.192*mult , 0.4); // green - hex 7fd531
-  this.gradientColor2Cost = new THREE.Vector4(0.91*mult, 0.286*mult, 0.067*mult , 0.90);// red - hex ea4911
-  this.gradientColor3Cost = new THREE.Vector4(0.969*mult, 0.086*mult, 0.02*mult , 1.0);//dark red - hex f71605 0.969, 0.086, 0.02
+  this.gradientColor1Cost = new THREE.Vector4(0.4*mult, 0.4*mult, 0.4*mult , 0.0); // no data available - gray
+  this.gradientColor2Cost = new THREE.Vector4(0.498*mult, 0.835*mult, 0.192*mult , 0.0); // green - hex 7fd531
+  this.gradientColor3Cost = new THREE.Vector4(0.91*mult, 0.286*mult, 0.067*mult , 0.05);// red - hex ea4911
 
   this.material = new THREE.ShaderMaterial( {
     uniforms: {

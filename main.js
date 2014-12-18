@@ -429,21 +429,12 @@ var buildingPricesConfig = getBuildingPricesConfig();
 
 buildingPricesConfig.output.options.globalData = globalData;
 
-var min = 999999;
-var max = 0;
-
-for(var i in buildingPricesByPostCode)
-{
-    if (buildingPricesByPostCode[i] < min)
-        min = buildingPricesByPostCode[i];
-    if (buildingPricesByPostCode[i] > max)
-        max = buildingPricesByPostCode[i];
-}
+var min = 3000;
+var max = 7000;
 
 globalData.buildingPrices = {};
 globalData.buildingPrices.min = min;
 globalData.buildingPrices.max = max;
-console.log("low" + min + " high" + max);
 
 var switchboardBuildingPrices = new VIZI.BlueprintSwitchboard(buildingPricesConfig);
 switchboardBuildingPrices.addToWorld(world);
