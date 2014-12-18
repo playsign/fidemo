@@ -290,7 +290,7 @@
         pinIcon = new THREE.Sprite(self.pinMaterialBus);
       }
 
-      pinIcon.scale.set(25, 25, 1.0);
+      pinIcon.scale.set(25, 25, 25);
 
       // pinIcon.translateX(12);      
 
@@ -334,9 +334,9 @@
       if (bearing) {
         var arrowMesh = new THREE.Mesh(self.arrow.geometry.clone(), newMaterial);
         arrowMesh.rotation.set(THREE.Math.degToRad(180), THREE.Math.degToRad(bearing), 0);
-        pin.add(arrowMesh);
+        arrowMesh.scale.set(0.35,0.35,0.35);
+        pinIcon.add(arrowMesh);
         pin.arrow = arrowMesh;
-        arrowMesh.translateY(-self.pinPosY);
       }
 
       // Number sprite
