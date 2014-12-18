@@ -315,6 +315,7 @@ world.attribution.container.style.display = "none";
 //controls.onChange = function() {};
 globalData.controls = new THREE.PanAndOrbitControls(world.camera.camera, TundraSDK.framework.renderer.renderer.domElement);
 //globalData.controls.autoRotate = true;
+globalData.controls.maxPolarAngle = 1.5534;
 
 // MAP
 
