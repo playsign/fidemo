@@ -656,14 +656,13 @@ debugObject(60.170040, 24.936350); //Lasipalatsinaukion tötsä
 debugObject(60.171680, 24.943881); //Rautatientorin patsas
 */
 
-//lights
-function addLights(scene) {
+//lights & sky/clearcolor & fog
+function addEnvironment(scene, renderer) {
     var directionalLight = new THREE.DirectionalLight( 0x999999 );
     // directionalLight.intensity = 0.1; // TODO this was typoed as 'intesity' but 0.1 value for intensity doesn't look that hot
     directionalLight.position.x = 1;
     directionalLight.position.y = 1;
     directionalLight.position.z = 1;
-
     scene.add(directionalLight);
 
     var directionalLight2 = new THREE.DirectionalLight( 0x999999 );
@@ -671,10 +670,13 @@ function addLights(scene) {
     directionalLight2.position.x = -1;
     directionalLight2.position.y = 1;
     directionalLight2.position.z = -1;
-
     scene.add(directionalLight2);
+
+    var fogColour = 0xA8BAFF;
+    scene.fog = new THREE.Fog(fogColour, 1, 15000);
+    renderer.setClearColor(scene.fog.color, 1);
 }
-addLights(world.scene.scene);
+addEnvironment(threejs.scene, threejs.renderer);
 
 var clock = new VIZI.Clock();
 
