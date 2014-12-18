@@ -677,7 +677,7 @@
     var self = this;
     self.lollipopMenu.onTick(delta);
     self.updateInterpolations(delta);
-    self.updateTextSprites();
+    self.updatePois();
   };
 
   VIZI.BlueprintOutputSensor.prototype.onLollipopSelectionChanged = function(newSel) {
@@ -847,7 +847,7 @@
     self.interpolations.push(newInterp);
   };
 
-  VIZI.BlueprintOutputSensor.prototype.updateTextSprites = function() {
+  VIZI.BlueprintOutputSensor.prototype.updatePois = function() {
     var self = this;
 
     if (self.poisArray.length > 1) {
