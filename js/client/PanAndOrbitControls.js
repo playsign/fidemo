@@ -141,6 +141,7 @@ THREE.PanAndOrbitControls = function ( object, domElement ) {
 	}
 
 	this.rotateLeft = function ( angle ) {
+		abortPanMovement();
 
 		if ( angle === undefined ) {
 
@@ -153,6 +154,7 @@ THREE.PanAndOrbitControls = function ( object, domElement ) {
 	};
 
 	this.rotateUp = function ( angle ) {
+		abortPanMovement();
 
 		if ( angle === undefined ) {
 
