@@ -1,11 +1,11 @@
 "use strict";
 
-var StartMenu = function(id) {
+var InfoDialog = function(id) {
     this.id = id;
     this._init();
 };
 
-StartMenu.prototype = {
+InfoDialog.prototype = {
     _init: function() {
         var self = this;
         
@@ -13,7 +13,7 @@ StartMenu.prototype = {
             autoOpen: true,
             draggable: true,
             resizable: false,
-            width: 820,
+            width: 756,
             height: 576,
             close: function() {
                 self.close();
@@ -32,4 +32,6 @@ StartMenu.prototype = {
     close: function() {
         $("#" + this.id).dialog("close");
     }
+	
+	
 };

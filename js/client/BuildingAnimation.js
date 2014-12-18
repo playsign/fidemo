@@ -20,17 +20,17 @@ var BuildingAnimation = function() {
   this.shadowColorDefault = new THREE.Color("rgb(172,202,217)");
   this.ambientColorDefault = new THREE.Color("rgb(149,158,163)");
   this.gradientColor1Default = new THREE.Vector4(1.0,1.0,1.0,0.0);
-  this.gradientColor2Default = new THREE.Vector4(1.0,1.0,1.0,0.05);
-  this.gradientColor3Default = new THREE.Vector4(1.0,1.0,1.0,0.09);
+  this.gradientColor2Default = new THREE.Vector4(1.0,1.0,1.0,0.5);
+  this.gradientColor3Default = new THREE.Vector4(1.0,1.0,1.0,1.0);
 
   //Colors when heatmap is enabled
   this.litColorCost = new THREE.Color("rgb(255,255,255)");
   this.shadowColorCost = new THREE.Color("rgb(155,155,155)");
   this.ambientColorCost = new THREE.Color("rgb(44,44,44)");
   var mult = 1.25;
-  this.gradientColor1Cost = new THREE.Vector4(0.561*mult, 0.882*mult, 0.278*mult , 0.2);
-  this.gradientColor2Cost = new THREE.Vector4(0.894*mult, 0.82*mult, 0.325*mult , 0.6);
-  this.gradientColor3Cost = new THREE.Vector4(0.855*mult, 0.369*mult, 0.125*mult , 1.0);
+  this.gradientColor1Cost = new THREE.Vector4(0.4*mult, 0.4*mult, 0.4*mult , 0.0); // no data available - gray
+  this.gradientColor2Cost = new THREE.Vector4(0.498*mult, 0.835*mult, 0.192*mult , 0.0); // green - hex 7fd531
+  this.gradientColor3Cost = new THREE.Vector4(0.91*mult, 0.286*mult, 0.067*mult , 0.05);// red - hex ea4911
 
   this.material = new THREE.ShaderMaterial( {
     uniforms: {
