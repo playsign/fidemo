@@ -29,7 +29,7 @@ IssueItem.parse = function(jsonData) {
 
 IssueItem.Icons = {
     OPEN: "data/2d/icon_notfixed.png",
-    INPROGRESS: "data/2d/icon_inprogress.png",
+    INPROGRESS: "data/2d/icon_fixinprogress.png",
     CLOSED: "data/2d/icon_fixed.png",
     UNKNOWN: "data/2d/icon_notfixed.png",
     

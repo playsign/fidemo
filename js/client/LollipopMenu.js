@@ -189,7 +189,6 @@ LollipopMenu.prototype = {
   },
   
   doIconRaycast : function(x, y) {
-  
     var intersections = this.owner.doRaycast(x, y, this.issueInstances);
     for (var i = 0; i < intersections.length; ++i)
     {
@@ -203,7 +202,7 @@ LollipopMenu.prototype = {
     var image_str = "";
     var i = item;
     if (item.media != null)
-        image_str = "<img src='" + item.media + "' alt='Mountain View' style='width:auto;height:220px;'>";
+        image_str = "<img src='" + item.media + "' alt='ReportImage' style='width:auto;height:220px;'>";
         
     $("body").append("<div id='" + item.id + "' title='" + item.header + "'>" +
                          "<p>" + item.description + "</p>" + image_str +
