@@ -221,75 +221,13 @@ client.connect(loginHost, loginProperties);
 var viewport = document.querySelector("#webtundra-container");
 //var viewport = document.querySelector("#vizicities-viewport");
 
-//Three.JS Scene & Renderer to be passed to Vizi
-
-/*
-//creating the scene here - that's perhaps nicest anyway, can pass it to WT then too
-function createScene() {
-    var scene = new THREE.Scene();
-
-    // TODO: Fog distance should be an option
-    //scene.fog = new THREE.Fog(self.options.fogColour, 1, 15000);
-
-    // TODO: Make this more customisable, perhaps as a "day/night" option
-    // - I'm sure people would want to add their own lighting too
-    // TODO: Should this even be in here?
-    var directionalLight = new THREE.DirectionalLight( 0x999999 );
-    directionalLight.intensity = 0.1;
-    directionalLight.position.x = 1;
-    directionalLight.position.y = 1;
-    directionalLight.position.z = 1;
-
-    scene.add(directionalLight);
-
-    var directionalLight2 = new THREE.DirectionalLight( 0x999999 );
-    directionalLight2.intensity = 0.1;
-    directionalLight2.position.x = -1;
-    directionalLight2.position.y = 1;
-    directionalLight2.position.z = -1;
-
-    scene.add(directionalLight2);
-
-    return scene;
-}
-
-function createRenderer(viewport, scene) {
-    var renderer;
-
-    renderer = new THREE.WebGLRenderer({
-        antialias: true
-    });
-
-    renderer.setSize(viewport.clientWidth, viewport.clientHeight);
-    //renderer.setClearColor(scene.fog.color, 1);
-
-    // Gamma settings make things look 'nicer' for some reason
-    renderer.gammaInput = true;
-    renderer.gammaOutput = true;
-
-    viewport.appendChild(renderer.domElement);
-
-    return renderer;
-}
-*/
-
 /* use WebTundra's scene & renderer */
 threejs = {
     scene: TundraSDK.framework.renderer.scene,
     renderer: TundraSDK.framework.renderer.renderer
 };
 
-/* use the local code here to create for this app
-var fidemo_scene = createScene() //need to pass to renderer so can't be in same decl below
-threejs = {
-    scene: fidemo_scene,
-    renderer: createRenderer(viewport, fidemo_scene)
-}
-console.log("FIDEMO: created scene", threejs.scene);
-*/
-
 // threejs = null; //no overrides, vizicity creates scene & renderer
-
 
 // COORDINATES
 
