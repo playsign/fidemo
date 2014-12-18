@@ -308,6 +308,7 @@ world.attribution.container.style.display = "none";
 //override change emitting as the unload & load code is not good in 0.2.0 yet
 //controls.onChange = function() {};
 globalData.controls = new THREE.PanAndOrbitControls(world.camera.camera, TundraSDK.framework.renderer.renderer.domElement);
+//globalData.controls.autoRotate = true;
 
 // MAP
 
@@ -718,6 +719,7 @@ var update = function() {
     var delta = clock.getDelta();
 
     world.onTick(delta);
+    globalData.controls.update(delta);
     // world.render();
     //render ourself now that we create (or pass) the scene & renderer
     threejs.renderer.render(threejs.scene, world.camera.camera);
