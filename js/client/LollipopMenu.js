@@ -42,7 +42,7 @@ var LollipopMenu = function(owner) {
   for (var i = 0; i < iconTexNames.length; ++i) {
     this.iconAngles.push((this.minAngle + i * angleRange/(iconTexNames.length-1)) * (Math.PI/180));
   }
-  this.iconDist = 0.9;
+  this.iconDist = 1.2;
   this.iconHeight = 0.95;
   this.lollipopScale = 40;
   this.iconScale = 30;
@@ -424,7 +424,7 @@ LollipopMenu.prototype = {
         t = Math.max( 0.0, Math.min( 1.0, t) );
         
         var tween = this.easeInOutQuad(t);
-        var hoverscl = this.easeInOutQuad(this.iconSprites[i].hoverTween) * 0.5;
+        var hoverscl = this.easeInOutQuad(this.iconSprites[i].hoverTween) * 0.37;
         var sclfactor = hoverscl + ((4.5) - (3.5* tween));
       
         if (this.iconSprites[i].selectionNumber == this.selection) {

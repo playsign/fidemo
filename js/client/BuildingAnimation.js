@@ -2,7 +2,7 @@
 
 var BuildingAnimation = function() {
   this.clock = new THREE.Clock();
-  this.radius = 300.0;
+  this.radius = 350.0;
   this.speed = 0.75;
   this.delay = 0.35;
   this.animRadius = 1.0;
@@ -25,12 +25,12 @@ var BuildingAnimation = function() {
 
   //Colors when heatmap is enabled
   this.litColorCost = new THREE.Color("rgb(255,255,255)");
-  this.shadowColorCost = new THREE.Color("rgb(155,155,155)");
-  this.ambientColorCost = new THREE.Color("rgb(44,44,44)");
+  this.shadowColorCost = new THREE.Color("rgb(222,222,244)");
+  this.ambientColorCost = new THREE.Color("rgb(122,122,144)");
   var mult = 1.25;
   this.gradientColor1Cost = new THREE.Vector4(0.4*mult, 0.4*mult, 0.4*mult , 0.0); // no data available - gray
-  this.gradientColor2Cost = new THREE.Vector4(0.498*mult, 0.835*mult, 0.192*mult , 0.0); // green - hex 7fd531
-  this.gradientColor3Cost = new THREE.Vector4(0.91*mult, 0.286*mult, 0.067*mult , 0.05);// red - hex ea4911
+  this.gradientColor2Cost = new THREE.Vector4(0.498*mult, 0.835*mult, 0.192*mult , 0.05); // green - hex 7fd531
+  this.gradientColor3Cost = new THREE.Vector4(0.91*mult, 0.286*mult, 0.067*mult , 1.00);// red - hex ea4911
 
   this.material = new THREE.ShaderMaterial( {
     uniforms: {
