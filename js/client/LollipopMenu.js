@@ -21,6 +21,7 @@ var LollipopMenu = function(owner) {
     "data/2d/icon_properties.png",
     "data/2d/icon_services.png",
     "data/2d/icon_transportation.png"
+    
   ];
   for (var i = 0; i < iconTexNames.length; ++i) {
     this.iconMats.push(
@@ -442,6 +443,16 @@ LollipopMenu.prototype = {
         this.selectionState = 1;
       else
         this.selectionState = 0;
+      
+      if (this.owner.options.globalData != null && this.owner.options.globalData.animator != null){
+        if(this.selection == 2){
+          this.owner.options.globalData.animator.EnableHeatmap(true);
+        }
+        else{
+          this.owner.options.globalData.animator.EnableHeatmap(false);
+        }
+        this.owner.options.globalData.animator.ResetAnimated();
+      }
     }
     this.updateSelectionState();
   },

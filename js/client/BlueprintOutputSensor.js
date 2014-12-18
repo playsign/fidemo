@@ -69,6 +69,8 @@
 
     self.modelYpos = 10;
     self.spriteYpos = 20;
+    self.pinPosY = 10;
+    self.numberSpriteOffsetY = 15;
 
     var jsonLoader = new THREE.JSONLoader();
     self.assetPaths = {
@@ -151,21 +153,24 @@
     self.pinMaterialBus = new THREE.SpriteMaterial({
       map: pinMap,
       color: 0xffffff,
-      fog: true
+      fog: true,
+      depthTest: false
     });
 
     pinMap = THREE.ImageUtils.loadTexture("data/2d/ratikka.png");
     self.pinMaterialTram = new THREE.SpriteMaterial({
       map: pinMap,
       color: 0xffffff,
-      fog: true
+      fog: true,
+      depthTest: false
     });
 
     pinMap = THREE.ImageUtils.loadTexture("data/2d/metro.png");
     self.pinMaterialMetro = new THREE.SpriteMaterial({
       map: pinMap,
       color: 0xffffff,
-      fog: true
+      fog: true,
+      depthTest: false
     });
     
     // INTERPOLATION
@@ -263,7 +268,7 @@
         // TODO rotation and scale
       };
       self.handleTransformUpdate(self.pois[vehicleId], newTransfrom);
-      if (bearing) {
+      if (bearing && self.pois[vehicleId].arrow) {
         self.pois[vehicleId].arrow.rotation.set(THREE.Math.degToRad(180), THREE.Math.degToRad(bearing), 0);
       }
     } else {
@@ -289,8 +294,9 @@
 
       pinSprite.scale.set(25, 25, 1.0);
 
-      // pinSprite.translateX(12);
-      pinSprite.translateY(25);
+      // pinSprite.translateX(12);      
+
+      pinSprite.translateY(self.pinPosY);
 
       pin.name = name;
       pin.description = desc;
@@ -313,21 +319,23 @@
 
       // Arrow
       var newMaterial = self.arrow.material.clone();
+
       var numberBG;
       if (info.mode == "TRAM") {
-        newMaterial.materials[0].map = THREE.ImageUtils.loadTexture("data/3d/arrow_diffuse_ratikka.png");
+        newMaterial.color = new THREE.Color(0x1E9A5F);
         numberBG = self.tramNumberBG;
       } else if (info.mode == "SUBWAY") {
-        newMaterial.materials[0].map = THREE.ImageUtils.loadTexture("data/3d/arrow_diffuse_metro.png");
+        newMaterial.color = new THREE.Color(0xF85F1E);
         numberBG = self.metroNumberBG;
       } else {
-        newMaterial.materials[0].map = THREE.ImageUtils.loadTexture("data/3d/arrow_diffuse_bussi.png");
+        newMaterial.color = new THREE.Color(0x1E95BA);
         numberBG = self.busNumberBG;
       }
 
       if (bearing) {
         var arrowMesh = new THREE.Mesh(self.arrow.geometry.clone(), newMaterial);
         arrowMesh.rotation.set(THREE.Math.degToRad(180), THREE.Math.degToRad(bearing), 0);
+        arrowMesh.translateY(-self.pinPosY);
         pin.add(arrowMesh);
         pin.arrow = arrowMesh;
       }
@@ -335,7 +343,7 @@
       // Number sprite
       if (numberBG) {
         var textSprite = self.makeTextSprite(info.route, numberBG);
-        textSprite.translateY(40);
+        textSprite.translateY(self.pinPosY+self.numberSpriteOffsetY);
         textSprite.renderDepth = -1;
 
         pin.add(textSprite);
@@ -469,8 +477,7 @@
   VIZI.BlueprintOutputSensor.prototype.loadArrowModel = function(geometry, materials) {
     var self = this;
     console.log("load arrow model");
-    var material = new THREE.MeshFaceMaterial(materials);
-    material.materials[0].emissive = new THREE.Color(0xffffff);
+    var material = new THREE.MeshBasicMaterial();
     self.arrow = new THREE.Mesh(geometry, material);
     self.updateModelCount();
   };
