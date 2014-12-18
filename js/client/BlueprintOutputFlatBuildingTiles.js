@@ -480,6 +480,7 @@
           };
           
           var value = count > 0 ? getValue(priceMap, lat, lon) : 0.0;
+		  var color;
           for ( var i = 0; i < mesh.geometry.faces.length; i++ ) {
 
               f  = mesh.geometry.faces[i];
