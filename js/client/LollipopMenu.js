@@ -20,7 +20,8 @@ var LollipopMenu = function(owner) {
     "data/2d/icon_photos.png",
     "data/2d/icon_properties.png",
     "data/2d/icon_services.png",
-    "data/2d/icon_transportation.png"
+    "data/2d/icon_transportation.png",
+    "data/2d/icon_value.png"
     
   ];
   for (var i = 0; i < iconTexNames.length; ++i) {
@@ -449,7 +450,7 @@ LollipopMenu.prototype = {
         this.selectionState = 0;
       
       if (this.owner.options.globalData != null && this.owner.options.globalData.animator != null){
-        if(this.selection == 2){
+        if(this.selection == 5){
           this.owner.options.globalData.animator.EnableHeatmap(true);
         }
         else{
