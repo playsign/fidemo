@@ -6,6 +6,7 @@ function noop() {}
 
 // Global data object is used to share data between blueprints and Tundra-Client.
 var globalData = {};
+globalData.selection = 0;
 
 try
 {
@@ -33,6 +34,21 @@ try
     var /*freecamera,*/ cbclient, demoapp, chat, userPresence;
     var infoDialog, usernameDialog;
 
+	// Start menu initialize
+    $.getScript("js/client/BuildingAnimation.js")
+        .done(function(/*script, textStatus*/) {
+            var start = new StartMenu("startmenu");
+
+			$("#StartMenuButton").button().click(function( event ) {
+				event.preventDefault();
+				start.open();
+			});
+        })
+        .fail(function(jqxhr, settings, exception) {
+            noop(jqxhr, settings);
+            console.error(exception);
+        });
+	
     // Building material animation
     $.getScript("js/client/BuildingAnimation.js")
         .done(function(/*script, textStatus*/) {
@@ -489,6 +505,7 @@ for(var i in buildingPricesByPostCode)
 globalData.buildingPrices = {};
 globalData.buildingPrices.min = min;
 globalData.buildingPrices.max = max;
+console.log("low" + min + " high" + max);
 
 var switchboardBuildingPrices = new VIZI.BlueprintSwitchboard(buildingPricesConfig);
 switchboardBuildingPrices.addToWorld(world);

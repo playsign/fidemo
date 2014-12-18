@@ -55,10 +55,11 @@
 
   <!--Dialog-->
   <script src="js/client/jquery-2.1.1.min.js"></script>
-<script src="js/client/jquery-ui.js"></script>
-<link rel=stylesheet href="css/jquery-ui.css" />
-<link rel=stylesheet href="css/info.css"/>
-<!--      -->
+  <script src="js/client/jquery-ui.js"></script>
+  <link rel=stylesheet href="css/jquery-ui.css" />
+  <link rel=stylesheet href="css/info.css"/>
+  <link rel=stylesheet href="css/startmenu.css"/>
+  <!--      -->
 
   <!--Camera control-->
   <script src="js/client/PanAndOrbitControls.js"></script>
@@ -81,6 +82,42 @@
       <div id="heatmapContainer">
     </div>
   </div>
+  
+  <button id="StartMenuButton">Testi</button>
+	<div id="startmenu" class="ui-widget">
+		<div id="margin-area">
+			<div id="header">
+				<div id="helsinki-logo">
+					<img src="\css\images\logo_virtual_helsinki.png" alt="Virtual Helsinki Logo">
+				</div>
+			</div>
+			<div id="navigation">
+			</div>
+			<div id="content">
+				<div id="content-left">
+					<h2>VIRTUAL HELSINKI</h2>
+					<p>Welcome to Helsinki, virtual smart capital of Finland. Virtual Helsinki utilizes and presents open data that is available in Helsinki area, such as public traffic, restaurant information and real estate market.</p>
+					<p>You can move your avatar in Virtual Helsinki with computer arrow keys and by pressing down left and right sides of your mouse while you move it. Check it out!</p>
+				</div>
+				<div id="content-right">
+					<div id="name-area">
+						<p>enter username for chat:</p>
+						<input type="text" name="username">
+						<button style="float:right;">OK</button>
+					</div>
+					<br>
+					<p style="font-size:xx-small;">Virtual Helsinki has been implemented with FIWARE open software generic enablers. The 3D platform is based on realXtend 3D virtual framework and Web Tundra. Avatar and chat applications use FIWARE GEs such as 2D UI, 3D UI, Virtual Characters and Synchronization. Open data can be present as Points of Interest using POI enablers and it can run through FIWARE Context Broker and Orion technologies.</p>
+				</div>
+			</div>
+			<div id="footer">
+				<img src="\css\images\logo_fiware.png" alt="FIWARE Logo">
+				<img src="\css\images\logo_adminotech.png" alt="Adminotech Logo">
+				<img src="\css\images\logo_cie.png" alt="CIE Logo">
+				<img src="\css\images\logo_ludocraft.png" alt="Ludocraft Logo">
+				<img src="\css\images\logo_playsign.png" alt="Playsign Logo">
+			</div>
+		</div>
+	</div>
   
   <script id="vs-generic-effect" type="x-shader/x-vertex">
 
@@ -183,6 +220,7 @@
   </script>
 
   
+  <script src="js/client/UI/StartMenu.js"></script>
   <script src="js/client/HelsinkiIssues.js"></script>
   <script src="js/client/BuildingAnimation.js"></script>
   <script src="js/client/LabelCull.js"></script>
