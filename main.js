@@ -283,14 +283,20 @@ var helsinkiLatLon;
 //NOTE: we have own cam controls & rendering - perhaps don't even need a VIZI cam?
 var vizicam = new VIZI.Camera({
     aspect: viewport.clientWidth / viewport.clientHeight,
-    near: 30
+    near: 30,
+    position: new VIZI.Point(0, 638, 724),
 });
+
+
+//original: new VIZI.LatLon(60.17096119799872, 24.94066956044796), // Helsinki
+var helsinkiLatLon = new VIZI.LatLon(60.168770, 24.943573);
+
 var world = new VIZI.World({
     viewport: viewport,
     // center: new VIZI.LatLon(40.01000594412381, -105.2727379358738), // Collada
     // center: new VIZI.LatLon(65.0164696, 25.479259499999998), // Oulu
     // center: santanderLatLon = new VIZI.LatLon(43.47195, -3.79909),
-    center: helsinkiLatLon = new VIZI.LatLon(60.17096119799872, 24.94066956044796), // Helsinki
+    center: helsinkiLatLon,
     threejs: threejs,
     camera: vizicam
 });
