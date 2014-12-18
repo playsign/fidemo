@@ -334,8 +334,9 @@
       if (bearing) {
         var arrowMesh = new THREE.Mesh(self.arrow.geometry.clone(), newMaterial);
         arrowMesh.rotation.set(THREE.Math.degToRad(180), THREE.Math.degToRad(bearing), 0);
-        pinIcon.add(arrowMesh);
+        pin.add(arrowMesh);
         pin.arrow = arrowMesh;
+        arrowMesh.translateY(-self.pinPosY);
       }
 
       // Number sprite
@@ -850,7 +851,11 @@
   VIZI.BlueprintOutputSensor.prototype.updatePois = function() {
     var self = this;
 
+    var distance;
+
     if (self.poisArray.length > 1) {
+      // Scale text sprites
+
       var v1 = new THREE.Vector3();
       var v2 = new THREE.Vector3();
 
@@ -858,12 +863,19 @@
         v1.setFromMatrixPosition(self.world.camera.camera.matrixWorld);
         v2.setFromMatrixPosition(self.poisArray[i].textSprite.matrixWorld);
 
-        var distance = v1.distanceTo(v2);
+        distance = v1.distanceTo(v2);
         distance *= 0.03;
 
         self.poisArray[i].textSprite.scale.set(distance, distance * 0.5, 1.0);
       }
 
+      // // Scale icons
+      // var scaleStartPosY = self.spriteYpos + self.pinPosY;
+      // if (self.world.camera.camera.position.y < scaleStartPosY) {
+      //   distance = self.world.camera.camera.position.y - scaleStartPosY;
+      //   distance *= 0.03;
+      //   self.poisArray[i].pinIcon.scale.set(distance, distance * 0.5, 1.0);
+      // }
     }
   };
 
