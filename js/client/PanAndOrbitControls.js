@@ -348,9 +348,9 @@ THREE.PanAndOrbitControls = function ( object, domElement ) {
 
         this.onLollipopPositionChanged = function (latLong, scenePos) {
             console.log("LOLLIPOP: " + scenePos);
-	    //this.target.copy(scenePos.clone();
-	    //pan.add(scenePos.clone());
-	    //this.update();
+	    var diff = scenePos.sub(scope.target);
+	    pan.add(diff);
+	    this.update();
         }
 
 	function getAutoRotationAngle() {
