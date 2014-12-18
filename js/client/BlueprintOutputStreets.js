@@ -56,7 +56,7 @@
       var dscenepoint = self.world.project(dgeocoord);
 
       textFront.position.x = textBack.position.x = dscenepoint.x;
-      textFront.position.y = textBack.position.y = 40;
+      textFront.position.y = textBack.position.y = 60;
       textFront.position.z = textBack.position.z = dscenepoint.y;
       textBack.rotation.y = Math.PI;
       
