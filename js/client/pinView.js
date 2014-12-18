@@ -8,11 +8,11 @@ var Pin = function(material, type, owner, latLong, objectDescription, uuid, tags
     this.latLong = latLong;
     this.modelYpos = 10;
     this.spriteYpos = 40;
-    this.tags = tags;
+    this.tags = tags; //tags can be HelsinkiIssues IssueItem or OpensSteetMap tags
     this.sprite = this.createSprite(material);
     this.isHover = false;
     if(this.tags != null && this.tags.name != null)
-        this.pinName = name;    
+        this.pinName = name;      
     this.onHighlightArea = false; //defines if pin is on highlighted area, and if it is to be shown when type of pins is shown
     return this;
 };
@@ -37,13 +37,13 @@ Pin.prototype = {
         return sprite;
     },
 
-    //always call show, do not use directly .sprite.visible from elsewhere
+    //always call show, do not use directly sprite.visible from elsewhere
     show : function() {   
         this.sprite.visible = true;
         globalData.pinView.updatePinVisible(this.sprite, true);
     },
     
-    //always call hide, do not use directly .sprite.visible from elsewhere
+    //always call hide, do not use directly sprite.visible from elsewhere
     hide : function() {
         this.sprite.visible = false;
         globalData.pinView.updatePinVisible(this.sprite, false);
@@ -57,10 +57,23 @@ Pin.prototype = {
       //  console.log("out" + this.name);
     },
     
+    //Check on which group type belongs and open popup basen on the group
     onSelect : function() {
-     //   console.log("select " + this.uuid);
-        console.log(this.name);
-        console.log(this.getInfofromTags());
+        for(var i in globalData.pinView.pinTypes)
+            if(globalData.pinView.pinTypes[i].type == this.type)
+            {   
+                if(globalData.pinView.pinTypes[i].group == "fix")
+                {
+                    globalData.lollipopMenu.openDialog(this.tags);
+                    return;
+                }
+                else (globalData.pinView.pinTypes[i].group == "service")
+                { 
+                    console.log(this.pinName);
+                    console.log(this.getInfofromTags());
+                    return;
+                }
+            }
     },
     
     onTooltip : function(visible) {
@@ -359,13 +372,18 @@ PinView.prototype = {
         this.addPinType("service", "shop", "data/2d/icon_shop.png");   
         this.addPinType("service", "education", "data/2d/icon_public.png");
         this.addPinType("service", "hospital", "data/2d/icon_hospital.png");       
+        
+        this.addPinType("fix", "open", "data/2d/icon_notfixed.png");
+        this.addPinType("fix", "inprogress", "data/2d/icon_inprogress.png");   
+        this.addPinType("fix", "closed", "data/2d/icon_fixed.png");
+        this.addPinType("fix", "unknown", "data/2d/icon_notfixed.png");  
     },
     
     addPinType : function(group, type, icon)
     {
         pinType = {};
         pinType.type = type;
-        pinType.group = "service";
+        pinType.group = group;
         var pinMap = THREE.ImageUtils.loadTexture(icon);
         pinType.material = new THREE.SpriteMaterial({
           map: pinMap,

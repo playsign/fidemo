@@ -501,6 +501,7 @@
 
     // Lollipop also needs to handle move to keep icons straightened during rotate
     //if no other hits, check raycast for rest of the icons
+    self.lollipopMenu.onMouseMove(self.mouse.x, self.mouse.y);
     self.options.globalData.raycast.onMouseMove(self.mouse.x, self.mouse.y);
   };
 

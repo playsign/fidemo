@@ -63,36 +63,6 @@ var LollipopMenu = function(owner) {
   
   this.selectionState = 0;
   
-  // Helsinki issue objects
-  this.issueRequestId = "";
-  this.issueItems = {};
-  this.issueIconMaterials = {};
-  this.issueIconMaterials.open = new THREE.SpriteMaterial({
-    map: THREE.ImageUtils.loadTexture(IssueItem.Icons.OPEN),
-    color: "rgb(216,136,0)",
-    fog: true,
-    depthWrite : false
-  });
-  this.issueIconMaterials.inprogress = new THREE.SpriteMaterial({
-    map: THREE.ImageUtils.loadTexture(IssueItem.Icons.INPROGRESS),
-    color: "rgb(255,255,255)",
-    fog: true,
-    depthWrite : false
-  });
-  this.issueIconMaterials.closed = new THREE.SpriteMaterial({
-    map: THREE.ImageUtils.loadTexture(IssueItem.Icons.CLOSED),
-    color: "rgb(255,255,255)",
-    fog: true,
-    depthWrite : false
-  });
-  this.issueIconMaterials.unknown = new THREE.SpriteMaterial({
-    map: THREE.ImageUtils.loadTexture(IssueItem.Icons.UNKNOWN),
-    color: "rgb(255,255,255)",
-    fog: true,
-    depthWrite : false
-  });
-  this.issueInstances = [];
-
   this.selection = 0; // 0 = none, 1 = photos, 2 = properties etc.
   this.owner.options.globalData.raycast.addObjectOwner(this);
   this.owner.options.globalData.controls.followLollipop(this);  
@@ -123,8 +93,7 @@ LollipopMenu.prototype = {
         }
       }
       else {
-        // Raycast to icons and perform selection, hide/reopen menu if none hit
-        if (!this.doIconRaycast(x, y)) {
+        //hide/reopen menu 
           var pos = this.planeRaycast(x, y);
           var distVec = new THREE.Vector3();
           distVec.subVectors(pos, this.lastShowPos);
@@ -136,7 +105,6 @@ LollipopMenu.prototype = {
           else {
             this.startHideMenu();
           }
-        }
       }
   },
   
@@ -177,27 +145,6 @@ LollipopMenu.prototype = {
     return intersectPoint;
   },
   
-  getIssueMaterial: function(status){
-      if (status == "open")
-          return this.issueIconMaterials.open;
-      else if(status == "inprogress")
-          return this.issueIconMaterials.inprogress;
-      else if(status == "closed")
-          return this.issueIconMaterials.closed;
-      else
-          return this.issueIconMaterials.unknown;
-  },
-  
-  doIconRaycast : function(x, y) {
-  
-    var intersections = this.owner.doRaycast(x, y, this.issueInstances);
-    for (var i = 0; i < intersections.length; ++i)
-    {
-      this.openDialog(intersections[i].object.item);
-    }
-    return intersections.length > 0;
-  },
-  
   openDialog: function(item) {
     var self = this;
     var image_str = "";
@@ -223,62 +170,18 @@ LollipopMenu.prototype = {
     this.currentDialog = null;  
   },
   
-  createIssueIcons: function() {
-      var world = this.owner.options.globalData.world;
-      var item = null;
-      var sprite = null;
-      
-      for (var i in this.issueItems)
-      {
-          item = this.issueItems[i];
-          sprite = new THREE.Sprite(this.getIssueMaterial(item.status));
-          sprite.scale.set(20, 20, 20);
-          sprite.position.copy(world.project(item.latLon, world.zoom));
-          sprite.position.set(sprite.position.x, 60, sprite.position.y);
-          sprite.item = item;
-          this.issueInstances.push(sprite);
-          this.owner.add(sprite);
-      }
-  },
-  
-  removeIssueIcons: function() {
-      this.issueItems = {};
-      for(var i in this.issueInstances)
-          this.owner.remove(this.issueInstances[i]);
-      this.issueInstances = [];
-  },
-
   createMenu : function(pos) {
     if (this.isShowing()) {
+        this.owner.options.globalData.pinView.hidePinsByOwner(this.owner);
         this.hideMenu(); // If already showing, hide the old first
     }
-
+    this.selectionState = 0;
     if (this.owner.options.globalData != null && this.owner.options.globalData.world != null)
     {
         var point = new VIZI.Point(pos.x, pos.z);
         var w = this.owner.options.globalData.world;
         var latLong = w.unproject(point, w.zoom);
-        var that = this;
-        this.removeIssueIcons();
-        
-        var callback = function(id, result) {
-            // if old request ignore.
-            if (that.issueRequestId != id)
-                return;
-            
-            var item = null;
-            for(var i in result) {
-                item = result[i];
-                if (item instanceof IssueItem) {
-                    that.issueItems[item.id] = item;
-                }
-            }
-            that.createIssueIcons();
-            
-            that = null;
-        };
-        this.issueRequestId = HelsinkiIssues.RequestIssues(latLong.lat, latLong.lon, 300, callback);
-        this.selectionState = 0;
+        HelsinkiIssues.RequestIssues(latLong.lat, latLong.lon, 300);
     }
 
     // Animate the circle to new position
