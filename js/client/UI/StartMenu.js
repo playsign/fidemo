@@ -19,6 +19,11 @@ StartMenu.prototype = {
                 self.close();
             }
         });
+        
+        $("#username-button").button().click(function( event ) {
+            event.preventDefault();
+            self.okPressed();
+        });
     },
     
     _release: function() {
@@ -31,5 +36,12 @@ StartMenu.prototype = {
     
     close: function() {
         $("#" + this.id).dialog("close");
+    },
+    
+    okPressed: function() {
+        var newUsername = $("#username-input").val();
+        if (newUsername.trim().length > 0 && chat != null && chat.entity != null) {
+            chat.entity.exec(EntityAction.Server, Msg.SetUsername, [ newUsername, TundraSDK.framework.client.connectionId ]);
+        }
     }
 };
