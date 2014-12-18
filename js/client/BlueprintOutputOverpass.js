@@ -92,7 +92,7 @@
     self.init();
   };
   
-    VIZI.BlueprintOutputOverpass.prototype.onLollipopPositionChanged = function(latLong) {
+    VIZI.BlueprintOutputOverpass.prototype.onLollipopPositionChanged = function(latLong, scenePos) {
         var self = this;
         self.hideAllPins();
         self.options.globalData.currentPos = latLong;

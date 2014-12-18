@@ -138,7 +138,7 @@ LollipopMenu.prototype = {
     var point = new VIZI.Point(pos.x, pos.z);
     var w = this.owner.options.globalData.world;
     var latLong = w.unproject(point, w.zoom);
-    this.positionChanged.dispatch(latLong);
+    this.positionChanged.dispatch(latLong, pos);
   },
   
   onMouseMove : function(x, y) {

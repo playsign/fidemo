@@ -341,14 +341,16 @@ THREE.PanAndOrbitControls = function ( object, domElement ) {
 
 	};
 
-    	this.followLollipop = function ( lollipopMenu ) {
+    	this.followLollipop = function (lollipopMenu) {
             console.log("LOLLIPOP: " + lollipopMenu);
-            lollipopMenu.positionChanged.add(this.onLollipopPositionChanged, self);
-            this.lollipopMenu = lollipopMenu;
+            lollipopMenu.positionChanged.add(this.onLollipopPositionChanged, this);
         };
 
-        this.onLollipopPositionChanged = function ( ) {
-            console.log("LOLLIPOP: " + this.lollipopMenu);
+        this.onLollipopPositionChanged = function (latLong, scenePos) {
+            console.log("LOLLIPOP: " + scenePos);
+	    //this.target.copy(scenePos.clone();
+	    //pan.add(scenePos.clone());
+	    //this.update();
         }
 
 	function getAutoRotationAngle() {

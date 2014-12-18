@@ -392,8 +392,8 @@ var mapConfig = {
   }]
 };
 
-//var switchboardMap = new VIZI.BlueprintSwitchboard(mapConfig);
-//switchboardMap.addToWorld(world);
+var switchboardMap = new VIZI.BlueprintSwitchboard(mapConfig);
+switchboardMap.addToWorld(world);
 
 
 // DATA
