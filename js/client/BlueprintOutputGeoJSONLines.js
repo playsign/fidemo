@@ -28,7 +28,6 @@
       {name: "outputGeoJSONLines", arguments: ["data"]}
     ];
 
-    self.world;
   };
 
   VIZI.BlueprintOutputGeoJSONLines.prototype = Object.create( VIZI.BlueprintOutput.prototype );
@@ -46,6 +45,8 @@
   // }
     VIZI.BlueprintOutputGeoJSONLines.prototype.outputGeoJSONLines = function(data) {
         var self = this;
+
+        return; // this is an unused copy of the code now, moved to BlueprintOutputSensor
         console.info("geojsonlines: data.length " + data.length);
         data.length = 1;
         _.each(data, function(feature) {
@@ -97,30 +98,23 @@
                 if (logCount++ < 2) {
                     console.info("tube vert to xy " + geoCoord.x + ", " + geoCoord.y);
                 }
-            // var makeV3 = function(coord, index) {
-            //     var v2 = self.world.project(new VIZI.LatLon(coord[0], coord[1]));
-            //     if (spewCount++ < 20) {
-            //         console.info("spline point at " + v2.x + ", " + v2.y);
-            //         addCube(v2.x, v2.y);
-            //     }
-            //     return new THREE.Vector3(v2.x, 10, v2.y);
-            // }
-                var lineSpline = new UnSplineCurve3(verts);
-                var tubeGeometry = new THREE.TubeGeometry(
+            });
+
+            var lineSpline = new UnSplineCurve3(verts);
+            var tubeGeometry = new THREE.TubeGeometry(
                 lineSpline,
                 300 /* lengthwise segments */,
                 2 /* tube radius */,
                 3 /* cross-section segments */,
                 false /* closed? */);
-                
-                var tubeMat = new THREE.MeshLambertMaterial({color: 0xaf0000});
-                
-                var tubeMesh = new THREE.Mesh(tubeGeometry, tubeMat);
-                tubeMesh.scale.set(1, 5, 1);
-                tubeMesh.name = "teppo";
-                self.add(tubeMesh);
-                console.info("added route line mesh to scene");
-            });
+            
+            var tubeMat = new THREE.MeshLambertMaterial({color: 0xaf0000});
+            
+            var tubeMesh = new THREE.Mesh(tubeGeometry, tubeMat);
+            tubeMesh.scale.set(1, 5, 1);
+            tubeMesh.name = "teppo";
+            self.add(tubeMesh);
+            console.info("added route line mesh to scene");
         });
         
         
@@ -177,3 +171,12 @@ UnSplineCurve3 = THREE.Curve.create(
     }
 
 );
+
+
+function makeTramJoreId(route, direction) {
+    var lineNr = "" + route;
+    while (lineNr.length < 3)
+        lineNr = "0" + lineNr;
+    var variant1 = " ", variant2 = " ";
+    return "1" + lineNr + variant1 + variant2 + direction;
+}

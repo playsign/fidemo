@@ -1,4 +1,5 @@
 /* globals window, _, VIZI */
+/* -*- js-indent-level: 2 -*- */ 
 (function() {
   "use strict";
 
@@ -203,6 +204,8 @@
         continue;
       }
 
+      //console.info("outputSensor: direction=" + data[i].direction);
+
       var boxLongitude = data[i].coordinates[1];
       var boxLatitude = data[i].coordinates[0];
       var boxName = "Sensor";
@@ -225,7 +228,7 @@
           console.warn("line ref undefined");
           continue;
         }
-        self.createPin(boxLatitude, boxLongitude, boxName, boxDescription, boxId, data[i].name, data[i].bearing); // 'name' is a vehicle ID
+        self.createPin(boxLatitude, boxLongitude, boxName, boxDescription, boxId, data[i].name, data[i].bearing, data[i].direction); // 'name' is a vehicle ID
       } else if (data[i].light) {
         var lux = parseFloat(data[i].light, 10);
         self.createLightbulb(boxLatitude, boxLongitude, boxName, boxDescription, boxId, lux);
@@ -255,7 +258,7 @@
   };
 
   // TODO: rename
-  VIZI.BlueprintOutputSensor.prototype.createPin = function(lat, lon, name, desc, uuid, vehicleId, bearing) {
+  VIZI.BlueprintOutputSensor.prototype.createPin = function(lat, lon, name, desc, uuid, vehicleId, bearing, direction) {
     var self = this;
 
     var dgeocoord = new VIZI.LatLon(lat, lon);
@@ -282,7 +285,12 @@
       // Sprite
       var pinIcon;
 
-      // console.log(name + " is route " + info.route + " and is a " + info.mode);
+      pin.userData.isPin = true;
+
+      // used for route query and display
+      pin.userData.joreInfo = info;
+      pin.userData.direction = direction;
+      console.log(name + " is route " + info.route + " and is a " + info.mode + ", vehicleId=" + vehicleId);
       if (info.mode == "TRAM") {
         pinIcon = new THREE.Sprite(self.pinMaterialTram);
       } else if (info.mode == "SUBWAY") {
@@ -502,7 +510,6 @@
     // Lollipop also needs to handle move to keep icons straightened during rotate
     self.lollipopMenu.onMouseMove(self.mouse.x, self.mouse.y);
   };
-
   VIZI.BlueprintOutputSensor.prototype.onDocumentMouseDown = function(event) {
     var self = this;
     if (!self.raycastsEnabled) {
@@ -525,17 +532,128 @@
 
     // find intersections
     var intersects = self.doRaycast(self.mouse.x, self.mouse.y, self.poisArray);
-
-    // if there is one (or more) intersections
-      if (intersects.length > 0 && intersects[0].object.visible) {
-          console.info("raycast intersects[0]: " + intersects[0]);
-          self.intersectedObject = intersects[0].object;
-      } else {
-          // If no ray hits, pass on to lollipopmenu
-          self.lollipopMenu.onMouseDown(self.mouse.x, self.mouse.y);
-      }
+    var clickedObject = null;
+    for (var i = 0; i < intersects.length; i++) {
+        clickedObject = intersects[i].object;
+        if (clickedObject.visible && clickedObject.parent.userData.isPin)
+            self.onPinClicked(clickedObject.parent);
+    }
+    if (clickedObject === null)
+        self.lollipopMenu.onMouseDown(self.mouse.x, self.mouse.y);
   };
 
+  VIZI.BlueprintOutputSensor.prototype.onPinClicked = function(pin) {
+      var self = this;
+      var info = pin.userData.joreInfo;
+      var direction = pin.userData.direction;
+
+      if (direction != "1" && direction != "2") {
+          console.log("bad direction " + direction);
+          return;
+      }
+
+
+      var query;
+      var spacepad = function(str, length) {
+          while (str.length < length)
+              str += " ";
+          return str;
+      };
+      
+      query = spacepad(pin.name, 6) + direction;
+
+      var url = "http://www.pubtrans.it/hsl/routes?lines=" + encodeURIComponent(query);
+      console.log("hsl query url " + url);
+      if (self.currentRouteLine)
+          self.currentRouteLine.visible = false;
+      var callback = function(data) {
+          if (!data.features || !data.features[0].properties || !data.features[0].geometry) {
+              console.info("bad hsl route data");
+              return;
+          }
+          self.showRouteLine(data.features[0], info);
+      };
+      $.getJSON(url, callback);
+      console.info("started hsl route call");
+  };
+
+  VIZI.BlueprintOutputSensor.prototype.showRouteLine = function(route, joreInfo) {
+      var self = this;
+      // var hslCoords = route.geometry.coordinates;
+      // var nCoords = hslCoords.length;
+      // var verts = new Array(nCoords);
+      // var ll = new VIZI.LatLon();
+      // for (var i = 0; i < nCoords; i++) {
+      //     var hc = hslCoords[i];
+      //     ll.lat = hc[0];
+      //     ll.lon = hc[1];
+      //     var gc = self.world.project(ll);
+      //     verts[i] = new THREE.Vector3(gc.x, 5, gc.y);
+      // }
+
+      if (self.lineMesh) {
+          self.remove(self.lineMesh);
+          console.log("removed old lineMesh");
+      }
+      if (self.tubeMesh) {
+          self.remove(self.tubeMesh);
+          console.log("removed old tubeMesh");
+      }
+
+      var data = [ {linecoords: route.geometry.coordinates } ];
+        _.each(data, function(feature) {
+            var logCount = 0;
+            var geom = new THREE.Geometry();
+            _.each(feature.linecoords, function(coord, index) {
+                var geoCoord = self.world.project(new VIZI.LatLon(coord[1], coord[0]));
+                geom.vertices.push(new THREE.Vector3( geoCoord.x, 10, geoCoord.y ));
+                if (false && logCount++ < 2) {
+                    console.info("added to line vert to xy " + geoCoord.x + ", " + geoCoord.y);
+                }
+            });
+            
+            //var colour = new THREE.Color(0xffffff * Math.random());
+            var colour = new THREE.Color(0xff0000);
+
+            var material = new THREE.LineBasicMaterial({
+                color: colour,
+                //vertexColors: ,
+                linewidth: 5
+            });
+
+            var line = new THREE.Line( geom, material );
+            self.lineMesh = line;
+            self.add(line);
+        });
+        console.info("old line thing done");
+        console.info("making route lines");
+        var logCount = 0;
+        _.each(data, function(feature) {
+            var verts = [];
+            _.each(feature.linecoords, function(coord, index) {
+                var geoCoord = self.world.project(new VIZI.LatLon(coord[1], coord[0]));
+                verts.push(new THREE.Vector3( geoCoord.x, 5, geoCoord.y ));
+                if (logCount++ < 2) {
+                    console.info("tube vert to xy " + geoCoord.x + ", " + geoCoord.y);
+                }
+            });
+            var lineSpline = new UnSplineCurve3(verts);
+            var tubeGeometry = new THREE.TubeGeometry(
+                lineSpline,
+                300 /* lengthwise segments */,
+                2 /* tube radius */,
+                3 /* cross-section segments */,
+                false /* closed? */);
+            
+            var tubeMat = new THREE.MeshLambertMaterial({color: 0xaf0000});
+            
+            var tubeMesh = new THREE.Mesh(tubeGeometry, tubeMat);
+            tubeMesh.scale.set(1, 5, 1);
+            self.tubeMesh = tubeMesh;
+            self.add(tubeMesh);
+            console.info("added route line mesh to scene");
+        });
+  };
 
   VIZI.BlueprintOutputSensor.prototype.onDocumentMouseUp = function(event) {
     var self = this;
