@@ -8,8 +8,11 @@ var Pin = function(material, type, owner, latLong, objectDescription, uuid, tags
     this.latLong = latLong;
     this.modelYpos = 10;
     this.spriteYpos = 40;
+    this.tags = tags;
     this.sprite = this.createSprite(material);
     this.isHover = false;
+    if(this.tags != null && this.tags.name != null)
+        this.pinName = name;    
     this.onHighlightArea = false; //defines if pin is on highlighted area, and if it is to be shown when type of pins is shown
     return this;
 };
@@ -47,22 +50,70 @@ Pin.prototype = {
     },
     
     hoverIn : function() {
-     //  console.log("in" + this.uuid);
+     //  console.log("in" + this.name);
     },
     
     hoverOut : function() {
-     //   console.log("out" + this.uuid);
+      //  console.log("out" + this.name);
     },
     
     onSelect : function() {
-        console.log("select " + this.uuid);
+     //   console.log("select " + this.uuid);
+        console.log(this.name);
+        console.log(this.getInfofromTags());
     },
     
     onTooltip : function(visible) {
         console.log("Show Tooltip " + visible);
     },
     
+    getInfofromTags : function() {
+    
+    var keys = Object.keys(this.tags);
+    //first element, if it exists, is address
+    info = ParseAddress(this.tags["addr:street"], this.tags["addr:housenumber"], this.tags["addr:postcode"], this.tags["addr:city"], this.tags["addr:country"]);
+    for(var key in keys)
+     {
+        var keyString = keys[key];
+        //ignore these keys, they are handled elsewhere
+        if (keyString == "addr:street" || keyString == "addr:housenumber" || 
+        keyString == "addr:postcode" || keyString == "addr:city" || 
+        keyString == "addr:country" || keyString == "name")
+            continue;
+        var value = this.tags[keyString];
+        keyString = keyString.replace("_", " ");
+        info += keyString +": " + value +"\n"; 
+        
+     }
+    return info;
+    },
+    
 };
+
+var ParseAddress = function(street, house, postCode, city, country)
+{   
+    //no address
+    if(street == null && house == null && postCode == null && city == null && country == null)
+        return "";
+        
+    var address = "address :\n";
+    if (street != null)
+    {
+        address += street;
+        if (house != null)
+            address += " " + house;
+        address += "\n";
+    }
+    if (postCode != null)
+       address += postCode + " ";
+    if (city != null)
+        address += city;
+    address += "\n";
+    if (country != null)
+        address += country +"\n";
+                 
+    return address;
+}
 
 //Handles all the pins
 var PinView = function(lolliPopMenu) 
