@@ -877,8 +877,6 @@
           if (newScale < self.pinIconScale) {
             self.poisArray[i].icon.scale.set(newScale, newScale, newScale);
           }
-        } else if (self.poisArray[i].icon.scale != self.pinIconScale) {
-          self.poisArray[i].icon.scale.set(self.pinIconScale, self.pinIconScale, self.pinIconScale);
         }
       }
     }
