@@ -64,6 +64,7 @@ var LollipopMenu = function(owner) {
   this.selectionState = 0;
   
   this.selection = 0; // 0 = none, 1 = photos, 2 = properties etc.
+  this.setSelection(4); //by default
   this.owner.options.globalData.raycast.addObjectOwner(this);
   this.owner.options.globalData.controls.followLollipop(this);  
 };
@@ -131,7 +132,10 @@ LollipopMenu.prototype = {
         break;
       }
       else
+      {
+        this.selectionState++;
         this.updateSelectionState();
+      }
     }
  },
 
@@ -175,7 +179,7 @@ LollipopMenu.prototype = {
         this.owner.options.globalData.pinView.hidePinsByOwner(this.owner);
         this.hideMenu(); // If already showing, hide the old first
     }
-    this.selectionState = 0;
+ 
 	
     if (this.owner.options.globalData != null && this.owner.options.globalData.world != null)
     {
@@ -221,7 +225,7 @@ LollipopMenu.prototype = {
       this.lollipopSprite.add(spr2);
       this.iconSprites.push(spr2);
     }
-    this.setSelection(0);
+    this.setPreviousSelection();
     this.scaleTween = 0.1;
     this.scaleTweenDir = 1;
     this.updateScale(); // Set initial lollipop scale
@@ -243,7 +247,6 @@ LollipopMenu.prototype = {
     this.iconSprites = [];
     this.owner.remove(this.lollipopSprite);
     this.lollipopSprite = null;
-    this.setSelection(0);
 
     this.hidden.dispatch();
   },
@@ -344,14 +347,18 @@ LollipopMenu.prototype = {
 
   setSelection : function(newSel) {
     if (newSel != this.selection) {
+      console.log("________________ Hop __________________");
       this.selection = newSel;
       this.updateScale();
       this.selectionChanged.dispatch(this.selection);
-       
-      if(this.selectionState == 0 || this.selectionState == null)
-        this.selectionState = 1;
-      else
-        this.selectionState = 0;
+      
+      this.selectionState = 0;
+      for (var i = 0; i < this.iconSprites.length; ++i) {
+        if(this.iconSprites[i].selectionNumber == this.selection)
+            this.iconSprites[i].material.color = new THREE.Color(0xffffff);
+        else
+            this.iconSprites[i].material.color = new THREE.Color(0xd0d0d0);
+      }
       
       if (this.owner.options.globalData != null && this.owner.options.globalData.animator != null){
         if(this.selection == 5){
@@ -368,6 +375,31 @@ LollipopMenu.prototype = {
     this.updateSelectionState();
   },
   
+  //set previous selection active on lollipopMenu & send updateSelectionState
+  setPreviousSelection : function() {
+  
+    for (var i = 0; i < this.iconSprites.length; ++i) {
+        if(this.iconSprites[i].selectionNumber == this.selection)
+            this.iconSprites[i].material.color = new THREE.Color(0xffffff);
+        else
+            this.iconSprites[i].material.color = new THREE.Color(0xd0d0d0);
+    }
+    this.updateScale();
+
+    if (this.owner.options.globalData != null && this.owner.options.globalData.animator != null){
+        if(this.selection == 5){
+          this.owner.options.globalData.animator.EnableHeatmap(true);
+          this.owner.options.globalData.heatMapMenu.open();
+        }
+        else{
+          this.owner.options.globalData.animator.EnableHeatmap(false);
+          this.owner.options.globalData.heatMapMenu.close();
+        }
+    this.owner.options.globalData.animator.ResetAnimated();
+    }
+    this.updateSelectionState();
+  },
+  
   getSelection : function() {
     return this.selection;
   },
@@ -375,6 +407,9 @@ LollipopMenu.prototype = {
   //call selectionUpdate from PinView
   updateSelectionState : function()
   {
-     this.selectionState = this.owner.options.globalData.pinView.selectionUpdate(this.selection, this.selectionState);
+    //pinView.selectionUpdate returns false, if no index with selectionState
+    if(this.owner != null && this.owner.options.globalData != null && this.owner.options.globalData.pinView != null)
+        if(!this.owner.options.globalData.pinView.selectionUpdate(this.selection, this.selectionState))
+            this.selectionState = -1;
   }
 }

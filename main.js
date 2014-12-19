@@ -50,7 +50,20 @@ try
             noop(jqxhr, settings);
             console.error(exception);
         });
-        
+    // Tutorial menu initialize
+    $.getScript("js/client/UI/StartMenu.js")
+        .done(function(/*script, textStatus*/) {
+            var tutorial = new TutorialMenu("tutorialmenu");
+
+            $("#tutorialmenu-button").button().click(function( event ) {
+                    event.preventDefault();
+                    tutorial.open();
+            });
+        })
+        .fail(function(jqxhr, settings, exception) {
+            noop(jqxhr, settings);
+            console.error(exception);
+        });    
     // Start menu initialize
     $.getScript("js/client/UI/HeatMapBar.js")
         .done(function(/*script, textStatus*/) {
