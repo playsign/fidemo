@@ -860,6 +860,7 @@
     if (self.poisArray.length > 1) {
       var v1 = new THREE.Vector3();
       var v2 = new THREE.Vector3();
+      var textSpritePos;
 
       for (var i = self.poisArray.length - 1; i >= 0; i--) {
         v1.setFromMatrixPosition(self.world.camera.camera.matrixWorld);
@@ -871,6 +872,8 @@
         // Scale text sprite
         if (self.poisArray[i].textSprite) {
           self.poisArray[i].textSprite.scale.set(newScale, newScale * 0.5, 1.0);
+          textSpritePos = self.poisArray[i].textSprite.position;
+          self.poisArray[i].textSprite.position.set(textSpritePos.x, distance * 0.01 + 25, textSpritePos.z);
         }
 
         // Scale icon
@@ -879,6 +882,13 @@
 
           if (newScale < self.pinIconScale) {
             self.poisArray[i].icon.scale.set(newScale, newScale, newScale);
+
+            if (self.poisArray[i].textSprite) {
+              // Offset Y position of the number tag
+              textSpritePos = self.poisArray[i].textSprite.position;
+              var yOffset = textSpritePos.y - newScale;
+              self.poisArray[i].textSprite.position.set(textSpritePos.x, textSpritePos.y - (yOffset * 0.6), textSpritePos.z);
+            }
           }
         }
       }
