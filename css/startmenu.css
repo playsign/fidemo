@@ -37,9 +37,11 @@
 }
 
 #startmenu-button {
-    width:109px;
-    height:57px;
-    background:url(/data/2d/icon_help.png) no-repeat;
+    top:10px;
+	width:109px;
+    height:109px;
+	background-size: 109px 109px;
+    background:url(/data/2d/icon_info_hover.png) no-repeat;
     cursor:pointer;
     border: none;
     outline:none;
