@@ -65,33 +65,17 @@ Pin.prototype = {
             {   
                 if(globalData.pinView.pinTypes[i].group == "fix")
                 {
-					var issueDialog = new IssueDialog(this.tags.id, this.tags);
-					globalData.ui.issueDialogs.push(issueDialog);
-					issueDialog.OnRelease.add(function(dialog) {
-						var index = -1;
-						
-						var issueDialogs = globalData.ui.issueDialogs;
-						for(var i = 0; i < issueDialogs.length; ++i)
-						{
-							if (issueDialogs[i].id == dialog.id) {
-								index = i;
-								break;
-							}
-						}
-						
-						if (index >= 0)
-						{
-							issueDialogs = issueDialogs.slice(index, 1);
-						}
-					});
-					
-                    //globalData.lollipopMenu.openDialog(this.tags);
+					var dialog = new IssueDialog(this.tags.id, this.tags);
+					globalData.ui.addDialog(dialog);
+					dialog.OnRelease.add(globalData.ui.removeDialog);
                     return;
                 }
                 else (globalData.pinView.pinTypes[i].group == "service")
-                { 
-                    console.log(this.pinName);
-                    console.log(this.getInfofromTags());
+                {
+                    var tags = this.getInfofromTags();
+                    var dialog = new InfoPupup(this.uuid, this.tags);
+					globalData.ui.addDialog(dialog);
+					dialog.OnRelease.add(globalData.ui.removeDialog);
                     return;
                 }
             }

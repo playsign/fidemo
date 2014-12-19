@@ -9,6 +9,24 @@ var globalData = {};
 globalData.selection = 0;
 globalData.ui = {};
 globalData.ui.issueDialogs = [];
+globalData.ui.dialogs = [];
+globalData.ui.addDialog = function(dialog) {
+    var index = -1;
+    var dialogs = globalData.ui.issueDialogs;
+    for(var i = 0; i < dialogs.length; ++i) {
+        if (dialogs[i] == dialog) {
+            index = i;
+            break;
+        }
+    }
+    if (index >= 0) {
+        dialogs = dialogs.slice(index, 1);
+    }
+};
+globalData.ui.removeDialog = function(dialog) {
+    globalData.ui.issueDialogs.push(dialog);
+}
+
 
 try
 {

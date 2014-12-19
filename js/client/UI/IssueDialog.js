@@ -4,6 +4,7 @@ var IssueDialog = function(id, item) {
     this.id = id;
 	this.data = item;
 	this.OnRelease = new signals.Signal;
+    this.dialog = null;
     
     this._init();
 };
@@ -20,7 +21,7 @@ IssueDialog.prototype = {
 							 "<p>" + item.description + "</p>" + image_str +
 						 "</div>");
 		
-		this.currentDialog = $("#" + item.id).dialog({
+		this.dialog = $("#" + item.id).dialog({
 			  width: 500,
 			  height: "auto",
 			  close: function(ev, ui) {
