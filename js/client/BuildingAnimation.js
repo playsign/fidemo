@@ -2,19 +2,21 @@
 
 var BuildingAnimation = function() {
   this.clock = new THREE.Clock();
+  this.targetRadius = 350;
   this.radius = 350.0;
   this.speed = 0.75;
   this.delay = 0.35;
-  this.animRadius = 1.0;
-  this.animScale = 1.0;
-  this.animBlast = 1.0;
+  this.animRadius = 0.0;
+  this.animScale = 0.0;
+  this.animBlast = 0.0;
   this.animCost = 0.0;
   this.animDir = 1.0;
-  this.animate = true;
+  this.animate = false;
   this.showHeatmap = false;
   this.enableHeatmap = false;
   this.mousePos = new THREE.Vector3(0,0,0);
   this.prevMousePos = new THREE.Vector3(0,0,0);
+  this.hasStarted = false;
   
   this.litColorDefault = new THREE.Color("rgb(234,230,221)");
   this.shadowColorDefault = new THREE.Color("rgb(172,202,217)");
@@ -23,7 +25,7 @@ var BuildingAnimation = function() {
   this.gradientColor2Default = new THREE.Vector4(1.0,1.0,1.0,0.5);
   this.gradientColor3Default = new THREE.Vector4(1.0,1.0,1.0,1.0);
 
-  //Colors when heatmap is enabled
+  //Colors when apartment cost heatmap is enabled
   this.litColorCost = new THREE.Color("rgb(255,255,255)");
   this.shadowColorCost = new THREE.Color("rgb(222,222,244)");
   this.ambientColorCost = new THREE.Color("rgb(122,122,144)");
@@ -47,7 +49,7 @@ var BuildingAnimation = function() {
       gradientColor3: { type: "v4", value: this.gradientColor3Default},
       animScaleUp: { type: "f", value: 0.0 },
       animScaleBlast: { type: "f", value: 0.0 },
-      radiusMultiplier: { type: "f", value: 0.0 },
+      radiusMultiplier: { type: "f", value: 1.0 },
     },
     vertexColors: THREE.VertexColors,
     vertexShader: (document.getElementById( 'vs-generic-effect' ).textContent),
@@ -74,47 +76,64 @@ BuildingAnimation.prototype = {
   
   Update: function(frameTime){
     
-    var delta = frameTime;
-
-    var animDelta = this.animDir < 0 ? delta * this.speed*2.0 * this.animDir : delta * this.speed * this.animDir;
-    if(this.animate){
+    if(this.hasStarted){
+      var delta = frameTime;
       
-      this.animRadius = Math.max(0.0,Math.min(1.0, this.animRadius + animDelta));
-      var radiusTween = this.animRadius < 0.5 ? 2 * this.animRadius * this.animRadius : -1 + (4 - 2 * this.animRadius) * this.animRadius;
-      var radius = 1.0  / (this.radius * radiusTween);
-      this.material.uniforms.radiusMultiplier.value = radius;
-   
-      this.animScale = this.animScale + animDelta;
-      var animScaleState = Math.max(0.0,Math.min(1.0, this.animScale - this.delay));
-      var scaleTween = animScaleState < 0.5 ? 2 * animScaleState * animScaleState : -1 + (4 - 2 * animScaleState) * animScaleState;
-      this.material.uniforms.animScaleUp.value = scaleTween;
+      var animDelta = this.animDir < 0 ? delta * this.speed*2.0 * this.animDir : delta * this.speed * this.animDir;
+      this.AnimateRadius(frameTime);
       
-      //forward animation done
-      if( (this.animScale >= 1.0) && (this.animRadius >= 1.0 )){
-        this.material.uniforms.mouseposition.value = this.mousePos;
-        this.animate = false;
+      if(this.animate){
         
-      }
-      //reverse animation done
-      else if( (this.animScale <= 0.0) && (this.animRadius <= 0.0 )){
-        this.showHeatmap = this.enableHeatmap;
+        this.animRadius = Math.max(0.0,Math.min(1.0, this.animRadius + animDelta));
+        var radiusTween = this.animRadius < 0.5 ? 2 * this.animRadius * this.animRadius : -1 + (4 - 2 * this.animRadius) * this.animRadius;
+        var radius = 1.0  / (this.radius * radiusTween);
+        this.material.uniforms.radiusMultiplier.value = radius;
+     
+        this.animScale = this.animScale + animDelta;
+        var animScaleState = Math.max(0.0,Math.min(1.0, this.animScale - this.delay));
+        var scaleTween = animScaleState < 0.5 ? 2 * animScaleState * animScaleState : -1 + (4 - 2 * animScaleState) * animScaleState;
+        this.material.uniforms.animScaleUp.value = scaleTween;
         
-        this.animBlast = 0.0;
-        this.animDir = 1.0;
-        this.prevMousePos = this.mousePos;
-        this.material.uniforms.mouseposition.value = this.mousePos;
-        
-      }     
-           
+        //forward animation done
+        if( (this.animScale >= 1.0) && (this.animRadius >= 1.0 )){
+          this.material.uniforms.mouseposition.value = this.mousePos;
+          this.animate = false;
+          
+        }
+        //reverse animation done
+        else if( (this.animScale <= 0.0) && (this.animRadius <= 0.0 )){
+          this.showHeatmap = this.enableHeatmap;
+          
+          this.animBlast = 0.0;
+          this.animDir = 1.0;
+          this.prevMousePos = this.mousePos;
+          this.material.uniforms.mouseposition.value = this.mousePos;
+          
+        }     
+      }  
+      
+      if((this.showHeatmap == true && this.animDir > 0.0) || this.animDir <= 0.0){
+        this.AnimateCostGradient(animDelta);
+      } 
+      this.animBlast = this.animBlast + delta * this.speed * 1.0;
+      this.material.uniforms.animScaleBlast.value = 1.0  / ((1150.0 + this.animBlast * 1000) * this.animBlast);
+    
     }
-    if((this.showHeatmap == true && this.animDir > 0.0) || this.animDir <= 0.0){
-      this.AnimateCostGradient(animDelta);
-    } 
-    this.animBlast = this.animBlast + delta * this.speed * 1.0;
-    this.material.uniforms.animScaleBlast.value = 1.0  / ((1150.0 + this.animBlast * 1000) * this.animBlast);
+    
 
   },
 
+  AnimateRadius: function(frameTime) {
+    var radiusdiff = this.targetRadius - this.radius;
+    if(radiusdiff > 3.0 || radiusdiff < -3.0){
+      this.radius += radiusdiff * frameTime;
+      this.animate = true;
+    }
+    else{
+      this.radius = this.targetRadius;
+    }
+  },
+  
   AnimateCostGradient: function(frameTime) {
     this.animCost = Math.max(0.0, this.animCost + frameTime * this.speed);
     
@@ -148,11 +167,16 @@ BuildingAnimation.prototype = {
     }
   },
   
+  SetRadius: function(radius) {
+    this.targetRadius = radius;
+  },
+  
   EnableHeatmap: function(enabled) {
     this.enableHeatmap = enabled;
   },
   
   SetPosition: function(position) {
+    this.hasStarted = true;
     this.prevMousePos = this.mousePos;
     this.ResetAnimated();
     this.mousePos = position;

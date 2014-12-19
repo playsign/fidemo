@@ -348,7 +348,6 @@ LollipopMenu.prototype = {
 
   setSelection : function(newSel) {
     if (newSel != this.selection) {
-      console.log("________________ Hop __________________");
       this.selection = newSel;
       this.updateScale();
       this.selectionChanged.dispatch(this.selection);

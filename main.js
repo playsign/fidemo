@@ -723,6 +723,7 @@ var update = function() {
     var delta = clock.getDelta();
 
     world.onTick(delta);
+    globalData.pinView.onTick(delta);
     globalData.controls.update(delta);
     // world.render();
     //render ourself now that we create (or pass) the scene & renderer
