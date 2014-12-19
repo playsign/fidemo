@@ -704,10 +704,7 @@
     var self = this;
     self.lollipopMenu.onTick(delta);
     self.updateInterpolations(delta);
-    self.updatePois(self.poisArray);
-    // if (globalData.pinView.pins.length > 0) {
-    //   self.updatePois(globalData.pinView.pins);
-    // }
+    self.updatePois();
   };
 
   VIZI.BlueprintOutputSensor.prototype.onLollipopSelectionChanged = function(newSel) {
@@ -878,43 +875,43 @@
   };
 
 // TODO: Same logic in pinView.updatePins
-  VIZI.BlueprintOutputSensor.prototype.updatePois = function(poiArray) {
+  VIZI.BlueprintOutputSensor.prototype.updatePois = function() {
     var self = this;
 
     var distance;
 
-    if (poiArray.length > 1) {
+    if (self.poisArray.length > 1) {
       var v1 = new THREE.Vector3();
       var v2 = new THREE.Vector3();
       var textSpritePos;
 
-      for (var i = poiArray.length - 1; i >= 0; i--) {
+      for (var i = self.poisArray.length - 1; i >= 0; i--) {
         v1.setFromMatrixPosition(self.world.camera.camera.matrixWorld);
-        v2.setFromMatrixPosition(poiArray[i].matrixWorld);
+        v2.setFromMatrixPosition(self.poisArray[i].matrixWorld);
 
         distance = v1.distanceTo(v2);
         var newScale = distance * 0.03;
 
         // Scale text sprite
-        if (poiArray[i].textSprite) {
-          poiArray[i].textSprite.scale.set(newScale, newScale * 0.5, 1.0);
-          textSpritePos = poiArray[i].textSprite.position;
-          poiArray[i].textSprite.position.set(textSpritePos.x, distance * 0.01 + 13, textSpritePos.z); // a bit hacky because of +offset
+        if (self.poisArray[i].textSprite) {
+          self.poisArray[i].textSprite.scale.set(newScale, newScale * 0.5, 1.0);
+          textSpritePos = self.poisArray[i].textSprite.position;
+          self.poisArray[i].textSprite.position.set(textSpritePos.x, distance * 0.01 + 13, textSpritePos.z); // a bit hacky because of +offset
         }
 
         // Scale icon
-        if (poiArray[i].icon) {
+        if (self.poisArray[i].icon) {
           newScale = distance * 0.1;
 
           if (newScale < self.pinIconScale) {
-            poiArray[i].icon.scale.set(newScale, newScale, newScale);
+            self.poisArray[i].icon.scale.set(newScale, newScale, newScale);
 
-            if (poiArray[i].textSprite) {
-              textSpritePos = poiArray[i].textSprite.position;
-              poiArray[i].textSprite.position.set(textSpritePos.x, newScale * 0.6, textSpritePos.z); // a bit hacky
+            if (self.poisArray[i].textSprite) {
+              textSpritePos = self.poisArray[i].textSprite.position;
+              self.poisArray[i].textSprite.position.set(textSpritePos.x, newScale * 0.6, textSpritePos.z); // a bit hacky
             }
-          } else if (poiArray[i].icon.scale != self.pinIconScale) {
-            poiArray[i].icon.scale.set(self.pinIconScale, self.pinIconScale, self.pinIconScale);
+          } else if (self.poisArray[i].icon.scale != self.pinIconScale) {
+            self.poisArray[i].icon.scale.set(self.pinIconScale, self.pinIconScale, self.pinIconScale);
           }
         }
       }
