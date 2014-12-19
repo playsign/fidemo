@@ -27,7 +27,7 @@ Pin.prototype = {
             return null;
         }   
         var sprite = new THREE.Sprite(material);        
-        sprite.scale.set(25, 25, 25);
+        sprite.scale.set(this.pinIconScale, this.pinIconScale, this.pinIconScale);
 
         var dscenepoint = this.owner.world.project(this.latLong);
 
@@ -447,31 +447,31 @@ PinView.prototype = {
         this.pinTypes[this.pinTypes.length] = pinType;
     },
 
-// Same logic as in  VIZI.BlueprintOutputSensor.prototype.updatePois 
-    updatePins : function() {
+    // TODO: Same logic in VIZI.BlueprintOutputSensor.prototype.updatePois 
+    updatePins: function() {
         var distance;
 
         if (this.pins.length > 1) {
-          var v1 = new THREE.Vector3();
-          var v2 = new THREE.Vector3();
-          var textSpritePos;
+            var v1 = new THREE.Vector3();
+            var v2 = new THREE.Vector3();
+            var textSpritePos;
 
-          for (var i = this.pins.length - 1; i >= 0; i--) {
-            v1.setFromMatrixPosition(world.camera.camera.matrixWorld);
-            v2.setFromMatrixPosition(this.pins[i].sprite.matrixWorld);
+            for (var i = this.pins.length - 1; i >= 0; i--) {
+                v1.setFromMatrixPosition(world.camera.camera.matrixWorld);
+                v2.setFromMatrixPosition(this.pins[i].sprite.matrixWorld);
 
-            distance = v1.distanceTo(v2);
-            var newScale = distance * 0.03;
+                distance = v1.distanceTo(v2);
 
-            // Scale pin to max size
-              newScale = distance * 0.1;
+                // Scale pin to max size on screen
+                var scaleStartDistance = 0.05;
+                var newScale = distance * scaleStartDistance;
 
-              if (newScale < this.pinIconScale) {
-                this.pins[i].sprite.scale.set(newScale, newScale, newScale);               
-              } else if (this.pins[i].sprite.scale != this.pinIconScale) {
-                this.pins[i].sprite.scale.set(this.pinIconScale, this.pinIconScale, this.pinIconScale);
-              }
-          }
+                if (newScale < this.pinIconScale) {
+                    this.pins[i].sprite.scale.set(newScale, newScale, newScale);
+                } else if (this.pins[i].sprite.scale != this.pinIconScale) {
+                    this.pins[i].sprite.scale.set(this.pinIconScale, this.pinIconScale, this.pinIconScale);
+                }
+            }
         }
-      },
+    },
 };

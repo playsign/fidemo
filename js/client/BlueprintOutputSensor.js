@@ -877,6 +877,7 @@
     self.interpolations.push(newInterp);
   };
 
+// TODO: Same logic in pinView.updatePins
   VIZI.BlueprintOutputSensor.prototype.updatePois = function(poiArray) {
     var self = this;
 
