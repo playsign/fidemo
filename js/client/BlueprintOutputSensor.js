@@ -78,9 +78,11 @@
       bus: 'data/2d/bussi.png',
       tram: 'data/2d/ratikka.png',
       metro: 'data/2d/metro.png',
+      train: 'data/2d/juna.png',
       busNumberBG: 'data/2d/bussi_numerotausta.png',
       tramNumberBG: 'data/2d/ratikka_numerotausta.png',
       metroNumberBG: 'data/2d/metro_numerotausta.png',
+      trainNumberBG: 'data/2d/juna_numerotausta.png',
     };
 
     // busNumberBG image
@@ -101,6 +103,13 @@
     self.metroNumberBG = new Image();
     self.metroNumberBG.src = self.assetPaths.metroNumberBG;
     self.metroNumberBG.onload = function() {
+      self.updateModelCount();
+    };
+
+    // trainNumberBG image
+    self.trainNumberBG = new Image();
+    self.trainNumberBG.src = self.assetPaths.trainNumberBG;
+    self.trainNumberBG.onload = function() {
       self.updateModelCount();
     };
 
@@ -137,6 +146,13 @@
       self.updateModelCount();
     };
 
+    // Train image
+    self.trainImg = new Image();
+    self.trainImg.src = self.assetPaths.train;
+    self.trainImg.onload = function() {
+      self.updateModelCount();
+    };
+
 
     // Sprite materials
 
@@ -165,6 +181,14 @@
 
     pinMap = THREE.ImageUtils.loadTexture("data/2d/metro.png");
     self.pinMaterialMetro = new THREE.SpriteMaterial({
+      map: pinMap,
+      color: 0xffffff,
+      fog: true,
+      depthTest: false
+    });
+
+    pinMap = THREE.ImageUtils.loadTexture("data/2d/juna.png");
+    self.pinMaterialtrain = new THREE.SpriteMaterial({
       map: pinMap,
       color: 0xffffff,
       fog: true,
@@ -285,6 +309,8 @@
         pinIcon = new THREE.Sprite(self.pinMaterialTram);
       } else if (info.mode == "SUBWAY") {
         pinIcon = new THREE.Sprite(self.pinMaterialMetro);
+      } else if (info.mode == "RAIL") {
+        pinIcon = new THREE.Sprite(self.pinMaterialtrain);
       } else {
         pinIcon = new THREE.Sprite(self.pinMaterialBus);
       }
@@ -321,6 +347,9 @@
       } else if (info.mode == "SUBWAY") {
         newMaterial.color = new THREE.Color(0xF85F1E);
         numberBG = self.metroNumberBG;
+      } else if (info.mode == "RAIL") {
+        newMaterial.color = new THREE.Color(0xE81C31);
+        numberBG = self.trainNumberBG;
       } else {
         newMaterial.color = new THREE.Color(0x1E95BA);
         numberBG = self.busNumberBG;
