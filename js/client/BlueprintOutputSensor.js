@@ -889,6 +889,8 @@
               var yOffset = textSpritePos.y - newScale;
               self.poisArray[i].textSprite.position.set(textSpritePos.x, textSpritePos.y - (yOffset * 0.6), textSpritePos.z);
             }
+          } else if (self.poisArray[i].icon.scale != self.pinIconScale) {
+            self.poisArray[i].icon.scale.set(self.pinIconScale, self.pinIconScale, self.pinIconScale);
           }
         }
       }
