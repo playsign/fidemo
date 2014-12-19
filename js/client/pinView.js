@@ -26,8 +26,9 @@ Pin.prototype = {
             console.log("material for pin not given");
             return null;
         }   
-        var sprite = new THREE.Sprite(material);        
-        sprite.scale.set(this.pinIconScale, this.pinIconScale, this.pinIconScale);
+        var sprite = new THREE.Sprite(material); 
+        var relativeWidth = 20 / 25;
+        sprite.scale.set(this.pinIconScale * relativeWidth, this.pinIconScale, this.pinIconScale);
 
         var dscenepoint = this.owner.world.project(this.latLong);
 
@@ -51,11 +52,13 @@ Pin.prototype = {
     },
     
     hoverIn : function() {
-       console.log("in" + this.pinName);
+      // console.log("in" + this.pinName);
+      // this.sprite.material.color = new THREE.Color(0xd0d0d0);
     },
     
     hoverOut : function() {
-        console.log("out" + this.pinName);
+       // console.log("out" + this.pinName);
+       // this.sprite.material.color = new THREE.Color(0xffffff);
     },
     
     //Check on which group type belongs and open popup basen on the group
@@ -464,11 +467,11 @@ PinView.prototype = {
                 // Scale pin to max size on screen
                 var scaleStartDistance = 0.05;
                 var newScale = distance * scaleStartDistance;
-
+                var relativeWidth = 20 / 25;
                 if (newScale < this.pinIconScale) {
-                    this.pins[i].sprite.scale.set(newScale, newScale, newScale);
+                    this.pins[i].sprite.scale.set((newScale * relativeWidth), newScale, newScale);
                 } else if (this.pins[i].sprite.scale != this.pinIconScale) {
-                    this.pins[i].sprite.scale.set(this.pinIconScale, this.pinIconScale, this.pinIconScale);
+                    this.pins[i].sprite.scale.set((this.pinIconScale * relativeWidth), this.pinIconScale, this.pinIconScale);
                 }
             }
         }
