@@ -18,7 +18,7 @@ var InfoPupup = function(id, tags) {
     this.website = this._readTag("website");
     
     this.header = this.name == "" ? this.shop : this.name + " " + this.shop;
-    console.log(this.tags);
+    //console.log(this.tags);
     
     this._init();
 };
@@ -55,9 +55,6 @@ InfoPupup.prototype = {
                self.close();
             }
         });
-        
-        
-        console.log("Testi");
     },
     
     _release: function() {
