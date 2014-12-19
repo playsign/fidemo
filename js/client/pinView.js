@@ -158,6 +158,7 @@ var PinView = function(lolliPopMenu)
   this.pinSpritesVisible = [];
   this.hoverPin = null;
   this.scalePins = [];
+  this.pinIconScale = 25;
   globalData.raycast.addObjectOwner(this);
   return this;
 };
@@ -232,6 +233,8 @@ PinView.prototype = {
             if( this.scalePins[i] != null)
                 this.scalePins[i].updateScale(delta);
         }
+
+        this.updatePins();
     },
     
     updatePinVisible : function(sprite, visible) 
@@ -412,4 +415,32 @@ PinView.prototype = {
         });
         this.pinTypes[this.pinTypes.length] = pinType;
     },
+
+// Same logic as in  VIZI.BlueprintOutputSensor.prototype.updatePois 
+    updatePins : function() {
+        var distance;
+
+        if (this.pins.length > 1) {
+          var v1 = new THREE.Vector3();
+          var v2 = new THREE.Vector3();
+          var textSpritePos;
+
+          for (var i = this.pins.length - 1; i >= 0; i--) {
+            v1.setFromMatrixPosition(world.camera.camera.matrixWorld);
+            v2.setFromMatrixPosition(this.pins[i].matrixWorld);
+
+            distance = v1.distanceTo(v2);
+            var newScale = distance * 0.03;
+
+            // Scale pin to max size
+              newScale = distance * 0.1;
+
+              if (newScale < this.pinIconScale) {
+                this.pins[i].scale.set(newScale, newScale, newScale);               
+              } else if (this.pins[i].scale != this.pinIconScale) {
+                this.pins[i].scale.set(this.pinIconScale, this.pinIconScale, this.pinIconScale);
+              }
+          }
+        }
+      },
 };
