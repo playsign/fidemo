@@ -59,6 +59,7 @@
   <link rel=stylesheet href="css/jquery-ui.css" />
   <link rel=stylesheet href="css/info.css"/>
   <link rel=stylesheet href="css/startmenu.css"/>
+  <link rel=stylesheet href="css/tutorialmenu.css"/>
   <!--      -->
 
   <!--Camera control-->
@@ -83,9 +84,11 @@
     </div>
   </div>
   
-  <div>
+  <div style="float:right; top:10px;">
     <button id='startmenu-button' class='ui-button-icons-only'></button>
+    <button id='tutorialmenu-button' class='ui-button-icons-only'></button>
   </div>
+
   <div id="heatmap-bar">
     <img src="data/2d/gradientbar.png" alt="gradient">
   </div>
@@ -121,6 +124,26 @@
         <img src="css/images/logo_ludocraft.png" alt="Ludocraft Logo">
         <img src="css/images/logo_playsign.png" alt="Playsign Logo">
       </div>
+    </div>
+  </div>
+  
+  <div id="tutorialmenu" class="ui-widget">
+    <div id="margin-area">
+      <div id="header">
+      </div>
+      
+      <div id="navigation">
+      </div>
+      
+      <div id="content">
+        <div id="tutorial-image">
+          <img src="css/images/ui_help_main.png" alt="Virtual Helsinki Logo">
+        </div>
+      </div>
+      
+      <div id="footer">
+      </div>
+      
     </div>
   </div>
   
@@ -227,6 +250,8 @@
 
   <script src="js/client/PoiUtility.js"></script>
   <script src="js/client/UI/StartMenu.js"></script>
+  <script src="js/client/UI/TutorialMenu.js"></script>
+  <script src="js/client/UI/IssueDialog.js"></script>
   <script src="js/client/UI/HeatMapBar.js"></script>
   <script src="js/client/HelsinkiIssues.js"></script>
   <script src="js/client/BuildingAnimation.js"></script>

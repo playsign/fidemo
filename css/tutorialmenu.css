@@ -1,0 +1,24 @@
+#margin-area  {
+    margin-left: 0px;
+    margin-right: 0px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+#content {
+    height:270px;
+}
+
+#tutorialmenu-button {
+    top:180px;
+    
+	width:109px;
+    height:109px;
+	background-size: 109px 109px;
+    background:url(/css/images/icon_help.png) no-repeat;
+    cursor:pointer;
+    border: none;
+    outline:none;
+    z-index: 1;
+    /*float:right;*/
+}

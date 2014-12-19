@@ -149,7 +149,7 @@ LollipopMenu.prototype = {
     return intersectPoint;
   },
   
-  openDialog: function(item) {
+  /*openDialog: function(item) {
     var self = this;
     var image_str = "";
     var i = item;
@@ -157,7 +157,7 @@ LollipopMenu.prototype = {
         image_str = "<img src='" + item.media + "' alt='Mountain View' style='width:auto;height:220px;'>";
         
     $("body").append("<div id='" + item.id + "' title='" + item.header + "'>" +
-                         "<p>" + item.description + "</p>" + image_str +
+                       "<p>" + item.description + "</p>" + image_str +
                      "</div>");
     
     this.currentDialog = $("#" + item.id).dialog({
@@ -172,7 +172,7 @@ LollipopMenu.prototype = {
   closeDialog: function(item) {
     $("#" + item.id).remove();
     this.currentDialog = null;  
-  },
+  },*/
   
   createMenu : function(pos) {
     if (this.isShowing()) {
@@ -180,6 +180,7 @@ LollipopMenu.prototype = {
         this.hideMenu(); // If already showing, hide the old first
     }
  
+	
     if (this.owner.options.globalData != null && this.owner.options.globalData.world != null)
     {
         var point = new VIZI.Point(pos.x, pos.z);
