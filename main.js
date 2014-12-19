@@ -50,7 +50,20 @@ try
             noop(jqxhr, settings);
             console.error(exception);
         });
-        
+    // Tutorial menu initialize
+    $.getScript("js/client/UI/StartMenu.js")
+        .done(function(/*script, textStatus*/) {
+            var tutorial = new TutorialMenu("tutorialmenu");
+
+            $("#tutorialmenu-button").button().click(function( event ) {
+                    event.preventDefault();
+                    tutorial.open();
+            });
+        })
+        .fail(function(jqxhr, settings, exception) {
+            noop(jqxhr, settings);
+            console.error(exception);
+        });    
     // Start menu initialize
     $.getScript("js/client/UI/HeatMapBar.js")
         .done(function(/*script, textStatus*/) {
@@ -680,7 +693,7 @@ function addEnvironment(scene, renderer) {
     directionalLight2.position.z = -1;
     scene.add(directionalLight2);
 
-    var fogColour = 0xA8BAFF;
+    var fogColour = 0xFFFFFF;
     scene.fog = new THREE.Fog(fogColour, 1, 15000);
     renderer.setClearColor(scene.fog.color, 1);
 }
