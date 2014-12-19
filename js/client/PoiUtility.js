@@ -32,7 +32,7 @@ function getPoiComments(buildingId, callback)
 {
     if (!cbclient)
     {
-        console.log("Context Broker client not initialized yet, can get commenst");
+        console.log("Context Broker client not initialized yet, can not get comments");
         return;
     }
 

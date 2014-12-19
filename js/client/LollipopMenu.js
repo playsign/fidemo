@@ -4,8 +4,9 @@ var lollipopMenu;
 
 var LollipopMenu = function(owner) {
   lollipopMenu = this;
+  this.worldHeight = 10;
   this.owner = owner;
-  this.worldPlane = new THREE.Plane(new THREE.Vector3(0,1,0),-this.owner.spriteYpos);
+  this.worldPlane = new THREE.Plane(new THREE.Vector3(0,1,0),-this.worldHeight);
   this.selectionChanged = new signals.Signal(); // User selected icon (1-4) or deselected (0)
   this.positionChanged = new signals.Signal(); // new position
   this.shown = new signals.Signal; // Menu was shown
@@ -210,7 +211,7 @@ LollipopMenu.prototype = {
         spr = new THREE.Sprite(this.lollipopMat);
 
     spr.position.x = pos.x;
-    spr.position.y = this.owner.spriteYpos;
+    spr.position.y = this.worldHeight;
     spr.position.z = pos.z;
     this.owner.add(spr);
     this.lollipopSprite = spr;
