@@ -454,7 +454,6 @@ PinView.prototype = {
         if (this.pins.length > 1) {
             var v1 = new THREE.Vector3();
             var v2 = new THREE.Vector3();
-            var textSpritePos;
 
             for (var i = this.pins.length - 1; i >= 0; i--) {
                 v1.setFromMatrixPosition(world.camera.camera.matrixWorld);
