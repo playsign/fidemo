@@ -229,13 +229,13 @@ PinView.prototype = {
     },
     
     onTick : function(delta) {
-        for(var i in this.scalePins)
-        {
-            if( this.scalePins[i] != null)
-                this.scalePins[i].updateTween(delta);
-            if( this.scalePins[i] != null)
-                this.scalePins[i].updateScale(delta);
-        }
+        // for(var i in this.scalePins)
+        // {
+        //     if( this.scalePins[i] != null)
+        //         this.scalePins[i].updateTween(delta);
+        //     if( this.scalePins[i] != null)
+        //         this.scalePins[i].updateScale(delta);
+        // }
 
         this.updatePins();
     },
@@ -458,7 +458,7 @@ PinView.prototype = {
 
           for (var i = this.pins.length - 1; i >= 0; i--) {
             v1.setFromMatrixPosition(world.camera.camera.matrixWorld);
-            v2.setFromMatrixPosition(this.pins[i].matrixWorld);
+            v2.setFromMatrixPosition(this.pins[i].sprite.matrixWorld);
 
             distance = v1.distanceTo(v2);
             var newScale = distance * 0.03;
@@ -467,9 +467,9 @@ PinView.prototype = {
               newScale = distance * 0.1;
 
               if (newScale < this.pinIconScale) {
-                this.pins[i].scale.set(newScale, newScale, newScale);               
-              } else if (this.pins[i].scale != this.pinIconScale) {
-                this.pins[i].scale.set(this.pinIconScale, this.pinIconScale, this.pinIconScale);
+                this.pins[i].sprite.scale.set(newScale, newScale, newScale);               
+              } else if (this.pins[i].sprite.scale != this.pinIconScale) {
+                this.pins[i].sprite.scale.set(this.pinIconScale, this.pinIconScale, this.pinIconScale);
               }
           }
         }
