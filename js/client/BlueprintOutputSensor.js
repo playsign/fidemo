@@ -67,9 +67,7 @@
     // MODELS & MATERIALS
 
     self.modelYpos = 10;
-    self.spriteYpos = 20;
     self.pinPosY = 10;
-    self.numberSpriteOffsetY = 15;
     self.pinIconScale = 25;
 
     var jsonLoader = new THREE.JSONLoader();
@@ -80,9 +78,11 @@
       bus: 'data/2d/bussi.png',
       tram: 'data/2d/ratikka.png',
       metro: 'data/2d/metro.png',
+      train: 'data/2d/juna.png',
       busNumberBG: 'data/2d/bussi_numerotausta.png',
       tramNumberBG: 'data/2d/ratikka_numerotausta.png',
       metroNumberBG: 'data/2d/metro_numerotausta.png',
+      trainNumberBG: 'data/2d/juna_numerotausta.png',
     };
 
     // busNumberBG image
@@ -103,6 +103,13 @@
     self.metroNumberBG = new Image();
     self.metroNumberBG.src = self.assetPaths.metroNumberBG;
     self.metroNumberBG.onload = function() {
+      self.updateModelCount();
+    };
+
+    // trainNumberBG image
+    self.trainNumberBG = new Image();
+    self.trainNumberBG.src = self.assetPaths.trainNumberBG;
+    self.trainNumberBG.onload = function() {
       self.updateModelCount();
     };
 
@@ -139,6 +146,13 @@
       self.updateModelCount();
     };
 
+    // Train image
+    self.trainImg = new Image();
+    self.trainImg.src = self.assetPaths.train;
+    self.trainImg.onload = function() {
+      self.updateModelCount();
+    };
+
 
     // Sprite materials
 
@@ -167,6 +181,14 @@
 
     pinMap = THREE.ImageUtils.loadTexture("data/2d/metro.png");
     self.pinMaterialMetro = new THREE.SpriteMaterial({
+      map: pinMap,
+      color: 0xffffff,
+      fog: true,
+      depthTest: false
+    });
+
+    pinMap = THREE.ImageUtils.loadTexture("data/2d/juna.png");
+    self.pinMaterialtrain = new THREE.SpriteMaterial({
       map: pinMap,
       color: 0xffffff,
       fog: true,
@@ -263,7 +285,7 @@
     if (self.pois[vehicleId]) {
       // UPDATE
       var newTransfrom = {
-        position: new THREE.Vector3(dscenepoint.x, self.spriteYpos, dscenepoint.y)
+        position: new THREE.Vector3(dscenepoint.x, self.pinPosY, dscenepoint.y)
         // TODO rotation and scale
       };
       self.handleTransformUpdate(self.pois[vehicleId], newTransfrom);
@@ -287,15 +309,13 @@
         pinIcon = new THREE.Sprite(self.pinMaterialTram);
       } else if (info.mode == "SUBWAY") {
         pinIcon = new THREE.Sprite(self.pinMaterialMetro);
+      } else if (info.mode == "RAIL") {
+        pinIcon = new THREE.Sprite(self.pinMaterialtrain);
       } else {
         pinIcon = new THREE.Sprite(self.pinMaterialBus);
       }
 
-      pinIcon.scale.set(self.pinIconScale, self.pinIconScale, self.pinIconScale);
-
-      // pinIcon.translateX(12);      
-
-      pinIcon.translateY(self.pinPosY);
+      pinIcon.scale.set(self.pinIconScale, self.pinIconScale, self.pinIconScale);  
 
       pin.name = name;
       pin.description = desc;
@@ -304,7 +324,7 @@
       //was with ludo's icons
 
       pin.position.x = dscenepoint.x;
-      pin.position.y = self.spriteYpos;
+      pin.position.y = self.pinPosY;
       pin.position.z = dscenepoint.y;
 
       pin.index = self.pois.length;
@@ -327,6 +347,9 @@
       } else if (info.mode == "SUBWAY") {
         newMaterial.color = new THREE.Color(0xF85F1E);
         numberBG = self.metroNumberBG;
+      } else if (info.mode == "RAIL") {
+        newMaterial.color = new THREE.Color(0xE81C31);
+        numberBG = self.trainNumberBG;
       } else {
         newMaterial.color = new THREE.Color(0x1E95BA);
         numberBG = self.busNumberBG;
@@ -343,7 +366,6 @@
       // Number sprite
       if (numberBG) {
         var textSprite = self.makeTextSprite(info.route, numberBG);
-        textSprite.translateY(self.pinPosY + self.numberSpriteOffsetY);
         textSprite.renderDepth = -1;
 
         pin.add(textSprite);
@@ -852,6 +874,7 @@
     self.interpolations.push(newInterp);
   };
 
+// TODO: Same logic in pinView.updatePins
   VIZI.BlueprintOutputSensor.prototype.updatePois = function() {
     var self = this;
 
@@ -873,7 +896,7 @@
         if (self.poisArray[i].textSprite) {
           self.poisArray[i].textSprite.scale.set(newScale, newScale * 0.5, 1.0);
           textSpritePos = self.poisArray[i].textSprite.position;
-          self.poisArray[i].textSprite.position.set(textSpritePos.x, distance * 0.01 + 25, textSpritePos.z);
+          self.poisArray[i].textSprite.position.set(textSpritePos.x, distance * 0.01 + 13, textSpritePos.z); // a bit hacky because of +offset
         }
 
         // Scale icon
@@ -884,10 +907,8 @@
             self.poisArray[i].icon.scale.set(newScale, newScale, newScale);
 
             if (self.poisArray[i].textSprite) {
-              // Offset Y position of the number tag
               textSpritePos = self.poisArray[i].textSprite.position;
-              var yOffset = textSpritePos.y - newScale;
-              self.poisArray[i].textSprite.position.set(textSpritePos.x, textSpritePos.y - (yOffset * 0.6), textSpritePos.z);
+              self.poisArray[i].textSprite.position.set(textSpritePos.x, newScale * 0.6, textSpritePos.z); // a bit hacky
             }
           } else if (self.poisArray[i].icon.scale != self.pinIconScale) {
             self.poisArray[i].icon.scale.set(self.pinIconScale, self.pinIconScale, self.pinIconScale);

@@ -693,7 +693,7 @@ function addEnvironment(scene, renderer) {
     directionalLight2.position.z = -1;
     scene.add(directionalLight2);
 
-    var fogColour = 0xA8BAFF;
+    var fogColour = 0xFFFFFF;
     scene.fog = new THREE.Fog(fogColour, 1, 15000);
     renderer.setClearColor(scene.fog.color, 1);
 }
@@ -705,6 +705,7 @@ var update = function() {
     var delta = clock.getDelta();
 
     world.onTick(delta);
+    globalData.pinView.onTick(delta);
     globalData.controls.update(delta);
     // world.render();
     //render ourself now that we create (or pass) the scene & renderer

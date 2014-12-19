@@ -45,3 +45,12 @@ To start the Tundra do the following. Note that any Tundra recently new distribu
 3. Run 
  * Windows: `TundraConsole.exe --headless --server --file http://localhost:8085/scene.txml`
  * Linux/Mac: `./Tundra --headless --server --file http://localhost:8085/scene.txml`
+
+Starting the demo on the current demo server (filab)
+---------------------------------------------------
+
+We now run on Ludocraft's filab VM, like this:
+
+`lc-test2:/opt/realxtend-tundra# xvfb-run -a ./Tundra --headless --server --port 2346 --file http://130.206.81.111/fidemo/scene.txml`
+
+The loading-txml-over-http trick is to override the current prob in tundra-webtundra storage biz that would otherwise inject local: prefixes to the asset refs.

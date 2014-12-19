@@ -1,11 +1,10 @@
 "use strict";
 
 var InfoDialog = function(id, data) {
-    this.id = id;
-    this.useRating = false;
+    //this.id = id;
+	this.OnRelease = new signals.Signal;
     
     this._init();
-    this.enableRating(this.useRating);
 };
 
 InfoDialog.prototype = {
@@ -34,11 +33,5 @@ InfoDialog.prototype = {
     
     close: function() {
         $("#" + this.id).dialog("close");
-    },
-	
-    enableRating: function(enabled) {
-        var mode = enabled ? 'enabled' : 'disabled';
-        $("#top-content-right").children().attr(mode, mode);
-        this.enableRating = enabled;
     }
 };
