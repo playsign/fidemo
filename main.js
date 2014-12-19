@@ -7,6 +7,8 @@ function noop() {}
 // Global data object is used to share data between blueprints and Tundra-Client.
 var globalData = {};
 globalData.selection = 0;
+globalData.ui = {};
+globalData.ui.issueDialogs = [];
 
 try
 {
@@ -33,7 +35,7 @@ try
 
     var /*freecamera,*/ cbclient, demoapp, chat, userPresence;
     var infoDialog, usernameDialog;
-
+	
     // Start menu initialize
     $.getScript("js/client/UI/StartMenu.js")
         .done(function(/*script, textStatus*/) {
