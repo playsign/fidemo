@@ -18,7 +18,6 @@ var LollipopMenu = function(owner) {
   this.lollipopMat = owner.pinMaterialFocus; // todo: replace with proper material
   this.iconMats = [];
   var iconTexNames = [
-    "data/2d/icon_photos.png",
     "data/2d/icon_properties.png",
     "data/2d/icon_services.png",
     "data/2d/icon_transportation.png",
@@ -37,8 +36,8 @@ var LollipopMenu = function(owner) {
   }
   
   this.iconAngles = [];
-  this.minAngle = -90;
-  this.maxAngle = 90;
+  this.minAngle = -75;
+  this.maxAngle = 75;
   var angleRange = this.maxAngle - this.minAngle;
   for (var i = 0; i < iconTexNames.length; ++i) {
     this.iconAngles.push((this.minAngle + i * angleRange/(iconTexNames.length-1)) * (Math.PI/180));
@@ -82,7 +81,7 @@ LollipopMenu.prototype = {
   hoverObjects : function(intersections) {
     this.hoverSelection = -1;
     if(intersections.length != 0){
-      this.hoverSelection = intersections[0].object.selectionNumber - 1;
+      this.hoverSelection = intersections[0].object.index;
     }
   },
   
@@ -220,7 +219,8 @@ LollipopMenu.prototype = {
       var spr2 = new THREE.Sprite(this.iconMats[i]);
       spr2.scale.set(this.iconScale,this.iconScale,this.iconScale);
       spr2.position.copy(this.calculateIconPosition(i));
-      spr2.selectionNumber = i+1;
+      spr2.selectionNumber = i+2; // Photos not used
+      spr2.index = i;
       spr2.hoverTween = 0.0;
       
       this.lollipopSprite.add(spr2);
@@ -273,7 +273,7 @@ LollipopMenu.prototype = {
     var intersections = this.owner.doRaycast(x, y, this.iconSprites);
     this.hoverSelection = -1;
     if(intersections.length != 0){
-      this.hoverSelection = intersections[0].object.selectionNumber - 1;
+      this.hoverSelection = intersections[0].object.index;
     }
     return this.hoverSelection;
   },
