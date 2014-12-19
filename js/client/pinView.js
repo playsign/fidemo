@@ -15,6 +15,13 @@ var Pin = function(material, type, owner, latLong, objectDescription, uuid, tags
         this.pinName = this.tags.name;      
     this.onHighlightArea = false; //defines if pin is on highlighted area, and if it is to be shown when type of pins is shown
     this.group = group;
+    
+    //animation parameters
+    this.animDelay = 0;
+    this.tween = -this.animDelay;
+    this.scale = 1.0;
+    this.animSpeed = 5.0;
+    
     return this;
 };
 
@@ -43,12 +50,15 @@ Pin.prototype = {
     show : function() {   
         this.sprite.visible = true;
         globalData.pinView.updatePinVisible(this.sprite, true);
+        globalData.pinView.addScalePin(this);
+        this.resetTween();
     },
     
     //always call hide, do not use directly sprite.visible from elsewhere
     hide : function() {
         this.sprite.visible = false;
         globalData.pinView.updatePinVisible(this.sprite, false);
+        globalData.pinView.removeScalePin(this);
     },
     
     hoverIn : function() {
@@ -60,7 +70,23 @@ Pin.prototype = {
        // console.log("out" + this.pinName);
        // this.sprite.material.color = new THREE.Color(0xffffff);
     },
-    
+    resetTween : function(delta) {
+        this.tween = -this.animDelay;
+        this.animDelay;
+    },
+    updateTween : function(delta) {
+        if(this.tween < 1.0){
+          this.tween = Math.min(this.tween + delta*this.animSpeed, 1.0);
+          var tween = Math.max(0, this.tween);
+          var t = tween*tween*tween;
+          t = t + 0.7*(Math.cos(Math.PI * (tween-0.5))); //poor "elastic" tween
+          this.sprite.position.y = this.spriteYpos * (t);
+          var scl = Math.max(0, t);
+
+          this.scale = scl;
+        }
+
+    },
     //Check on which group type belongs and open popup basen on the group
     onSelect : function() {
         for(var i in globalData.pinView.pinTypes)
@@ -207,6 +233,9 @@ PinView.prototype = {
                 return;
         }
         this.scalePins[this.scalePins.length] = pin;
+        if(pin){
+          pin.animDelay = this.scalePins.length*0.12;
+        }
     },
     
      removeScalePin : function(pin) {
@@ -216,14 +245,12 @@ PinView.prototype = {
     },
     
     onTick : function(delta) {
-        // for(var i in this.scalePins)
-        // {
-        //     if( this.scalePins[i] != null)
-        //         this.scalePins[i].updateTween(delta);
-        //     if( this.scalePins[i] != null)
-        //         this.scalePins[i].updateScale(delta);
-        // }
-
+        for(var i in this.scalePins)
+        {
+          if( this.scalePins[i] != null)
+            this.scalePins[i].updateTween(delta);
+        }
+        
         this.updatePins();
     },
     
@@ -451,11 +478,12 @@ PinView.prototype = {
                 // Scale pin to max size on screen
                 var scaleStartDistance = 0.05;
                 var newScale = distance * scaleStartDistance;
+                var pinScl = this.pins[i].scale;//pin animations adjusts this
                 var relativeWidth = 20 / 25;
                 if (newScale < this.pinIconScale) {
-                    this.pins[i].sprite.scale.set((newScale * relativeWidth), newScale, newScale);
+                    this.pins[i].sprite.scale.set((newScale * relativeWidth) * pinScl, newScale * pinScl, newScale * pinScl);
                 } else if (this.pins[i].sprite.scale != this.pinIconScale) {
-                    this.pins[i].sprite.scale.set((this.pinIconScale * relativeWidth), this.pinIconScale, this.pinIconScale);
+                    this.pins[i].sprite.scale.set((this.pinIconScale * relativeWidth * pinScl), this.pinIconScale * pinScl, this.pinIconScale * pinScl);
                 }
             }
         }
