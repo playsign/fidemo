@@ -11,7 +11,12 @@ var LollipopMenu = function(owner) {
   this.positionChanged = new signals.Signal(); // new position
   this.shown = new signals.Signal; // Menu was shown
   this.hidden = new signals.Signal; // Menu was hidden
-
+  
+  this.radiusTransport = 2500;
+  this.radiusIssues = 320;
+  this.radiusServices = 320;
+  this.radiusApartmentPrices = 500;
+  
   this.lollipopSprite = null;
   this.iconSprites = [];
 
@@ -361,11 +366,23 @@ LollipopMenu.prototype = {
       }
       
       if (this.owner.options.globalData != null && this.owner.options.globalData.animator != null){
-        if(this.selection == 5){
+        
+        if(this.selection == 2){
+          this.owner.options.globalData.animator.SetRadius(this.radiusServices);
+        }
+        else if(this.selection == 3){
+          this.owner.options.globalData.animator.SetRadius(this.radiusIssues);
+        }
+        else if(this.selection == 4){
+          this.owner.options.globalData.animator.SetRadius(this.radiusTransport);
+        }
+        else if(this.selection == 5){
           this.owner.options.globalData.animator.EnableHeatmap(true);
           this.owner.options.globalData.heatMapMenu.open();
+          this.owner.options.globalData.animator.SetRadius(this.radiusApartmentPrices);
         }
-        else{
+        
+        if(this.selection != 5){
           this.owner.options.globalData.animator.EnableHeatmap(false);
           this.owner.options.globalData.heatMapMenu.close();
         }

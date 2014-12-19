@@ -80,7 +80,7 @@ BuildingAnimation.prototype = {
       var delta = frameTime;
       
       var animDelta = this.animDir < 0 ? delta * this.speed*2.0 * this.animDir : delta * this.speed * this.animDir;
-      this.AnimateRadius(frameTime);
+      //this.AnimateRadius(frameTime);
       
       if(this.animate){
         
@@ -102,6 +102,7 @@ BuildingAnimation.prototype = {
         }
         //reverse animation done
         else if( (this.animScale <= 0.0) && (this.animRadius <= 0.0 )){
+          this.radius = this.targetRadius;
           this.showHeatmap = this.enableHeatmap;
           
           this.animBlast = 0.0;
