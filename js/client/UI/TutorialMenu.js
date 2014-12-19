@@ -2,6 +2,7 @@
 
 var TutorialMenu = function(id) {
     this.id = id;
+    this.beenVisible = false;
     this._init();
 };
 
@@ -10,7 +11,7 @@ TutorialMenu.prototype = {
         var self = this;
         
         $("#" + this.id).dialog({
-            autoOpen: true,
+            autoOpen: false,
             draggable: true,
             resizable: false,
             width: 820,
@@ -31,6 +32,7 @@ TutorialMenu.prototype = {
     },
     
     open: function() {
+        this.beenVisible = true;
         $("#" + this.id).dialog("open");
     },
     

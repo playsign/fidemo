@@ -58,10 +58,16 @@ try
     $.getScript("js/client/UI/StartMenu.js")
         .done(function(/*script, textStatus*/) {
             var start = new StartMenu("startmenu");
+            globalData.ui.startMenu = start;
+            
+            start.OnClose.add(function(menu) {
+                if (!globalData.ui.tutorialMenu.beenVisible)
+                    globalData.ui.tutorialMenu.open();
+            })
 
             $("#startmenu-button").button().click(function( event ) {
-                    event.preventDefault();
-                    start.open();
+                event.preventDefault();
+                start.open();
             });
         })
         .fail(function(jqxhr, settings, exception) {
@@ -72,6 +78,7 @@ try
     $.getScript("js/client/UI/StartMenu.js")
         .done(function(/*script, textStatus*/) {
             var tutorial = new TutorialMenu("tutorialmenu");
+            globalData.ui.tutorialMenu = tutorial;
 
             $("#tutorialmenu-button").button().click(function( event ) {
                     event.preventDefault();

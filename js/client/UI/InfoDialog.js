@@ -59,6 +59,7 @@ InfoPupup.prototype = {
     
     _release: function() {
         $("#" + this.id).remove();
+        this.OnRelease.dispatch(this);
     },
     
     _readTag: function(id) {

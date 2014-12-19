@@ -2,6 +2,7 @@
 
 var StartMenu = function(id) {
     this.id = id;
+    this.OnClose = new signals.Signal;
     this._init();
 };
 
@@ -36,6 +37,7 @@ StartMenu.prototype = {
     
     close: function() {
         $("#" + this.id).dialog("close");
+        this.OnClose.dispatch(this);
     },
     
     okPressed: function() {
