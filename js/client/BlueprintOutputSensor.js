@@ -67,9 +67,7 @@
     // MODELS & MATERIALS
 
     self.modelYpos = 10;
-    self.spriteYpos = 20;
     self.pinPosY = 10;
-    self.numberSpriteOffsetY = 15;
     self.pinIconScale = 25;
 
     var jsonLoader = new THREE.JSONLoader();
@@ -263,7 +261,7 @@
     if (self.pois[vehicleId]) {
       // UPDATE
       var newTransfrom = {
-        position: new THREE.Vector3(dscenepoint.x, self.spriteYpos, dscenepoint.y)
+        position: new THREE.Vector3(dscenepoint.x, self.pinPosY, dscenepoint.y)
         // TODO rotation and scale
       };
       self.handleTransformUpdate(self.pois[vehicleId], newTransfrom);
@@ -291,11 +289,7 @@
         pinIcon = new THREE.Sprite(self.pinMaterialBus);
       }
 
-      pinIcon.scale.set(self.pinIconScale, self.pinIconScale, self.pinIconScale);
-
-      // pinIcon.translateX(12);      
-
-      pinIcon.translateY(self.pinPosY);
+      pinIcon.scale.set(self.pinIconScale, self.pinIconScale, self.pinIconScale);  
 
       pin.name = name;
       pin.description = desc;
@@ -304,7 +298,7 @@
       //was with ludo's icons
 
       pin.position.x = dscenepoint.x;
-      pin.position.y = self.spriteYpos;
+      pin.position.y = self.pinPosY;
       pin.position.z = dscenepoint.y;
 
       pin.index = self.pois.length;
@@ -343,7 +337,6 @@
       // Number sprite
       if (numberBG) {
         var textSprite = self.makeTextSprite(info.route, numberBG);
-        textSprite.translateY(self.pinPosY + self.numberSpriteOffsetY);
         textSprite.renderDepth = -1;
 
         pin.add(textSprite);
@@ -873,7 +866,7 @@
         if (self.poisArray[i].textSprite) {
           self.poisArray[i].textSprite.scale.set(newScale, newScale * 0.5, 1.0);
           textSpritePos = self.poisArray[i].textSprite.position;
-          self.poisArray[i].textSprite.position.set(textSpritePos.x, distance * 0.01 + 25, textSpritePos.z);
+          self.poisArray[i].textSprite.position.set(textSpritePos.x, distance * 0.01 + 13, textSpritePos.z); // a bit hacky because of +offset
         }
 
         // Scale icon
@@ -884,10 +877,8 @@
             self.poisArray[i].icon.scale.set(newScale, newScale, newScale);
 
             if (self.poisArray[i].textSprite) {
-              // Offset Y position of the number tag
               textSpritePos = self.poisArray[i].textSprite.position;
-              var yOffset = textSpritePos.y - newScale;
-              self.poisArray[i].textSprite.position.set(textSpritePos.x, textSpritePos.y - (yOffset * 0.6), textSpritePos.z);
+              self.poisArray[i].textSprite.position.set(textSpritePos.x, newScale * 0.6, textSpritePos.z); // a bit hacky
             }
           } else if (self.poisArray[i].icon.scale != self.pinIconScale) {
             self.poisArray[i].icon.scale.set(self.pinIconScale, self.pinIconScale, self.pinIconScale);
