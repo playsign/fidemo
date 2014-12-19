@@ -1,6 +1,6 @@
 
 //single Pin in PinView
-var Pin = function(material, type, owner, latLong, objectDescription, uuid, tags) {
+var Pin = function(material, type, owner, latLong, objectDescription, uuid, tags, group) {
     
     this.type = type;
     this.owner = owner;
@@ -12,8 +12,9 @@ var Pin = function(material, type, owner, latLong, objectDescription, uuid, tags
     this.sprite = this.createSprite(material);
     this.isHover = false;
     if(this.tags != null && this.tags.name != null)
-        this.pinName = name;      
+        this.pinName = this.tags.name;      
     this.onHighlightArea = false; //defines if pin is on highlighted area, and if it is to be shown when type of pins is shown
+    this.group = group;
     return this;
 };
 
@@ -50,11 +51,11 @@ Pin.prototype = {
     },
     
     hoverIn : function() {
-     //  console.log("in" + this.name);
+       console.log("in" + this.pinName);
     },
     
     hoverOut : function() {
-      //  console.log("out" + this.name);
+        console.log("out" + this.pinName);
     },
     
     //Check on which group type belongs and open popup basen on the group
@@ -139,6 +140,8 @@ var PinView = function(lolliPopMenu)
   this.hoverPin = null;
   this.scalePins = [];
   globalData.raycast.addObjectOwner(this);
+  this.visibleGroup = "";
+  this.visibleType = "";
   return this;
 };
 
@@ -241,8 +244,15 @@ PinView.prototype = {
         {
             if(this.pins[i].uuid == uuid)
             {
-                this.pins[i].show();
-                this.pins[i].onHighlightArea = true;
+                if(this.pins[i].group == this.visibleGroup || this.visibleGroup == "all")
+                {   if(this.pins[i].type == this.visibleType || this.visibleType == "all")
+                    {
+                        this.pins[i].show();
+                        this.pins[i].onHighlightArea = true;
+                    }
+                }
+                else
+                    this.pins[i].onHighlightArea = true;
                 return;
             }
         }
@@ -250,10 +260,20 @@ PinView.prototype = {
         for(var i in this.pinTypes)
             if (this.pinTypes[i].type == type)
             {
-                var pin = new Pin(this.pinTypes[i].material, type, owner, latLong, objectDescription, uuid, tags);
+                var pin = new Pin(this.pinTypes[i].material, type, owner, latLong, objectDescription, uuid, tags, this.pinTypes[i].group);
                 this.pins[this.pins.length] = pin;
                 pin.onHighlightArea = true;
                 owner.add(pin.sprite);
+                
+                if(this.pinTypes[i].group == this.visibleGroup || this.visibleGroup == "all")
+
+                    if(type == this.visibleType || this.visibleType == "all")
+                    {   
+                        pin.show();
+                        return;
+                    }
+               //hide pin if it was not in visible group/type
+                pin.hide();
                 return;
             }
         
@@ -323,32 +343,43 @@ PinView.prototype = {
     //selection is selected icon in LollipopMenu, selectionState is count of continious selects on icon
     selectionUpdate : function(selection, selectionState)
     {   
-        var groupName = "";
+        this.visibleGroup = "none";
+        this.visibleType = "none";
         if(selection == 2)
-            groupName = "service";
+             this.visibleGroup = "service";
         else
             this.setPinsByGroupVisible("service", false); 
+        if(selection == 3)
+             this.visibleGroup = "fix";
+        else
+            this.setPinsByGroupVisible("fix", false); 
         
-        var selectionGroup = this.getPinTypeGroup(groupName);
+        var selectionGroup = this.getPinTypeGroup( this.visibleGroup);
         if(selectionGroup.length == 0)
         {
             console.log("No selection group for given selection");
             return;
         }
-        //show all
-        if(selectionState == 0)
-          this.setPinsByGroupVisible(groupName, true);
+        //show all (by default, if fix group is selected, show them all & ignore selectionstate)
+        if(selectionState == 0 || this.visibleGroup == "fix")
+        {
+            this.setPinsByGroupVisible( this.visibleGroup, true);
+            this.visibleType = "all";    
+        }
 
         //hide all & reset selectionState to 0
         else if(selectionGroup.length <= selectionState)
         {
-            this.setPinsByGroupVisible(groupName, false);
+            this.setPinsByGroupVisible( this.visibleGroup, false);
             selectionState = 0;
             return selectionState;
         }
         //show next type from group
         else
-            this.hideAllPinsOnAreaExceptType(selectionGroup[selectionState].type); 
+        {
+            this.visibleType = selectionGroup[selectionState].type;
+            this.hideAllPinsOnAreaExceptType(this.visibleType); 
+        }
         
         selectionState++;
         return selectionState;
