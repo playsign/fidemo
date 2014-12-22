@@ -38,6 +38,10 @@ var ContextBrokerClient = IApplication.$extend({
                     console.log("Get context broker item failed 1: " + xhr.responseText);
                     readySignal.dispatch("");
                 }
+                else if (xhr.status === 503) {
+                    console.log("Get context broker item failed 1: " + xhr.responseText);
+                    readySignal.dispatch("");
+                }
             }
         };
 

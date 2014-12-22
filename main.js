@@ -53,13 +53,13 @@ try
 
     var /*freecamera,*/ cbclient, demoapp, chat, userPresence;
     var infoDialog, usernameDialog;
-	
+
     // Start menu initialize
     $.getScript("js/client/UI/StartMenu.js")
         .done(function(/*script, textStatus*/) {
             var start = new StartMenu("startmenu");
             globalData.ui.startMenu = start;
-            
+
             start.OnClose.add(function(menu) {
                 if (!globalData.ui.tutorialMenu.beenVisible)
                     globalData.ui.tutorialMenu.open();
@@ -88,7 +88,7 @@ try
         .fail(function(jqxhr, settings, exception) {
             noop(jqxhr, settings);
             console.error(exception);
-        });    
+        });
     // Start menu initialize
     $.getScript("js/client/UI/HeatMapBar.js")
         .done(function(/*script, textStatus*/) {
@@ -103,7 +103,7 @@ try
             noop(jqxhr, settings);
             console.error(exception);
         });
-	
+
     // Building material animation
     $.getScript("js/client/BuildingAnimation.js")
         .done(function(/*script, textStatus*/) {
@@ -120,7 +120,7 @@ try
             var priceMap = new PriceMap(new VIZI.LatLon(60.1431, 24.89018),
                                         new VIZI.LatLon(60.19559, 24.9902),
                                         10);
-            for(var y = 0; y < priceMap.resolution; ++y)                         
+            for(var y = 0; y < priceMap.resolution; ++y)
                 for(var x = 0; x < priceMap.resolution; ++x)
                     priceMap._setValue(x, y, 0.0);
             globalData.priceMap = priceMap;
@@ -139,7 +139,7 @@ try
             noop(jqxhr, settings);
             console.error(exception);
         });
-        
+
     // Free camera application, commented out as not used for anything.
     // $.getScript("build/webtundra/application/freecamera.js")
         // .done(function(/*script, textStatus*/) {
@@ -171,17 +171,6 @@ try
             noop(jqxhr, settings);
             console.error(exception);
         });
-
-    // Context broker comment test ui
-      $.getScript("js/client/poi-comment.js")
-        .done(function(/*script, textStatus*/) {
-          poicommentclient = new PoiComment();
-        })
-        .fail(function(jqxhr, settings, exception) {
-          noop(jqxhr, settings);
-          console.error(exception);
-        }
-      );
 
     // Information dialog
     var showInfo = TundraSDK.framework.ui.addAction("Information",
