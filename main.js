@@ -25,7 +25,7 @@ globalData.ui.addDialog = function(dialog) {
 };
 globalData.ui.removeDialog = function(dialog) {
     globalData.ui.issueDialogs.push(dialog);
-}
+};
 
 
 try
@@ -51,7 +51,7 @@ try
         client.log.infoC("client reset is a no-op now.");
     };
 
-    var /*freecamera,*/ cbclient, demoapp, chat, userPresence;
+    var cbclient, demoapp, chat, userPresence;
     var infoDialog, usernameDialog;
 
     // Start menu initialize
@@ -63,7 +63,7 @@ try
             start.OnClose.add(function(menu) {
                 if (!globalData.ui.tutorialMenu.beenVisible)
                     globalData.ui.tutorialMenu.open();
-            })
+            });
 
             $("#startmenu-button").button().click(function( event ) {
                 event.preventDefault();
@@ -140,16 +140,6 @@ try
             console.error(exception);
         });
 
-    // Free camera application, commented out as not used for anything.
-    // $.getScript("build/webtundra/application/freecamera.js")
-        // .done(function(/*script, textStatus*/) {
-            // freecamera = new FreeCameraApplication();
-        // })
-        // .fail(function(jqxhr, settings, exception) {
-            // noop(jqxhr, settings);
-            // console.error(exception);
-        // });
-
     // Fiware demo application
     $.getScript("js/client/tundra-client.js")
         .done(function(/*script, textStatus*/) {
@@ -171,17 +161,6 @@ try
             noop(jqxhr, settings);
             console.error(exception);
         });
-
-    // Information dialog
-    var showInfo = TundraSDK.framework.ui.addAction("Information",
-        TundraSDK.framework.asset.getLocalAssetPath("../../img/ic_info_outline_24px.svg"));
-    showInfo.click(function(e)
-    {
-        if (infoDialog)
-            infoDialog.setVisible(!infoDialog.isVisible());
-        e.preventDefault();
-        e.stopPropagation();
-    });
 
     // If connected to a server avatar and chat features will be available.
     client.onConnected(null, function()
@@ -207,23 +186,6 @@ try
                 noop(jqxhr, settings);
                 console.error(exception);
             });
-
-        usernameDialog = new UsernameDialog();
-        usernameDialog.show();
-
-        // Username config dialog
-        var showUsernameConfig = TundraSDK.framework.ui.addAction(
-            "Set username", TundraSDK.framework.asset.getLocalAssetPath("../../img/ic_perm_identity_24px.svg"));
-        showUsernameConfig.click(function(e)
-        {
-            if (usernameDialog)
-                usernameDialog.setVisible(!usernameDialog.isVisible());
-            e.preventDefault();
-            e.stopPropagation();
-        });
-
-        infoDialog = new InfoDialog();
-        infoDialog.show();
     });
 
     // Disconnected from server
@@ -242,7 +204,7 @@ try
 
         var result = client.renderer.raycast();
         //console.log(result.entity);
-        if (result.entity != null) //&& result.entity.name === "Boulder")
+        if (result.entity !== null) //&& result.entity.name === "Boulder")
         {
             result.entity.exec(EntityAction.Server, "MousePress");
         }
@@ -730,146 +692,3 @@ var update = function() {
 };
 
 update();
-
-// Helper function, perfect candidate for something to be in UiAPI, or at least in some centralized place, at some point.
-var createButton = function(id, text, css, parent)
-{
-    var button = $("<div/>", { id : id, type : "button" });
-    button.button();
-    button.text(text);
-    button.css(css);
-    if (parent !== undefined)
-        parent.append(button);
-    button.show();
-    return button;
-};
-// Sets the position of the widget. Does not let the widget go outside of the window.
-// TODO Move this utility function to UiAPI.
-var setWidgetPosition = function(widget, x, y)
-{
-    if (y + widget.height() > $(document).height())
-        y -= widget.height();
-    widget.css("top", y);
-    if (x + widget.width() > $(document).width())
-        x -= widget.width();
-    widget.css("left", x);
-};
-var UsernameDialog = Class.$extend(
-{
-    __init__ : function()
-    {
-        this.ui = {};
-        this.ui.dialog = $("<div/>", { id : "UsernameDialog"});
-        this.ui.dialog.css(
-        {
-            "border"           : "0px solid gray",
-            "position"         : "absolute",
-            "width"            : 160,
-            "height"           : "auto",
-            "overflow"         : "hidden",
-            "color"            : "color: rgb(56,56,56)",
-            "background-color" : "color: rgb(214,214,214)",
-            "left"             : 5,
-            "top"              : 5
-        });
-
-        this.ui.labelField = $("<div/>", { id : "label" });
-        this.ui.labelField.text("Enter username for chat");
-        this.ui.inputField = $("<input/>", { id : "inputField", type : "text" });
-        this.ui.inputField.width(155);
-        // Workaround for other scripts stealing the clicks to line edit.
-        this.ui.inputField.mousedown(function(e) { e.preventDefault(); e.stopPropagation(); });
-        this.ui.inputField.mouseup(function(e) { this.ui.inputField.focus(); e.preventDefault(); e.stopPropagation(); }.bind(this));
-        this.ui.inputField.keypress(function(e)
-        {
-            if (e.keyCode == 13) // Enter
-            {
-                if (this.ui.okButton.is(":visible"))
-                    this.ui.okButton.trigger('click');
-                e.preventDefault();
-            }
-        }.bind(this));
-        var buttonStyle = { "border" : "1px solid gray", "text" : "align:center" };
-        this.ui.okButton = createButton("okButton", "OK", buttonStyle);
-        this.ui.cancelButton = createButton("cancelButton", "Cancel/Close", buttonStyle);
-        this.ui.dialog.append(this.ui.labelField);
-        this.ui.dialog.append(this.ui.inputField);
-        this.ui.dialog.append(this.ui.okButton);
-        this.ui.dialog.append(this.ui.cancelButton);
-        TundraSDK.framework.ui.addWidgetToScene(this.ui.dialog);
-        this.ui.dialog.hide();
-
-        this.ui.okButton.click(function(e) {
-            this.onOkPressed();
-            e.preventDefault();
-            e.stopPropagation();
-        }.bind(this));
-        this.ui.cancelButton.click(function(e) {
-            this.hide();
-            e.preventDefault();
-            e.stopPropagation();
-        }.bind(this));
-    },
-
-    show : function() { this.ui.dialog.fadeIn(); },
-    hide : function() { this.ui.dialog.fadeOut(); },
-    setVisible : function(visible) { if (visible) this.show(); else this.hide(); },
-    isVisible : function() { return this.ui.dialog.is(":visible"); },
-
-    onOkPressed : function()
-    {
-        var newUsername = this.ui.inputField.val();
-        if (newUsername.trim().length > 0 && chat && chat.entity)
-            chat.entity.exec(EntityAction.Server, Msg.SetUsername, [ newUsername, TundraSDK.framework.client.connectionId ]);
-    }
-});
-
-var InfoDialog = Class.$extend(
-{
-    __init__ : function()
-    {
-        this.ui = {};
-        this.ui.dialog = $("<div/>", { id : "InfoDialog"});
-        this.ui.dialog.css(
-        {
-            "border"           : "0px solid gray",
-            "position"         : "absolute",
-            "width"            : 160,
-            "height"           : "auto",
-            "overflow"         : "hidden",
-            "color"            : "color: rgb(56,56,56)",
-            "background-color" : "color: rgb(214,214,214)",
-            "left"             : 5,
-            "top"              : 5
-        });
-
-        // this.ui.labelField = $("<div/>", { id : "label" });
-        // this.ui.labelField.text("Hi! This is FIDEMO.");
-        this.ui.labelField = $("<a/>", { id : "viziAttribution" });
-        this.ui.labelField.text("Powered by ViziCities");
-        this.ui.labelField.prop("href", "http://vizicities.com");
-        this.ui.labelField.prop("target", "_blank");
-        var buttonStyle = { "border" : "1px solid gray", "text" : "align:center" };
-        this.ui.closeButton = createButton("closeButton", "Close", buttonStyle);
-        this.ui.dialog.append(this.ui.labelField);
-        this.ui.dialog.append(this.ui.closeButton);
-        TundraSDK.framework.ui.addWidgetToScene(this.ui.dialog);
-        this.ui.dialog.hide();
-
-        this.ui.closeButton.click(this.hide.bind(this));
-
-        this.positionUi($(document).width(), $(document).height());
-    },
-
-    show : function() { this.ui.dialog.fadeIn(); },
-    hide : function() { this.ui.dialog.fadeOut(); },
-    setVisible : function(visible) { if (visible) this.show(); else this.hide(); },
-    isVisible : function() { return this.ui.dialog.is(":visible"); },
-
-    positionUi : function(canvasWidth, canvasHeight)
-    {
-        var x = canvasWidth/2 - this.ui.dialog.width()/2;
-        var y = canvasHeight/2 - this.ui.dialog.height()/2;
-        setWidgetPosition(this.ui.dialog, x, y);
-    }
-});
