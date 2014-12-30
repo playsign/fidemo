@@ -52,7 +52,10 @@ try
     };
 
     var cbclient, demoapp, chat, userPresence;
-    var infoDialog, usernameDialog;
+    // Hide username bits of the UI until server connection is established
+    var usernameWidet = $("#name-area");
+    if (usernameWidet)
+        usernameWidet.hide();
 
     // Start menu initialize
     $.getScript("js/client/UI/StartMenu.js")
@@ -182,6 +185,8 @@ try
                 chat = new ChatApplication();
                 // chat.initUi(); // Uncomment to test chat UI in standalone mode
                 TundraSDK.framework.ui.addAction(); // for some reason must to this to get taskbar visible
+                if (usernameWidet)
+                    usernameWidet.show();
             })
             .fail(function(jqxhr, settings, exception) {
                 noop(jqxhr, settings);
