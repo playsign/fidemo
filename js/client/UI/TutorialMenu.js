@@ -23,7 +23,7 @@ TutorialMenu.prototype = {
         
         $("#username-button").button().click(function( event ) {
             event.preventDefault();
-            self.okPressed();
+            // self.okPressed();
         });
     },
     
@@ -39,7 +39,4 @@ TutorialMenu.prototype = {
     close: function() {
         $("#" + this.id).dialog("close");
     },
-    
 };
-
-
