@@ -94,17 +94,17 @@ Pin.prototype = {
             {   
                 if(globalData.pinView.pinTypes[i].group == "fix")
                 {
-					var dialog = new IssueDialog(this.tags.id, this.tags);
-					globalData.ui.addDialog(dialog);
-					dialog.OnRelease.add(globalData.ui.removeDialog);
+                    var dialog = new IssueDialog(this.tags.id, this.tags);
+                    globalData.ui.addDialog(dialog);
+                    dialog.OnRelease.add(globalData.ui.removeDialog);
                     return;
                 }
                 else (globalData.pinView.pinTypes[i].group == "service")
                 {
                     var tags = this.getInfofromTags();
-                    var dialog = new InfoPupup(this.uuid, this.tags);
-					globalData.ui.addDialog(dialog);
-					dialog.OnRelease.add(globalData.ui.removeDialog);
+                    var dialog = new InfoPopup(this.uuid, this.tags);
+                    globalData.ui.addDialog(dialog);
+                    dialog.OnRelease.add(globalData.ui.removeDialog);
                     return;
                 }
             }

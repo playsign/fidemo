@@ -1,9 +1,9 @@
 "use strict";
 
-var InfoPupup = function(id, tags) {
-	this.id = id.toString();
+var InfoPopup = function(id, tags) {
+    this.id = id.toString();
     this.tags = tags;
-	this.OnRelease = new signals.Signal;
+    this.OnRelease = new signals.Signal();
     this.dialog = null;
     
     this.name = this._readTag("name");
@@ -23,7 +23,7 @@ var InfoPupup = function(id, tags) {
     this._init();
 };
 
-InfoPupup.prototype = {
+InfoPopup.prototype = {
     _init: function() {
         var self = this;
         
@@ -51,7 +51,7 @@ InfoPupup.prototype = {
         this.dialog = $("#" + this.id).dialog({
             width: 500,
             height: "auto",
-            close: function(ev, ui) {
+            close: function(/*ev, ui*/) {
                self.close();
             }
         });
