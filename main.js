@@ -181,6 +181,7 @@ try
                 // Note that chat is not initialized fully until we're connected to the server.
                 chat = new ChatApplication();
                 // chat.initUi(); // Uncomment to test chat UI in standalone mode
+                TundraSDK.framework.ui.addAction(); // for some reason must to this to get taskbar visible
             })
             .fail(function(jqxhr, settings, exception) {
                 noop(jqxhr, settings);
