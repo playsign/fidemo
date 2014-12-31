@@ -270,7 +270,8 @@ T = TundraSDK.framework;
 
 var loginProperties = {};
 loginProperties.username = "fidemo-user" + Math.ceil(Math.random() * 100);
-var loginHost = "ws://127.0.0.1:2345";
+//var loginHost = "ws://127.0.0.1:2345";
+var loginHost = "ws://130.206.81.111:2346/";
 client.connect(loginHost, loginProperties);
 
 var viewport = document.querySelector("#webtundra-container");
