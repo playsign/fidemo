@@ -18,6 +18,8 @@ var Msg =
 
 function noop() {}
 
+var ChatEntityId = 3;
+
 /** This chat application should be compatible with the realXtend Tundra's example ChatApplication. */
 var ChatApplication = IApplication.$extend(
 {
@@ -28,13 +30,16 @@ var ChatApplication = IApplication.$extend(
 
         this.eventSubscriptions = [];
 
-        // Wait for ChatApplication's creation.
-        this.fw.scene.onEntityCreated(this, this.onEntityCreated);
+        var appEntity = this.fw.scene.entityById(ChatEntityId);
+        if (appEntity)
+            this.onEntityCreated(appEntity);
+        else
+            this.fw.scene.onEntityCreated(this, this.onEntityCreated);
     },
 
     onEntityCreated : function(entity)
     {
-        if (entity.id == 3) // TODO Not the nicest way, but there is no guarantee that the name would be set here.
+        if (entity.id == ChatEntityId) // TODO Not the nicest way, but there is no guarantee that the name would be set here.
         {
             console.log("ChatApplication ready!");
             this.entity = entity;
