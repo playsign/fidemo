@@ -318,7 +318,7 @@
       // used for route query and display
       pin.userData.joreInfo = info;
       pin.userData.direction = direction;
-      console.log(name + " is route " + info.route + " and is a " + info.mode + ", vehicleId=" + vehicleId);
+      //console.log(name + " is route " + info.route + " and is a " + info.mode + ", vehicleId=" + vehicleId);
       if (info.mode == "TRAM") {
         pinIcon = new THREE.Sprite(self.pinMaterialTram);
       } else if (info.mode == "SUBWAY") {
@@ -600,7 +600,7 @@
       
       query = spacepad(pin.name, 6) + direction;
 
-      var url = "http://www.pubtrans.it/hsl/routes?lines=" + encodeURIComponent(query);
+      var url = "http://www.corsproxy.com/www.pubtrans.it/hsl/routes?lines=" + encodeURIComponent(query);
       console.log("hsl query url " + url);
       if (self.currentRouteLine)
           self.currentRouteLine.visible = false;
@@ -612,7 +612,7 @@
           self.showRouteLine(data.features[0], info);
       };
       $.getJSON(url, callback);
-      console.info("started hsl route call");
+      //console.info("started hsl route call");
   };
 
   VIZI.BlueprintOutputSensor.prototype.showRouteLine = function(route, joreInfo) {
