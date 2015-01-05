@@ -56,7 +56,9 @@ function getHelsinkiConfig() {
               name: "fw_core.name.", // name. with the dot because for some reason in a json name object keys are empty e.g "":"HSLsomething"
               lineref: "fw_extra.LineRef.value",
               bearing: "fw_extra.Bearing",
-              direction: "fw_extra.direction"
+              //direction: "fw_extra.direction"
+              direction: "fw_vehicle.DirectionRef.value"
+             
             }
           }
         }
