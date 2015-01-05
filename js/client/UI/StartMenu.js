@@ -20,11 +20,8 @@ StartMenu.prototype = {
                 self.close();
             }
         });
-        
-        $("#username-button").button().click(function( event ) {
-            event.preventDefault();
-            self.okPressed();
-        });
+
+        $("#username-input").blur(function() { self.submitUsername(); });
     },
     
     _release: function() {
@@ -40,9 +37,9 @@ StartMenu.prototype = {
         this.OnClose.dispatch(this);
     },
     
-    okPressed: function() {
+    submitUsername: function() {
         var newUsername = $("#username-input").val();
-        if (newUsername.trim().length > 0 && chat != null && chat.entity != null) {
+        if (newUsername.trim().length > 0 && chat != null && chat.entity != null && newUsername !== chat.username) {
             chat.entity.exec(EntityAction.Server, Msg.SetUsername, [ newUsername, TundraSDK.framework.client.connectionId ]);
         }
     }

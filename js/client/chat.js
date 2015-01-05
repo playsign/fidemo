@@ -483,6 +483,7 @@ var ChatApplication = IApplication.$extend(
         {
             item.css("font-weight", "bold");
             this.ui.userlist.prepend(item);
+            this.username = username; // update our username, it might have changed (no dedicated message for this, simply remove + add user messages used)
         }
         else
             this.ui.userlist.append(item);

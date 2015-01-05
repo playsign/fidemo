@@ -1,9 +1,14 @@
 /* globals window, _, VIZI */
+/* -*- js-indent-level: 2 -*- */ 
 (function() {
   "use strict";
 
+  function decimalParseInt(n) {
+      return parseInt(n, 10);
+  }
+
   // Adapted from https://github.com/HSLdevcom/navigator-proto/blob/master/src/routing.coffee#L40
-  var intepretJoreCode = function(routeId)
+  var interpretJoreCode = function(routeId)
   {
     // Note that the order of checks here is important and acts as a precedence.
     if (routeId.match(/^1019/))
@@ -13,9 +18,9 @@
     else if (routeId.match(/^300/))
       return { mode : "RAIL", routeType : 2, route : routeId.substring(4, 5) };
     else if (routeId.match(/^10(0|10)/))
-      return { mode : "TRAM", routeType : 0, route : "" + (parseInt(routeId.substring(2, 4))) };
+      return { mode : "TRAM", routeType : 0, route : "" + (decimalParseInt(routeId.substring(2, 4))) };
     else if (routeId.match(/^(1|2|4).../))
-      return { mode : "BUS", routeType : 3, route : "" + (parseInt(routeId.substring(1))) };
+      return { mode : "BUS", routeType : 3, route : "" + (decimalParseInt(routeId.substring(1))) };
     else // unknown, assume bus
       return { mode : "BUS", routeType : 3, route : routeId };
   };
@@ -67,7 +72,9 @@
     // MODELS & MATERIALS
 
     self.modelYpos = 10;
+    self.spriteYpos = 20;
     self.pinPosY = 10;
+    self.numberSpriteOffsetY = 15;
     self.pinIconScale = 25;
 
     var jsonLoader = new THREE.JSONLoader();
@@ -225,6 +232,8 @@
         continue;
       }
 
+      //console.info("outputSensor: direction=" + data[i].direction);
+
       var boxLongitude = data[i].coordinates[1];
       var boxLatitude = data[i].coordinates[0];
       var boxName = "Sensor";
@@ -237,7 +246,7 @@
       }
       var boxId = data[i].name; // 'node' that was used earlier has been removed
       if (boxId === undefined) {
-        console.warn("OutputSensor: No node for", data[i].name)
+        console.warn("OutputSensor: No node for", data[i].name);
         continue;
       }
 
@@ -247,7 +256,7 @@
           console.warn("line ref undefined");
           continue;
         }
-        self.createPin(boxLatitude, boxLongitude, boxName, boxDescription, boxId, data[i].name, data[i].bearing); // 'name' is a vehicle ID
+        self.createPin(boxLatitude, boxLongitude, boxName, boxDescription, boxId, data[i].name, data[i].bearing, data[i].direction); // 'name' is a vehicle ID
       } else if (data[i].light) {
         var lux = parseFloat(data[i].light, 10);
         self.createLightbulb(boxLatitude, boxLongitude, boxName, boxDescription, boxId, lux);
@@ -277,7 +286,7 @@
   };
 
   // TODO: rename
-  VIZI.BlueprintOutputSensor.prototype.createPin = function(lat, lon, name, desc, uuid, vehicleId, bearing) {
+  VIZI.BlueprintOutputSensor.prototype.createPin = function(lat, lon, name, desc, uuid, vehicleId, bearing, direction) {
     var self = this;
 
     var dgeocoord = new VIZI.LatLon(lat, lon);
@@ -298,13 +307,18 @@
       var pin = new THREE.Object3D();
 
       // IMAGE
-      var info = intepretJoreCode(name);
+      var info = interpretJoreCode(name);
 
 
       // Sprite
       var pinIcon;
 
-      // console.log(name + " is route " + info.route + " and is a " + info.mode);
+      pin.userData.isPin = true;
+
+      // used for route query and display
+      pin.userData.joreInfo = info;
+      pin.userData.direction = direction;
+      //console.log(name + " is route " + info.route + " and is a " + info.mode + ", vehicleId=" + vehicleId);
       if (info.mode == "TRAM") {
         pinIcon = new THREE.Sprite(self.pinMaterialTram);
       } else if (info.mode == "SUBWAY") {
@@ -547,20 +561,137 @@
     // update the mouse variable
     self.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     self.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    self.options.globalData.raycast.onMouseDown(self.mouse.x, self.mouse.y);
 
     // find intersections
     var intersects = self.doRaycast(self.mouse.x, self.mouse.y, self.poisArray);
-
-    // if there is one (or more) intersections
-    // if (intersects.length > 0 && intersects[0].object.visible) {
-    //   // console.log(intersects[0]);
-    //   self.intersectedObject = intersects[0].object;
-    // } else {
-    
-    self.options.globalData.raycast.onMouseDown(self.mouse.x, self.mouse.y);
-    // }
+    var clickedObject = null;
+    for (var i = 0; i < intersects.length; i++) {
+        clickedObject = intersects[i].object;
+        if (clickedObject.visible && clickedObject.parent.userData.isPin) {
+            self.onPinClicked(clickedObject.parent);
+            break;
+        }
+    }
+    if (clickedObject === null)
+        self.lollipopMenu.onMouseDown(self.mouse.x, self.mouse.y);
   };
 
+  VIZI.BlueprintOutputSensor.prototype.onPinClicked = function(pin) {
+      var self = this;
+      var info = pin.userData.joreInfo;
+      var direction = pin.userData.direction;
+      if (!info) {
+          console.log("no joreInfo on object passed to onPinClicked");
+          return;
+      }
+      if (direction != "1" && direction != "2") {
+          console.log("bad direction " + direction);
+          return;
+      }
+
+
+      var query;
+      var spacepad = function(str, length) {
+          while (str.length < length)
+              str += " ";
+          return str;
+      };
+      
+      query = spacepad(pin.name, 6) + direction;
+
+      var url = "http://www.corsproxy.com/www.pubtrans.it/hsl/routes?lines=" + encodeURIComponent(query);
+      console.log("hsl query url " + url);
+      if (self.currentRouteLine)
+          self.currentRouteLine.visible = false;
+      var callback = function(data) {
+          if (!data.features || !data.features[0].properties || !data.features[0].geometry) {
+              console.info("bad hsl route data");
+              return;
+          }
+          self.showRouteLine(data.features[0], info);
+      };
+      $.getJSON(url, callback);
+      //console.info("started hsl route call");
+  };
+
+  VIZI.BlueprintOutputSensor.prototype.showRouteLine = function(route, joreInfo) {
+      var self = this;
+      // var hslCoords = route.geometry.coordinates;
+      // var nCoords = hslCoords.length;
+      // var verts = new Array(nCoords);
+      // var ll = new VIZI.LatLon();
+      // for (var i = 0; i < nCoords; i++) {
+      //     var hc = hslCoords[i];
+      //     ll.lat = hc[0];
+      //     ll.lon = hc[1];
+      //     var gc = self.world.project(ll);
+      //     verts[i] = new THREE.Vector3(gc.x, 5, gc.y);
+      // }
+
+      if (self.lineMesh) {
+          self.remove(self.lineMesh);
+          console.log("removed old lineMesh");
+      }
+      if (self.tubeMesh) {
+          self.remove(self.tubeMesh);
+          console.log("removed old tubeMesh");
+      }
+
+      var data = [ {linecoords: route.geometry.coordinates } ];
+        _.each(data, function(feature) {
+            var logCount = 0;
+            var geom = new THREE.Geometry();
+            _.each(feature.linecoords, function(coord, index) {
+                var geoCoord = self.world.project(new VIZI.LatLon(coord[1], coord[0]));
+                geom.vertices.push(new THREE.Vector3( geoCoord.x, 10, geoCoord.y ));
+                if (false && logCount++ < 2) {
+                    console.info("added to line vert to xy " + geoCoord.x + ", " + geoCoord.y);
+                }
+            });
+            
+            //var colour = new THREE.Color(0xffffff * Math.random());
+            var colour = new THREE.Color(0xff0000);
+
+            var material = new THREE.LineBasicMaterial({
+                color: colour,
+                //vertexColors: ,
+                linewidth: 5
+            });
+
+            var line = new THREE.Line( geom, material );
+            self.lineMesh = line;
+            self.add(line);
+        });
+        console.info("old line thing done");
+        console.info("making route lines");
+        var logCount = 0;
+        _.each(data, function(feature) {
+            var verts = [];
+            _.each(feature.linecoords, function(coord, index) {
+                var geoCoord = self.world.project(new VIZI.LatLon(coord[1], coord[0]));
+                verts.push(new THREE.Vector3( geoCoord.x, 5, geoCoord.y ));
+                if (logCount++ < 2) {
+                    console.info("tube vert to xy " + geoCoord.x + ", " + geoCoord.y);
+                }
+            });
+            var lineSpline = new UnSplineCurve3(verts);
+            var tubeGeometry = new THREE.TubeGeometry(
+                lineSpline,
+                500 /* lengthwise segments */,
+                2 /* tube radius */,
+                3 /* cross-section segments */,
+                false /* closed? */);
+            
+            var tubeMat = new THREE.MeshLambertMaterial({color: 0xaf0000});
+            
+            var tubeMesh = new THREE.Mesh(tubeGeometry, tubeMat);
+            tubeMesh.scale.set(1, 5, 1);
+            self.tubeMesh = tubeMesh;
+            self.add(tubeMesh);
+            console.info("added route line mesh to scene");
+        });
+  };
 
   VIZI.BlueprintOutputSensor.prototype.onDocumentMouseUp = function(event) {
     var self = this;
@@ -652,7 +783,7 @@
     var pWorld = pLocal.applyMatrix4(self.world.camera.camera.matrixWorld);
     var ray = new THREE.Raycaster(pWorld, vector.sub(pWorld).normalize());
 
-    return ray.intersectObjects(objects);
+    return ray.intersectObjects(objects, true);
   };
 
   VIZI.BlueprintOutputSensor.prototype.closeDialog = function() {
@@ -998,3 +1129,43 @@
   };
 
 }());
+
+
+// Modified from three r68 SplineCurve3.js according to
+// https://stackoverflow.com/questions/18578249/three-js-splinecurve3-without-round-edges-or-linecurve3-replacement
+// (+ jslint-fixed)
+
+UnSplineCurve3 = THREE.Curve.create(
+
+    function ( points /* array of Vector3 */) {
+
+	this.points = (points === undefined) ? [] : points;
+
+    },
+    function ( t ) {
+
+	var v = new THREE.Vector3();
+	var c = [];
+	var points = this.points, point, intPoint, weight;
+	point = ( points.length - 1 ) * t;
+
+	intPoint = Math.floor( point );
+	weight = point - intPoint;
+
+	c[ 0 ] = intPoint === 0 ? intPoint : intPoint - 1;
+	c[ 1 ] = intPoint;
+	c[ 2 ] = intPoint  > points.length - 2 ? points.length - 1 : intPoint + 1;
+	c[ 3 ] = intPoint  > points.length - 3 ? points.length - 1 : intPoint + 2;
+
+	var pt0 = points[ c[0] ],
+	pt1 = points[ c[1] ],
+	pt2 = points[ c[2] ],
+	pt3 = points[ c[3] ];
+
+        v.copy( pt1 ).lerp( pt2, weight );
+        
+	return v;
+
+    }
+
+);
