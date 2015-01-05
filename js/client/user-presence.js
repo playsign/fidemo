@@ -1,4 +1,6 @@
 
+var UserPresenceEntityId = 4;
+
 var UserPresenceApplication = IApplication.$extend(
 {
     __init__ : function()
@@ -11,8 +13,12 @@ var UserPresenceApplication = IApplication.$extend(
         this.lookAtRay = new THREE.Ray();
         this.lastPos = new THREE.Vector3(Infinity, Infinity, Infinity);
 
-        // Wait for UserPresenceApplications's creation.
-        this.fw.scene.onEntityCreated(this, this.onEntityCreated);
+        var appEntity = this.fw.scene.entityById(UserPresenceEntityId);
+        if (appEntity)
+            this.onEntityCreated(appEntity);
+        else
+            this.fw.scene.onEntityCreated(this, this.onEntityCreated);
+
         // Monitor for UserPresence (entity with "AvatarData" DC) creations.
         this.fw.scene.onComponentCreated(this, this.onComponentCreated);
         
@@ -48,11 +54,10 @@ var UserPresenceApplication = IApplication.$extend(
 
     onEntityCreated : function(entity)
     {
-        if (entity.id == 4) // TODO Not the nicest way, but there is no guarantee that the name would be set here.
+        if (entity.id == UserPresenceEntityId) // TODO Not the nicest way, but there is no guarantee that the name would be set here.
         {
             console.log("UserPresenceApplication ready!");
             this.entity = entity;
-
         }
     },
 

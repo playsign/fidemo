@@ -93,12 +93,12 @@
   {
     "Lon":24.927979,
     "Lat":60.18822,
-    "Name":"Olympiastadion"
+    "Name":"Olympic Stadium"
   },
   {
     "Lon":24.933584,
     "Lat":60.168970,
-    "Name":"Kampin keskus",
+    "Name":"Kamppi Center",
     "Rotation":-32
   },
   {
@@ -248,7 +248,7 @@
   {
     "Lon":24.95373,
     "Lat":60.16762,
-    "Name":"Kauppatori",
+    "Name":"Market Square",
     "Important":true
   },
   {
@@ -256,6 +256,11 @@
     "Lat":60.17070,
     "Name":"Helsinki Cathedral",
     "Rotation":-3
+  },
+  {
+    "Lon":24.93163,
+    "Lat":60.17499,
+    "Name":"National Museum of Finland"
   },
   {
     "Lon":24.94555,

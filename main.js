@@ -6,6 +6,27 @@ function noop() {}
 
 // Global data object is used to share data between blueprints and Tundra-Client.
 var globalData = {};
+globalData.selection = 0;
+globalData.ui = {};
+globalData.ui.issueDialogs = [];
+globalData.ui.dialogs = [];
+globalData.ui.addDialog = function(dialog) {
+    var index = -1;
+    var dialogs = globalData.ui.issueDialogs;
+    for(var i = 0; i < dialogs.length; ++i) {
+        if (dialogs[i] == dialog) {
+            index = i;
+            break;
+        }
+    }
+    if (index >= 0) {
+        dialogs = dialogs.slice(index, 1);
+    }
+};
+globalData.ui.removeDialog = function(dialog) {
+    globalData.ui.issueDialogs.push(dialog);
+};
+
 
 try
 {
@@ -30,8 +51,61 @@ try
         client.log.infoC("client reset is a no-op now.");
     };
 
-    var /*freecamera,*/ cbclient, demoapp, chat, userPresence;
-    var infoDialog, usernameDialog;
+    var cbclient, demoapp, chat, userPresence;
+    // Hide username bits of the UI until server connection is established
+    var usernameWidet = $("#name-area");
+    if (usernameWidet)
+        usernameWidet.hide();
+
+    // Start menu initialize
+    $.getScript("js/client/UI/StartMenu.js")
+        .done(function(/*script, textStatus*/) {
+            var start = new StartMenu("startmenu");
+            globalData.ui.startMenu = start;
+
+            start.OnClose.add(function(menu) {
+                if (!globalData.ui.tutorialMenu.beenVisible)
+                    globalData.ui.tutorialMenu.open();
+            });
+
+            $("#startmenu-button").button().click(function( event ) {
+                event.preventDefault();
+                start.open();
+            });
+        })
+        .fail(function(jqxhr, settings, exception) {
+            noop(jqxhr, settings);
+            console.error(exception);
+        });
+    // Tutorial menu initialize
+    $.getScript("js/client/UI/StartMenu.js")
+        .done(function(/*script, textStatus*/) {
+            var tutorial = new TutorialMenu("tutorialmenu");
+            globalData.ui.tutorialMenu = tutorial;
+
+            $("#tutorialmenu-button").button().click(function( event ) {
+                    event.preventDefault();
+                    tutorial.open();
+            });
+        })
+        .fail(function(jqxhr, settings, exception) {
+            noop(jqxhr, settings);
+            console.error(exception);
+        });
+    // Start menu initialize
+    $.getScript("js/client/UI/HeatMapBar.js")
+        .done(function(/*script, textStatus*/) {
+            var bar = new HeatMapBar();
+            globalData.heatMapMenu = bar;
+            $("#StartMenuButton").button().click(function( event ) {
+                event.preventDefault();
+                bar.open();
+            });
+        })
+        .fail(function(jqxhr, settings, exception) {
+            noop(jqxhr, settings);
+            console.error(exception);
+        });
 
     // Building material animation
     $.getScript("js/client/BuildingAnimation.js")
@@ -49,7 +123,7 @@ try
             var priceMap = new PriceMap(new VIZI.LatLon(60.1431, 24.89018),
                                         new VIZI.LatLon(60.19559, 24.9902),
                                         10);
-            for(var y = 0; y < priceMap.resolution; ++y)                         
+            for(var y = 0; y < priceMap.resolution; ++y)
                 for(var x = 0; x < priceMap.resolution; ++x)
                     priceMap._setValue(x, y, 0.0);
             globalData.priceMap = priceMap;
@@ -68,16 +142,6 @@ try
             noop(jqxhr, settings);
             console.error(exception);
         });
-        
-    // Free camera application, commented out as not used for anything.
-    // $.getScript("build/webtundra/application/freecamera.js")
-        // .done(function(/*script, textStatus*/) {
-            // freecamera = new FreeCameraApplication();
-        // })
-        // .fail(function(jqxhr, settings, exception) {
-            // noop(jqxhr, settings);
-            // console.error(exception);
-        // });
 
     // Fiware demo application
     $.getScript("js/client/tundra-client.js")
@@ -101,28 +165,6 @@ try
             console.error(exception);
         });
 
-    // Context broker comment test ui
-      $.getScript("js/client/poi-comment.js")
-        .done(function(/*script, textStatus*/) {
-          poicommentclient = new PoiComment();
-        })
-        .fail(function(jqxhr, settings, exception) {
-          noop(jqxhr, settings);
-          console.error(exception);
-        }
-      );
-
-    // Information dialog
-    var showInfo = TundraSDK.framework.ui.addAction("Information",
-        TundraSDK.framework.asset.getLocalAssetPath("../../img/ic_info_outline_24px.svg"));
-    showInfo.click(function(e)
-    {
-        if (infoDialog)
-            infoDialog.setVisible(!infoDialog.isVisible());
-        e.preventDefault();
-        e.stopPropagation();
-    });
-
     // If connected to a server avatar and chat features will be available.
     client.onConnected(null, function()
     {
@@ -142,28 +184,14 @@ try
                 // Note that chat is not initialized fully until we're connected to the server.
                 chat = new ChatApplication();
                 // chat.initUi(); // Uncomment to test chat UI in standalone mode
+                TundraSDK.framework.ui.addAction(); // for some reason must to this to get taskbar visible
+                if (usernameWidet)
+                    usernameWidet.show();
             })
             .fail(function(jqxhr, settings, exception) {
                 noop(jqxhr, settings);
                 console.error(exception);
             });
-
-        usernameDialog = new UsernameDialog();
-        usernameDialog.show();
-
-        // Username config dialog
-        var showUsernameConfig = TundraSDK.framework.ui.addAction(
-            "Set username", TundraSDK.framework.asset.getLocalAssetPath("../../img/ic_perm_identity_24px.svg"));
-        showUsernameConfig.click(function(e)
-        {
-            if (usernameDialog)
-                usernameDialog.setVisible(!usernameDialog.isVisible());
-            e.preventDefault();
-            e.stopPropagation();
-        });
-
-        infoDialog = new InfoDialog();
-        infoDialog.show();
     });
 
     // Disconnected from server
@@ -182,7 +210,7 @@ try
 
         var result = client.renderer.raycast();
         //console.log(result.entity);
-        if (result.entity != null) //&& result.entity.name === "Boulder")
+        if (result.entity !== null) //&& result.entity.name === "Boulder")
         {
             result.entity.exec(EntityAction.Server, "MousePress");
         }
@@ -205,75 +233,13 @@ client.connect(loginHost, loginProperties);
 var viewport = document.querySelector("#webtundra-container");
 //var viewport = document.querySelector("#vizicities-viewport");
 
-//Three.JS Scene & Renderer to be passed to Vizi
-
-/*
-//creating the scene here - that's perhaps nicest anyway, can pass it to WT then too
-function createScene() {
-    var scene = new THREE.Scene();
-
-    // TODO: Fog distance should be an option
-    //scene.fog = new THREE.Fog(self.options.fogColour, 1, 15000);
-
-    // TODO: Make this more customisable, perhaps as a "day/night" option
-    // - I'm sure people would want to add their own lighting too
-    // TODO: Should this even be in here?
-    var directionalLight = new THREE.DirectionalLight( 0x999999 );
-    directionalLight.intensity = 0.1;
-    directionalLight.position.x = 1;
-    directionalLight.position.y = 1;
-    directionalLight.position.z = 1;
-
-    scene.add(directionalLight);
-
-    var directionalLight2 = new THREE.DirectionalLight( 0x999999 );
-    directionalLight2.intensity = 0.1;
-    directionalLight2.position.x = -1;
-    directionalLight2.position.y = 1;
-    directionalLight2.position.z = -1;
-
-    scene.add(directionalLight2);
-
-    return scene;
-}
-
-function createRenderer(viewport, scene) {
-    var renderer;
-
-    renderer = new THREE.WebGLRenderer({
-        antialias: true
-    });
-
-    renderer.setSize(viewport.clientWidth, viewport.clientHeight);
-    //renderer.setClearColor(scene.fog.color, 1);
-
-    // Gamma settings make things look 'nicer' for some reason
-    renderer.gammaInput = true;
-    renderer.gammaOutput = true;
-
-    viewport.appendChild(renderer.domElement);
-
-    return renderer;
-}
-*/
-
 /* use WebTundra's scene & renderer */
 threejs = {
     scene: TundraSDK.framework.renderer.scene,
     renderer: TundraSDK.framework.renderer.renderer
 };
 
-/* use the local code here to create for this app
-var fidemo_scene = createScene() //need to pass to renderer so can't be in same decl below
-threejs = {
-    scene: fidemo_scene,
-    renderer: createRenderer(viewport, fidemo_scene)
-}
-console.log("FIDEMO: created scene", threejs.scene);
-*/
-
 // threejs = null; //no overrides, vizicity creates scene & renderer
-
 
 // COORDINATES
 
@@ -283,18 +249,25 @@ var helsinkiLatLon;
 //NOTE: we have own cam controls & rendering - perhaps don't even need a VIZI cam?
 var vizicam = new VIZI.Camera({
     aspect: viewport.clientWidth / viewport.clientHeight,
-    near: 30
+    near: 30,
+    position: new VIZI.Point(0, 638, 724),
 });
+
+
+//original: new VIZI.LatLon(60.17096119799872, 24.94066956044796), // Helsinki
+var helsinkiLatLon = new VIZI.LatLon(60.168770, 24.943573);
+
 var world = new VIZI.World({
     viewport: viewport,
     // center: new VIZI.LatLon(40.01000594412381, -105.2727379358738), // Collada
     // center: new VIZI.LatLon(65.0164696, 25.479259499999998), // Oulu
     // center: santanderLatLon = new VIZI.LatLon(43.47195, -3.79909),
-    center: helsinkiLatLon = new VIZI.LatLon(60.17096119799872, 24.94066956044796), // Helsinki
+    center: helsinkiLatLon,
     threejs: threejs,
     camera: vizicam
 });
 globalData.world = world;
+globalData.raycast = new Raycast(world);
 
 // Let Tundra know about the camera
 if (client !== undefined)
@@ -309,6 +282,7 @@ world.attribution.container.style.display = "none";
 //controls.onChange = function() {};
 globalData.controls = new THREE.PanAndOrbitControls(world.camera.camera, TundraSDK.framework.renderer.renderer.domElement);
 //globalData.controls.autoRotate = true;
+globalData.controls.maxPolarAngle = 1.5534;
 
 // MAP
 
@@ -317,7 +291,8 @@ var mapConfig = {
   input: {
     type: "BlueprintInputMapTiles", // String representation of the input module you want to use (this is the same as the input module filename).
     options: { // Used to provide options for the input; in most cases this will at least include a path to the data source (local or remote).
-        tilePath: "https://a.tiles.mapbox.com/v3/examples.map-i86l3621/{z}/{x}/{y}@2x.png"
+        //tilePath: "https://a.tiles.mapbox.com/v3/examples.map-i86l3621/{z}/{x}/{y}@2x.png"
+        tilePath: "https://a.tiles.mapbox.com/v4/ludocraft.1dadc7d9/{z}/{x}/{y}@2x.png?access_token=pk.eyJ1IjoibHVkb2NyYWZ0IiwiYSI6IlRNeFNyM3cifQ.-i0NBrmAHEYS7DcX1KR56w&update=i2x0h" // ludo
     }
   },
   output: {
@@ -467,16 +442,8 @@ var buildingPricesConfig = getBuildingPricesConfig();
 
 buildingPricesConfig.output.options.globalData = globalData;
 
-var min = 999999;
-var max = 0;
-
-for(var i in buildingPricesByPostCode)
-{
-    if (buildingPricesByPostCode[i] < min)
-        min = buildingPricesByPostCode[i];
-    if (buildingPricesByPostCode[i] > max)
-        max = buildingPricesByPostCode[i];
-}
+var min = 5000;
+var max = 7000;
 
 globalData.buildingPrices = {};
 globalData.buildingPrices.min = min;
@@ -648,14 +615,13 @@ debugObject(60.170040, 24.936350); //Lasipalatsinaukion tötsä
 debugObject(60.171680, 24.943881); //Rautatientorin patsas
 */
 
-//lights
-function addLights(scene) {
+//lights & sky/clearcolor & fog
+function addEnvironment(scene, renderer) {
     var directionalLight = new THREE.DirectionalLight( 0x999999 );
     // directionalLight.intensity = 0.1; // TODO this was typoed as 'intesity' but 0.1 value for intensity doesn't look that hot
     directionalLight.position.x = 1;
     directionalLight.position.y = 1;
     directionalLight.position.z = 1;
-
     scene.add(directionalLight);
 
     var directionalLight2 = new THREE.DirectionalLight( 0x999999 );
@@ -663,10 +629,13 @@ function addLights(scene) {
     directionalLight2.position.x = -1;
     directionalLight2.position.y = 1;
     directionalLight2.position.z = -1;
-
     scene.add(directionalLight2);
+
+    var fogColour = 0xFFFFFF;
+    scene.fog = new THREE.Fog(fogColour, 1, 15000);
+    renderer.setClearColor(scene.fog.color, 1);
 }
-addLights(world.scene.scene);
+addEnvironment(threejs.scene, threejs.renderer);
 
 var clock = new VIZI.Clock();
 
@@ -674,6 +643,7 @@ var update = function() {
     var delta = clock.getDelta();
 
     world.onTick(delta);
+    globalData.pinView.onTick(delta);
     globalData.controls.update(delta);
     // world.render();
     //render ourself now that we create (or pass) the scene & renderer
@@ -683,146 +653,3 @@ var update = function() {
 };
 
 update();
-
-// Helper function, perfect candidate for something to be in UiAPI, or at least in some centralized place, at some point.
-var createButton = function(id, text, css, parent)
-{
-    var button = $("<div/>", { id : id, type : "button" });
-    button.button();
-    button.text(text);
-    button.css(css);
-    if (parent !== undefined)
-        parent.append(button);
-    button.show();
-    return button;
-};
-// Sets the position of the widget. Does not let the widget go outside of the window.
-// TODO Move this utility function to UiAPI.
-var setWidgetPosition = function(widget, x, y)
-{
-    if (y + widget.height() > $(document).height())
-        y -= widget.height();
-    widget.css("top", y);
-    if (x + widget.width() > $(document).width())
-        x -= widget.width();
-    widget.css("left", x);
-};
-var UsernameDialog = Class.$extend(
-{
-    __init__ : function()
-    {
-        this.ui = {};
-        this.ui.dialog = $("<div/>", { id : "UsernameDialog"});
-        this.ui.dialog.css(
-        {
-            "border"           : "0px solid gray",
-            "position"         : "absolute",
-            "width"            : 160,
-            "height"           : "auto",
-            "overflow"         : "hidden",
-            "color"            : "color: rgb(56,56,56)",
-            "background-color" : "color: rgb(214,214,214)",
-            "left"             : 5,
-            "top"              : 5
-        });
-
-        this.ui.labelField = $("<div/>", { id : "label" });
-        this.ui.labelField.text("Enter username for chat");
-        this.ui.inputField = $("<input/>", { id : "inputField", type : "text" });
-        this.ui.inputField.width(155);
-        // Workaround for other scripts stealing the clicks to line edit.
-        this.ui.inputField.mousedown(function(e) { e.preventDefault(); e.stopPropagation(); });
-        this.ui.inputField.mouseup(function(e) { this.ui.inputField.focus(); e.preventDefault(); e.stopPropagation(); }.bind(this));
-        this.ui.inputField.keypress(function(e)
-        {
-            if (e.keyCode == 13) // Enter
-            {
-                if (this.ui.okButton.is(":visible"))
-                    this.ui.okButton.trigger('click');
-                e.preventDefault();
-            }
-        }.bind(this));
-        var buttonStyle = { "border" : "1px solid gray", "text" : "align:center" };
-        this.ui.okButton = createButton("okButton", "OK", buttonStyle);
-        this.ui.cancelButton = createButton("cancelButton", "Cancel/Close", buttonStyle);
-        this.ui.dialog.append(this.ui.labelField);
-        this.ui.dialog.append(this.ui.inputField);
-        this.ui.dialog.append(this.ui.okButton);
-        this.ui.dialog.append(this.ui.cancelButton);
-        TundraSDK.framework.ui.addWidgetToScene(this.ui.dialog);
-        this.ui.dialog.hide();
-
-        this.ui.okButton.click(function(e) {
-            this.onOkPressed();
-            e.preventDefault();
-            e.stopPropagation();
-        }.bind(this));
-        this.ui.cancelButton.click(function(e) {
-            this.hide();
-            e.preventDefault();
-            e.stopPropagation();
-        }.bind(this));
-    },
-
-    show : function() { this.ui.dialog.fadeIn(); },
-    hide : function() { this.ui.dialog.fadeOut(); },
-    setVisible : function(visible) { if (visible) this.show(); else this.hide(); },
-    isVisible : function() { return this.ui.dialog.is(":visible"); },
-
-    onOkPressed : function()
-    {
-        var newUsername = this.ui.inputField.val();
-        if (newUsername.trim().length > 0 && chat && chat.entity)
-            chat.entity.exec(EntityAction.Server, Msg.SetUsername, [ newUsername, TundraSDK.framework.client.connectionId ]);
-    }
-});
-
-var InfoDialog = Class.$extend(
-{
-    __init__ : function()
-    {
-        this.ui = {};
-        this.ui.dialog = $("<div/>", { id : "InfoDialog"});
-        this.ui.dialog.css(
-        {
-            "border"           : "0px solid gray",
-            "position"         : "absolute",
-            "width"            : 160,
-            "height"           : "auto",
-            "overflow"         : "hidden",
-            "color"            : "color: rgb(56,56,56)",
-            "background-color" : "color: rgb(214,214,214)",
-            "left"             : 5,
-            "top"              : 5
-        });
-
-        // this.ui.labelField = $("<div/>", { id : "label" });
-        // this.ui.labelField.text("Hi! This is FIDEMO.");
-        this.ui.labelField = $("<a/>", { id : "viziAttribution" });
-        this.ui.labelField.text("Powered by ViziCities");
-        this.ui.labelField.prop("href", "http://vizicities.com");
-        this.ui.labelField.prop("target", "_blank");
-        var buttonStyle = { "border" : "1px solid gray", "text" : "align:center" };
-        this.ui.closeButton = createButton("closeButton", "Close", buttonStyle);
-        this.ui.dialog.append(this.ui.labelField);
-        this.ui.dialog.append(this.ui.closeButton);
-        TundraSDK.framework.ui.addWidgetToScene(this.ui.dialog);
-        this.ui.dialog.hide();
-
-        this.ui.closeButton.click(this.hide.bind(this));
-
-        this.positionUi($(document).width(), $(document).height());
-    },
-
-    show : function() { this.ui.dialog.fadeIn(); },
-    hide : function() { this.ui.dialog.fadeOut(); },
-    setVisible : function(visible) { if (visible) this.show(); else this.hide(); },
-    isVisible : function() { return this.ui.dialog.is(":visible"); },
-
-    positionUi : function(canvasWidth, canvasHeight)
-    {
-        var x = canvasWidth/2 - this.ui.dialog.width()/2;
-        var y = canvasHeight/2 - this.ui.dialog.height()/2;
-        setWidgetPosition(this.ui.dialog, x, y);
-    }
-});

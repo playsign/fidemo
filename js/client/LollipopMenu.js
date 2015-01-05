@@ -4,23 +4,29 @@ var lollipopMenu;
 
 var LollipopMenu = function(owner) {
   lollipopMenu = this;
+  this.worldHeight = 10;
   this.owner = owner;
-  this.worldPlane = new THREE.Plane(new THREE.Vector3(0,1,0),-this.owner.spriteYpos);
+  this.worldPlane = new THREE.Plane(new THREE.Vector3(0,1,0),-this.worldHeight);
   this.selectionChanged = new signals.Signal(); // User selected icon (1-4) or deselected (0)
   this.positionChanged = new signals.Signal(); // new position
   this.shown = new signals.Signal; // Menu was shown
   this.hidden = new signals.Signal; // Menu was hidden
-
+  
+  this.radiusTransport = 2500;
+  this.radiusIssues = 320;
+  this.radiusServices = 320;
+  this.radiusApartmentPrices = 500;
+  
   this.lollipopSprite = null;
   this.iconSprites = [];
 
   this.lollipopMat = owner.pinMaterialFocus; // todo: replace with proper material
   this.iconMats = [];
   var iconTexNames = [
-    "data/2d/icon_photos.png",
     "data/2d/icon_properties.png",
     "data/2d/icon_services.png",
-    "data/2d/icon_transportation.png"
+    "data/2d/icon_transportation.png",
+    "data/2d/icon_value.png"
     
   ];
   for (var i = 0; i < iconTexNames.length; ++i) {
@@ -35,14 +41,14 @@ var LollipopMenu = function(owner) {
   }
   
   this.iconAngles = [];
-  this.minAngle = -90;
-  this.maxAngle = 90;
+  this.minAngle = -75;
+  this.maxAngle = 75;
   var angleRange = this.maxAngle - this.minAngle;
   for (var i = 0; i < iconTexNames.length; ++i) {
     this.iconAngles.push((this.minAngle + i * angleRange/(iconTexNames.length-1)) * (Math.PI/180));
   }
-  this.iconDist = 0.9;
-  this.iconHeight = 0.35;
+  this.iconDist = 1.2;
+  this.iconHeight = 0.95;
   this.lollipopScale = 40;
   this.iconScale = 30;
   this.iconSelectedScale = 35;
@@ -62,50 +68,29 @@ var LollipopMenu = function(owner) {
   
   this.selectionState = 0;
   
-  // Helsinki issue objects
-  this.issueRequestId = "";
-  this.issueItems = {};
-  this.issueIconMaterials = {};
-  this.issueIconMaterials.open = new THREE.SpriteMaterial({
-    map: THREE.ImageUtils.loadTexture(IssueItem.Icons.OPEN),
-    color: "rgb(216,136,0)",
-    fog: true,
-    depthWrite : false
-  });
-  this.issueIconMaterials.inprogress = new THREE.SpriteMaterial({
-    map: THREE.ImageUtils.loadTexture(IssueItem.Icons.INPROGRESS),
-    color: "rgb(255,255,255)",
-    fog: true,
-    depthWrite : false
-  });
-  this.issueIconMaterials.closed = new THREE.SpriteMaterial({
-    map: THREE.ImageUtils.loadTexture(IssueItem.Icons.CLOSED),
-    color: "rgb(255,255,255)",
-    fog: true,
-    depthWrite : false
-  });
-  this.issueIconMaterials.unknown = new THREE.SpriteMaterial({
-    map: THREE.ImageUtils.loadTexture(IssueItem.Icons.UNKNOWN),
-    color: "rgb(255,255,255)",
-    fog: true,
-    depthWrite : false
-  });
-  this.issueInstances = [];
-
   this.selection = 0; // 0 = none, 1 = photos, 2 = properties etc.
-
+  this.setSelection(4); //by default
+  this.owner.options.globalData.raycast.addObjectOwner(this);
   this.owner.options.globalData.controls.followLollipop(this);  
 };
 
 LollipopMenu.prototype = {
-  onMouseDown : function(x, y) {
-    this.mouseDownX = x;
-    this.mouseDownY = y;
-  },
 
-  onMouseUp : function(x, y) {
-    // Only show/hide menu if this is not a drag
-    if (x == this.mouseDownX && y == this.mouseDownY) {
+  getRaycastObjects : function() {
+    if(this.isShowing())
+        return this.iconSprites;
+    else
+        return;
+  },
+  
+  hoverObjects : function(intersections) {
+    this.hoverSelection = -1;
+    if(intersections.length != 0){
+      this.hoverSelection = intersections[0].object.index;
+    }
+  },
+  
+  onLollipopAreaMoveCheck : function(x, y) {
       if (!this.isShowing()) {
         var pos = this.planeRaycast(x, y);
         if (pos) {
@@ -114,9 +99,7 @@ LollipopMenu.prototype = {
         }
       }
       else {
-        // Raycast to icons and perform selection, hide/reopen menu if none hit
-        if (!this.doSelectionRaycast(x, y) &&
-            !this.doIconRaycast(x, y)) {
+        //hide/reopen menu 
           var pos = this.planeRaycast(x, y);
           var distVec = new THREE.Vector3();
           distVec.subVectors(pos, this.lastShowPos);
@@ -128,9 +111,7 @@ LollipopMenu.prototype = {
           else {
             this.startHideMenu();
           }
-        }
       }
-    }
   },
   
   sendPositionChanged: function(pos)
@@ -143,10 +124,25 @@ LollipopMenu.prototype = {
   
   onMouseMove : function(x, y) {
     if (this.isShowing()){
-      this.updateIconPositions();
-      this.doHoverRaycast(x, y);
+      this.updateIconPositions(); 
     }
   },
+  
+  onMouseClick : function(intersections) {
+    for (var i = 0; i < intersections.length; ++i)
+    {
+      // If we raycast to already hit object, rather use the one that is unselected
+      if (this.selection != intersections[i].object.selectionNumber) {
+        this.setSelection(intersections[i].object.selectionNumber);
+        break;
+      }
+      else
+      {
+        this.selectionState++;
+        this.updateSelectionState();
+      }
+    }
+ },
 
   planeRaycast : function(x, y) {
     var vector = new THREE.Vector3(x, y, 1);
@@ -158,27 +154,7 @@ LollipopMenu.prototype = {
     return intersectPoint;
   },
   
-  getIssueMaterial: function(status){
-      if (status == "open")
-          return this.issueIconMaterials.open;
-      else if(status == "inprogress")
-          return this.issueIconMaterials.inprogress;
-      else if(status == "closed")
-          return this.issueIconMaterials.closed;
-      else
-          return this.issueIconMaterials.unknown;
-  },
-  
-  doIconRaycast : function(x, y) {
-    var intersections = this.owner.doRaycast(x, y, this.issueInstances);
-    for (var i = 0; i < intersections.length; ++i)
-    {
-      this.openDialog(intersections[i].object.item);
-    }
-    return intersections.length > 0;
-  },
-  
-  openDialog: function(item) {
+  /*openDialog: function(item) {
     var self = this;
     var image_str = "";
     var i = item;
@@ -186,7 +162,7 @@ LollipopMenu.prototype = {
         image_str = "<img src='" + item.media + "' alt='Mountain View' style='width:auto;height:220px;'>";
         
     $("body").append("<div id='" + item.id + "' title='" + item.header + "'>" +
-                         "<p>" + item.description + "</p>" + image_str +
+                       "<p>" + item.description + "</p>" + image_str +
                      "</div>");
     
     this.currentDialog = $("#" + item.id).dialog({
@@ -201,64 +177,21 @@ LollipopMenu.prototype = {
   closeDialog: function(item) {
     $("#" + item.id).remove();
     this.currentDialog = null;  
-  },
+  },*/
   
-  createIssueIcons: function() {
-      var world = this.owner.options.globalData.world;
-      var item = null;
-      var sprite = null;
-      
-      for (var i in this.issueItems)
-      {
-          item = this.issueItems[i];
-          sprite = new THREE.Sprite(this.getIssueMaterial(item.status));
-          sprite.scale.set(20, 20, 20);
-          sprite.position.copy(world.project(item.latLon, world.zoom));
-          sprite.position.set(sprite.position.x, 60, sprite.position.y);
-          sprite.item = item;
-          this.issueInstances.push(sprite);
-          this.owner.add(sprite);
-      }
-  },
-  
-  removeIssueIcons: function() {
-      this.issueItems = {};
-      for(var i in this.issueInstances)
-          this.owner.remove(this.issueInstances[i]);
-      this.issueInstances = [];
-  },
-
   createMenu : function(pos) {
     if (this.isShowing()) {
+        this.owner.options.globalData.pinView.hidePinsByOwner(this.owner);
         this.hideMenu(); // If already showing, hide the old first
     }
-
+ 
+	
     if (this.owner.options.globalData != null && this.owner.options.globalData.world != null)
     {
         var point = new VIZI.Point(pos.x, pos.z);
         var w = this.owner.options.globalData.world;
         var latLong = w.unproject(point, w.zoom);
-        var that = this;
-        this.removeIssueIcons();
-        
-        var callback = function(id, result) {
-            // if old request ignore.
-            if (that.issueRequestId != id)
-                return;
-            
-            var item = null;
-            for(var i in result) {
-                item = result[i];
-                if (item instanceof IssueItem) {
-                    that.issueItems[item.id] = item;
-                }
-            }
-            that.createIssueIcons();
-            
-            that = null;
-        };
-        this.issueRequestId = HelsinkiIssues.RequestIssues(latLong.lat, latLong.lon, 300, callback);
-        this.selectionState = 0;
+        HelsinkiIssues.RequestIssues(latLong.lat, latLong.lon, 300);
     }
 
     // Animate the circle to new position
@@ -282,7 +215,7 @@ LollipopMenu.prototype = {
         spr = new THREE.Sprite(this.lollipopMat);
 
     spr.position.x = pos.x;
-    spr.position.y = this.owner.spriteYpos;
+    spr.position.y = this.worldHeight;
     spr.position.z = pos.z;
     this.owner.add(spr);
     this.lollipopSprite = spr;
@@ -291,13 +224,14 @@ LollipopMenu.prototype = {
       var spr2 = new THREE.Sprite(this.iconMats[i]);
       spr2.scale.set(this.iconScale,this.iconScale,this.iconScale);
       spr2.position.copy(this.calculateIconPosition(i));
-      spr2.selectionNumber = i+1;
+      spr2.selectionNumber = i+2; // Photos not used
+      spr2.index = i;
       spr2.hoverTween = 0.0;
       
       this.lollipopSprite.add(spr2);
       this.iconSprites.push(spr2);
     }
-    this.setSelection(0);
+    this.setPreviousSelection();
     this.scaleTween = 0.1;
     this.scaleTweenDir = 1;
     this.updateScale(); // Set initial lollipop scale
@@ -319,7 +253,6 @@ LollipopMenu.prototype = {
     this.iconSprites = [];
     this.owner.remove(this.lollipopSprite);
     this.lollipopSprite = null;
-    this.setSelection(0);
 
     this.hidden.dispatch();
   },
@@ -345,24 +278,9 @@ LollipopMenu.prototype = {
     var intersections = this.owner.doRaycast(x, y, this.iconSprites);
     this.hoverSelection = -1;
     if(intersections.length != 0){
-      this.hoverSelection = intersections[0].object.selectionNumber - 1;
+      this.hoverSelection = intersections[0].object.index;
     }
     return this.hoverSelection;
-  },
-
-  doSelectionRaycast : function(x, y) {
-    var intersections = this.owner.doRaycast(x, y, this.iconSprites);
-    for (var i = 0; i < intersections.length; ++i)
-    {
-      // If we raycast to already hit object, rather use the one that is unselected
-      if (this.selection != intersections[i].object.selectionNumber) {
-        this.setSelection(intersections[i].object.selectionNumber);
-        break;
-      }
-      else
-        this.updateSelectionState();
-    }
-    return intersections.length > 0;
   },
   
   onTick : function(delta) {
@@ -419,7 +337,7 @@ LollipopMenu.prototype = {
         t = Math.max( 0.0, Math.min( 1.0, t) );
         
         var tween = this.easeInOutQuad(t);
-        var hoverscl = this.easeInOutQuad(this.iconSprites[i].hoverTween) * 0.5;
+        var hoverscl = this.easeInOutQuad(this.iconSprites[i].hoverTween) * 0.37;
         var sclfactor = hoverscl + ((4.5) - (3.5* tween));
       
         if (this.iconSprites[i].selectionNumber == this.selection) {
@@ -438,21 +356,63 @@ LollipopMenu.prototype = {
       this.selection = newSel;
       this.updateScale();
       this.selectionChanged.dispatch(this.selection);
-       
-      if(this.selectionState == 0 || this.selectionState == null)
-        this.selectionState = 1;
-      else
-        this.selectionState = 0;
+      
+      this.selectionState = 0;
+      for (var i = 0; i < this.iconSprites.length; ++i) {
+        if(this.iconSprites[i].selectionNumber == this.selection)
+            this.iconSprites[i].material.color = new THREE.Color(0xffffff);
+        else
+            this.iconSprites[i].material.color = new THREE.Color(0xd0d0d0);
+      }
       
       if (this.owner.options.globalData != null && this.owner.options.globalData.animator != null){
+        
         if(this.selection == 2){
-          this.owner.options.globalData.animator.EnableHeatmap(true);
+          this.owner.options.globalData.animator.SetRadius(this.radiusServices);
         }
-        else{
+        else if(this.selection == 3){
+          this.owner.options.globalData.animator.SetRadius(this.radiusIssues);
+        }
+        else if(this.selection == 4){
+          this.owner.options.globalData.animator.SetRadius(this.radiusTransport);
+        }
+        else if(this.selection == 5){
+          this.owner.options.globalData.animator.EnableHeatmap(true);
+          this.owner.options.globalData.heatMapMenu.open();
+          this.owner.options.globalData.animator.SetRadius(this.radiusApartmentPrices);
+        }
+        
+        if(this.selection != 5){
           this.owner.options.globalData.animator.EnableHeatmap(false);
+          this.owner.options.globalData.heatMapMenu.close();
         }
         this.owner.options.globalData.animator.ResetAnimated();
       }
+    }
+    this.updateSelectionState();
+  },
+  
+  //set previous selection active on lollipopMenu & send updateSelectionState
+  setPreviousSelection : function() {
+  
+    for (var i = 0; i < this.iconSprites.length; ++i) {
+        if(this.iconSprites[i].selectionNumber == this.selection)
+            this.iconSprites[i].material.color = new THREE.Color(0xffffff);
+        else
+            this.iconSprites[i].material.color = new THREE.Color(0xd0d0d0);
+    }
+    this.updateScale();
+
+    if (this.owner.options.globalData != null && this.owner.options.globalData.animator != null){
+        if(this.selection == 5){
+          this.owner.options.globalData.animator.EnableHeatmap(true);
+          this.owner.options.globalData.heatMapMenu.open();
+        }
+        else{
+          this.owner.options.globalData.animator.EnableHeatmap(false);
+          this.owner.options.globalData.heatMapMenu.close();
+        }
+    this.owner.options.globalData.animator.ResetAnimated();
     }
     this.updateSelectionState();
   },
@@ -464,6 +424,9 @@ LollipopMenu.prototype = {
   //call selectionUpdate from PinView
   updateSelectionState : function()
   {
-     this.selectionState = this.owner.options.globalData.pinView.selectionUpdate(this.selection, this.selectionState);
+    //pinView.selectionUpdate returns false, if no index with selectionState
+    if(this.owner != null && this.owner.options.globalData != null && this.owner.options.globalData.pinView != null)
+        if(!this.owner.options.globalData.pinView.selectionUpdate(this.selection, this.selectionState))
+            this.selectionState = -1;
   }
 }

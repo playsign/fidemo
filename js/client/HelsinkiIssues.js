@@ -27,38 +27,23 @@ IssueItem.parse = function(jsonData) {
     return new IssueItem(id, latLon, status, header, description, media, "");
 };
 
-IssueItem.Icons = {
-    OPEN: "data/2d/icon_notfixed.png",
-    INPROGRESS: "data/2d/icon_inprogress.png",
-    CLOSED: "data/2d/icon_fixed.png",
-    UNKNOWN: "data/2d/icon_notfixed.png",
-    
-    get: function(status) {
-        if (status === "open")
-            return IssueItem.Icons.OPEN;
-        else if (status === "inprogress")
-            return IssueItem.Icons.INPROGRESS;
-        else if (status === "closed")
-            return IssueItem.Icons.CLOSED;
-        else
-            return IssueItem.Icons.UNKNOWN;
-    }
-};
 
-var HelsinkiIssues = function() {};
+var HelsinkiIssues = function() {
+};
 
 HelsinkiIssues.RequestIndex = 0;
 HelsinkiIssues.NextIndex = function() {
     if (HelsinkiIssues.RequestIndex >= 32767)
         HelsinkiIssues.RequestIndex = 0;
     
-    return HelsinkiIssues.RequestIndex++;
+    HelsinkiIssues.RequestIndex++;
+    return HelsinkiIssues.RequestIndex;
 };
 
 // Request Helsinki issues from the web service. When request is handled callback
 // function is triggered. To keep what request is being responded request id is
 // returned to callback, this way we can drop requests that are too old.
-HelsinkiIssues.RequestIssues = function( lat, long, radius, callback ) {
+HelsinkiIssues.RequestIssues = function( lat, long, radius) {
     
     var requestId = HelsinkiIssues.NextIndex();
     var fullUrl = "https://asiointi.hel.fi/palautews/rest/v1/requests.json?lat=" + lat + "&long=" + long + "&radius=" + radius;
@@ -71,7 +56,7 @@ HelsinkiIssues.RequestIssues = function( lat, long, radius, callback ) {
     // and trigger callback function using a signal.
     var that = this;
     var readySignal = new signals.Signal();
-    readySignal.addOnce(callback);
+    readySignal.addOnce(HelsinkiIssues.Callback);
 
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4)
@@ -98,4 +83,20 @@ HelsinkiIssues.RequestIssues = function( lat, long, radius, callback ) {
     
     xhr.send(null);
     return requestId;
+};
+
+HelsinkiIssues.Callback = function(id, result) {
+    // if old request ignore.
+    if (id != HelsinkiIssues.RequestIndex)
+        return;
+   
+    var item = null;
+    for(var i in result) {
+        item = result[i];
+        if (item instanceof IssueItem) {
+            var type = item.status;
+            
+            globalData.pinView.addPin(type, globalData.lollipopMenu.owner, item.latLon, item.description, item.id, item);
+        }
+    }
 };

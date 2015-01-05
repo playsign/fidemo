@@ -55,7 +55,7 @@
         if (self.options.globalData != null && self.options.globalData.buildingPrices.max > 0)
         {
             var buildingPrices = self.options.globalData.buildingPrices;
-            var normalizedPrice = (buildingPricesById[id] - buildingPrices.min) / (buildingPrices.max - buildingPrices.min);
+            var normalizedPrice = Math.max(0.0, Math.min(1.0, (buildingPricesById[id] - buildingPrices.min) / (buildingPrices.max - buildingPrices.min)));
             self.options.globalData.priceMap.SetValue(lat, lon, normalizedPrice);
         }
 

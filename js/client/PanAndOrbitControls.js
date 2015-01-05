@@ -141,6 +141,7 @@ THREE.PanAndOrbitControls = function ( object, domElement ) {
 	}
 
 	this.rotateLeft = function ( angle ) {
+		abortPanMovement();
 
 		if ( angle === undefined ) {
 
@@ -153,6 +154,7 @@ THREE.PanAndOrbitControls = function ( object, domElement ) {
 	};
 
 	this.rotateUp = function ( angle ) {
+		abortPanMovement();
 
 		if ( angle === undefined ) {
 
@@ -196,10 +198,7 @@ THREE.PanAndOrbitControls = function ( object, domElement ) {
 	// pass in x,y of change desired in pixel space,
 	// right and down are positive
 	this.pan = function ( deltaX, deltaY ) {
-		//abort animation upon manual panning
-		if (panMovement.et != 1) {
-		    panMovement.et = -1
-		}
+		abortPanMovement();
 
 		var element = scope.domElement === document ? scope.domElement.body : scope.domElement;
 
@@ -233,6 +232,7 @@ THREE.PanAndOrbitControls = function ( object, domElement ) {
 	};
 
 	this.dollyIn = function ( dollyScale ) {
+		abortPanMovement();
 
 		if ( dollyScale === undefined ) {
 
@@ -245,6 +245,7 @@ THREE.PanAndOrbitControls = function ( object, domElement ) {
 	};
 
 	this.dollyOut = function ( dollyScale ) {
+		abortPanMovement();
 
 		if ( dollyScale === undefined ) {
 
@@ -396,6 +397,13 @@ THREE.PanAndOrbitControls = function ( object, domElement ) {
 	    var next = diff.multiplyScalar(t);
 	    scope.target = s.add(next);
 	    //console.log(t, m.et, m.t, next);
+	}
+
+	function abortPanMovement() {
+	    //abort animation upon manual controls
+	    if (panMovement.et != 1) {
+		panMovement.et = -1
+	    }
 	}
 
 	function getAutoRotationAngle() {
