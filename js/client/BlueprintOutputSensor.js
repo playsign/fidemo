@@ -3,8 +3,12 @@
 (function() {
   "use strict";
 
+  function decimalParseInt(n) {
+      return parseInt(n, 10);
+  }
+
   // Adapted from https://github.com/HSLdevcom/navigator-proto/blob/master/src/routing.coffee#L40
-  var intepretJoreCode = function(routeId)
+  var interpretJoreCode = function(routeId)
   {
     // Note that the order of checks here is important and acts as a precedence.
     if (routeId.match(/^1019/))
@@ -14,9 +18,9 @@
     else if (routeId.match(/^300/))
       return { mode : "RAIL", routeType : 2, route : routeId.substring(4, 5) };
     else if (routeId.match(/^10(0|10)/))
-      return { mode : "TRAM", routeType : 0, route : "" + (parseInt(routeId.substring(2, 4))) };
+      return { mode : "TRAM", routeType : 0, route : "" + (decimalParseInt(routeId.substring(2, 4))) };
     else if (routeId.match(/^(1|2|4).../))
-      return { mode : "BUS", routeType : 3, route : "" + (parseInt(routeId.substring(1))) };
+      return { mode : "BUS", routeType : 3, route : "" + (decimalParseInt(routeId.substring(1))) };
     else // unknown, assume bus
       return { mode : "BUS", routeType : 3, route : routeId };
   };
@@ -218,7 +222,7 @@
       }
       var boxId = data[i].name; // 'node' that was used earlier has been removed
       if (boxId === undefined) {
-        console.warn("OutputSensor: No node for", data[i].name)
+        console.warn("OutputSensor: No node for", data[i].name);
         continue;
       }
 
@@ -279,7 +283,7 @@
       var pin = new THREE.Object3D();
 
       // IMAGE
-      var info = intepretJoreCode(name);
+      var info = interpretJoreCode(name);
 
 
       // Sprite
@@ -535,8 +539,10 @@
     var clickedObject = null;
     for (var i = 0; i < intersects.length; i++) {
         clickedObject = intersects[i].object;
-        if (clickedObject.visible && clickedObject.parent.userData.isPin)
+        if (clickedObject.visible && clickedObject.parent.userData.isPin) {
             self.onPinClicked(clickedObject.parent);
+            break;
+        }
     }
     if (clickedObject === null)
         self.lollipopMenu.onMouseDown(self.mouse.x, self.mouse.y);
@@ -546,7 +552,10 @@
       var self = this;
       var info = pin.userData.joreInfo;
       var direction = pin.userData.direction;
-
+      if (!info) {
+          console.log("no joreInfo on object passed to onPinClicked");
+          return;
+      }
       if (direction != "1" && direction != "2") {
           console.log("bad direction " + direction);
           return;
@@ -640,7 +649,7 @@
             var lineSpline = new UnSplineCurve3(verts);
             var tubeGeometry = new THREE.TubeGeometry(
                 lineSpline,
-                300 /* lengthwise segments */,
+                500 /* lengthwise segments */,
                 2 /* tube radius */,
                 3 /* cross-section segments */,
                 false /* closed? */);
