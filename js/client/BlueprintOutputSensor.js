@@ -600,7 +600,7 @@
       
       query = spacepad(pin.name, 6) + direction;
 
-      var url = "http://www.corsproxy.com/www.pubtrans.it/hsl/routes?lines=" + encodeURIComponent(query);
+      var url = "http://www.pubtrans.it/hsl/routes?lines=" + encodeURIComponent(query);
       console.log("hsl query url " + url);
       if (self.currentRouteLine)
           self.currentRouteLine.visible = false;
