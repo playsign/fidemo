@@ -50,8 +50,7 @@
       throw new Error("Required path option missing");
     }
 
-    // Request data
-    $.getJSON(self.options.path, function(data) {
+    var onJsonReceived = function(data) {
       // JSON to array
 
       function json2array(json) {
@@ -103,7 +102,24 @@
           self.emit("requestData", "repeat");
         }, self.options.repeatRate);
       }
-    });
+    };
+    var retryCount = 0;
+    var onJsonError = function(xhr, textStatus, exc) {
+        console.log("radial search json request error: " + textStatus);
+        if (textStatus === "timeout" && retryCount++ < 5) {
+            $.ajax(ajaxParams, onJsonReceived);            
+        }
+    };
+    // Request data
+    var ajaxParams = {
+        url: self.options.path,
+        dataType: 'json',
+        success: onJsonReceived,
+        error: onJsonError,
+        timeout: 5000
+    };
+    $.ajax(ajaxParams, onJsonReceived);
+    
   };
 
 }());
