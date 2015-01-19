@@ -107,7 +107,7 @@ Pin.prototype = {
                     
                     var username = "Guest";
                     // Check if username is defined. If not use Guest instead.
-                    if (chat.username.indexOf("fidemo-user") == -1)
+                    if (chat != undefined && chat.username.indexOf("fidemo-user") == -1)
                         username = chat.username;
                         
                     var dialog = new InfoPopup(this.uuid, username, this.tags);
