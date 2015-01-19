@@ -573,8 +573,6 @@
             break;
         }
     }
-    if (clickedObject === null)
-        self.lollipopMenu.onMouseDown(self.mouse.x, self.mouse.y);
   };
 
   VIZI.BlueprintOutputSensor.prototype.onPinClicked = function(pin) {

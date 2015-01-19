@@ -1,5 +1,5 @@
 var _cburl = "http://orion.lab.fi-ware.org:1026";
-var _cbtoken = "K260vyH-hNJ-AVG3CszxXZTsM1Y62qcaX1IN9Y9bALgkHIcnFlCe49ythKEku5Bxs2n5FM8utLeC7GE0wYx6AQ";
+var _cbtoken = "ur8dphNSR6oBChLNf6B1QRQrOzhaQnwn_7pAWaZ551lTm3uR1bk3fhjVUx0p-75c_IINrQzGNM385g0N3LdTVg";
 
 var ContextBrokerClient = IApplication.$extend({
 

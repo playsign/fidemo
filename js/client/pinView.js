@@ -102,9 +102,16 @@ Pin.prototype = {
                 else (globalData.pinView.pinTypes[i].group == "service")
                 {
                     var tags = this.getInfofromTags();
-                    var dialog = new InfoPopup(this.uuid, this.tags);
-                    globalData.ui.addDialog(dialog);
-                    dialog.OnRelease.add(globalData.ui.removeDialog);
+                    if (globalData.ui.infoDialog != null)
+                        globalData.ui.infoDialog.close();
+                    
+                    var username = "Guest";
+                    // Check if username is defined. If not use Guest instead.
+                    if (chat != undefined && chat.username.indexOf("fidemo-user") == -1)
+                        username = chat.username;
+                        
+                    var dialog = new InfoPopup(this.uuid, username, this.tags);
+                    globalData.ui.infoDialog = dialog;
                     return;
                 }
             }
@@ -176,6 +183,7 @@ var PinView = function(lolliPopMenu)
   globalData.raycast.addObjectOwner(this);
   this.visibleGroup = "";
   this.visibleType = "";
+  
   return this;
 };
 
