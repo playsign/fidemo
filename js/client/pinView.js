@@ -105,7 +105,12 @@ Pin.prototype = {
                     if (globalData.ui.infoDialog != null)
                         globalData.ui.infoDialog.close();
                     
-                    var dialog = new InfoPopup(this.uuid, "Guest", this.tags);
+                    var username = "Guest";
+                    // Check if username is defined. If not use Guest instead.
+                    if (chat.username.indexOf("fidemo-user") == -1)
+                        username = chat.username;
+                        
+                    var dialog = new InfoPopup(this.uuid, username, this.tags);
                     globalData.ui.infoDialog = dialog;
                     return;
                 }
