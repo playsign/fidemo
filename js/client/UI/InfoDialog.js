@@ -1,63 +1,5 @@
 "use strict";
 
-var DebugPoiStorage = function() {
-    this.data = {};
-};
-
-DebugPoiStorage.prototype = {
-    readPoiData : function(id, callback) {
-        var comments = [];
-        
-        if (this.data[id] === undefined) {
-            callback(comments);
-            return;
-        }
-        
-        var data = this.data[id];
-        var obj = {
-            attributes:[]
-        };
-        
-        for(var i = 0; i < data.length; ++i)
-            obj.attributes.push(data[i]);
-
-        var attrs = obj.attributes;
-        for (var j = 0; j < attrs.length; ++j)
-        {
-            var comment = {};
-            comment.comment = attrs[j].value;
-            if (attrs[j].metadatas)
-            {
-                for (var k = 0; k < attrs[j].metadatas.length; ++k)
-                    comment[attrs[j].metadatas[k].name] = attrs[j].metadatas[k].value;
-            }
-            comments.push(comment);
-        }
-        
-        if (callback)
-            callback(comments);
-    },
-    
-    writePoiData : function(id, name, stars, comment) {
-        var dt = new Date();
-        var dateString = dt.getFullYear() + "/" + (dt.getMonth()+1) + "/" + dt.getDate() + " " + dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
-        
-        if (this.data[id] === undefined)
-            this.data[id] = [];
-        
-        this.data[id].push({
-            "name": dt.getTime().toString(), "type": "string", "value": comment,
-            "metadatas": [
-                {"name": "username", "type": "string", "value": name},
-                {"name": "date", "type": "string", "value": dateString},
-                {"name": "stars", "type": "float", "value": stars}
-            ]
-        });
-    }
-};
-
-var debugPoi = new DebugPoiStorage();
-
 var CommentInfo = function(name, time, stars, comment) {
     this.name = name;
     this.time = time;
@@ -198,8 +140,6 @@ InfoPopup.prototype = {
     readComments: function() {
         var self = this;
         
-        // TODO! replace debugPoi line with getPoiComments when ContextBroker is working again
-        //debugPoi.readPoiData(this.id, function(comments) {
         getPoiComments(this.id, function(comments) {
             self.clearComments();
             var info;
@@ -218,8 +158,6 @@ InfoPopup.prototype = {
     sendComment: function(commentInfo) {
         var self = this;
         
-        // TODO! replace debugPoi line with createPoiComment when ContextBroker is working again
-        //debugPoi.writePoiData(this.id, commentInfo.name, commentInfo.stars, commentInfo.comment);
         createPoiComment(this.id, commentInfo.name, commentInfo.stars, commentInfo.comment);
         
         // Dirty way to wait that new comment is being added to ContextBroker before we refresh the comments area.
