@@ -66,7 +66,8 @@ var CommentInfo = function(name, time, stars, comment) {
 };
 
 var InfoPopup = function(id, name, tags) {
-    this.id = "comments-" + id.toString();
+    this.id = "fidemo-comments-" + id.toString();
+    console.log(this.id);
     this.username = name;
     this.tags = tags;
     this.OnRelease = new signals.Signal();
@@ -198,8 +199,8 @@ InfoPopup.prototype = {
         var self = this;
         
         // TODO! replace debugPoi line with getPoiComments when ContextBroker is working again
-        debugPoi.readPoiData(this.id, function(comments) {
-        //getPoiComments(this.id, function(comments) {
+        //debugPoi.readPoiData(this.id, function(comments) {
+        getPoiComments(this.id, function(comments) {
             self.clearComments();
             var info;
             
@@ -218,8 +219,8 @@ InfoPopup.prototype = {
         var self = this;
         
         // TODO! replace debugPoi line with createPoiComment when ContextBroker is working again
-        debugPoi.writePoiData(this.id, commentInfo.name, commentInfo.stars, commentInfo.comment);
-        //createPoiComment(this.id, commentInfo.name, commentInfo.stars, commentInfo.comment);
+        //debugPoi.writePoiData(this.id, commentInfo.name, commentInfo.stars, commentInfo.comment);
+        createPoiComment(this.id, commentInfo.name, commentInfo.stars, commentInfo.comment);
         
         // Dirty way to wait that new comment is being added to ContextBroker before we refresh the comments area.
         setTimeout(function() {

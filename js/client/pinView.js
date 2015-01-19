@@ -105,7 +105,7 @@ Pin.prototype = {
                     if (globalData.ui.infoDialog != null)
                         globalData.ui.infoDialog.close();
                     
-                    var dialog = new InfoPopup(this.uuid, "Quest", this.tags);
+                    var dialog = new InfoPopup(this.uuid, "Guest", this.tags);
                     globalData.ui.infoDialog = dialog;
                     return;
                 }
