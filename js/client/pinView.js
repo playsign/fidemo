@@ -102,9 +102,11 @@ Pin.prototype = {
                 else (globalData.pinView.pinTypes[i].group == "service")
                 {
                     var tags = this.getInfofromTags();
-                    var dialog = new InfoPopup(this.uuid, this.tags);
-                    globalData.ui.addDialog(dialog);
-                    dialog.OnRelease.add(globalData.ui.removeDialog);
+                    if (globalData.ui.infoDialog != null)
+                        globalData.ui.infoDialog.close();
+                    
+                    var dialog = new InfoPopup(this.uuid, "Quest", this.tags);
+                    globalData.ui.infoDialog = dialog;
                     return;
                 }
             }
@@ -176,6 +178,7 @@ var PinView = function(lolliPopMenu)
   globalData.raycast.addObjectOwner(this);
   this.visibleGroup = "";
   this.visibleType = "";
+  
   return this;
 };
 

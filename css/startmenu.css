@@ -44,6 +44,5 @@
     cursor:pointer;
     border: none;
     outline:none;
-    z-index: 1;
-    /*float:right;*/
+    z-index: 5;
 }

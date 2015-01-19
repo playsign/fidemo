@@ -8,11 +8,11 @@ function noop() {}
 var globalData = {};
 globalData.selection = 0;
 globalData.ui = {};
-globalData.ui.issueDialogs = [];
 globalData.ui.dialogs = [];
-globalData.ui.addDialog = function(dialog) {
+globalData.ui.infoDialog = null;
+globalData.ui.removeDialog = function(dialog) {
     var index = -1;
-    var dialogs = globalData.ui.issueDialogs;
+    var dialogs = globalData.ui.dialogs;
     for(var i = 0; i < dialogs.length; ++i) {
         if (dialogs[i] == dialog) {
             index = i;
@@ -23,8 +23,8 @@ globalData.ui.addDialog = function(dialog) {
         dialogs = dialogs.slice(index, 1);
     }
 };
-globalData.ui.removeDialog = function(dialog) {
-    globalData.ui.issueDialogs.push(dialog);
+globalData.ui.addDialog = function(dialog) {
+    globalData.ui.dialogs.push(dialog);
 };
 
 
@@ -291,8 +291,8 @@ var mapConfig = {
   input: {
     type: "BlueprintInputMapTiles", // String representation of the input module you want to use (this is the same as the input module filename).
     options: { // Used to provide options for the input; in most cases this will at least include a path to the data source (local or remote).
-        //tilePath: "https://a.tiles.mapbox.com/v3/examples.map-i86l3621/{z}/{x}/{y}@2x.png"
-        tilePath: "https://a.tiles.mapbox.com/v4/ludocraft.1dadc7d9/{z}/{x}/{y}@2x.png?access_token=pk.eyJ1IjoibHVkb2NyYWZ0IiwiYSI6IlRNeFNyM3cifQ.-i0NBrmAHEYS7DcX1KR56w&update=i2x0h" // ludo
+        tilePath: "https://a.tiles.mapbox.com/v3/examples.map-i86l3621/{z}/{x}/{y}@2x.png"
+        //tilePath: "https://a.tiles.mapbox.com/v4/ludocraft.1dadc7d9/{z}/{x}/{y}@2x.png?access_token=pk.eyJ1IjoibHVkb2NyYWZ0IiwiYSI6IlRNeFNyM3cifQ.-i0NBrmAHEYS7DcX1KR56w&update=i2x0h" // ludo
     }
   },
   output: {

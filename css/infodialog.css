@@ -1,54 +1,85 @@
-#margin-area  {
-    margin-left: 10px;
-    margin-right: 10px;
-    margin-top: 15px;
-    margin-bottom: 15px;
+#comment-container-open {
+    bottom : 50px;
+    right : 20px;
+    background-color: #F1F1F1;
+    padding: 10px;
+    border-radius: 3px;
+    min-height: 200px;
+    height: auto;
+    font-size : 13px;
+    border : 1px solid #C0C0C0;
 }
 
-#content {
-    height:100%;
-    
+#comment-container {
+    bottom : 50px;
+    right : 20px;
+    background-color: #F1F1F1;
+    padding: 10px;
+    border-radius: 3px;
+    min-height: 200px;
+    height: auto;
+    font-size : 13px;
+    border : 1px solid #C0C0C0;
 }
 
-#top-content {
-    height:150px;
-    /*background-color: blue;*/
+#comment-header {
+    color: black;
+    float: left;
+    background-color: #F1F1F1;
+    border-bottom: 1px solid #C0C0C0;
+    font-size: 14px;
+    font-weight: bold;
+    width:100%;
 }
 
-#top-content-one {
-    width:48%;
+#comment-input-field {
+    padding: 3px;
+    margin: 0px;
+    border: 1px solid grey;
+    border-radius:3px;
+    height: 75px;
+    width: 445px;
+    margin-top: 5px;
 }
 
-#top-content-two {
-
+#comment-button {
+    padding: 3px;
+    margin: 3px;
+    border: 1px solid #C0C0C0;
+    font-weight: bold;
+    border-radius: 5px;
+    padding: 5px;
 }
 
-#top-content-left {
-    width:48%;
-    float:left;
+#comment-messages {
+    width: 445px;
+    float: left;
+    height: 200px;
+    overflow-y: scroll;
 }
 
-#top-content-right {
-    width:48%;
-    float:right;
+.comment-left {
+    color: black;
+    float: left;
+    min-height: 30px;
+    width: 92%;
+    background-color: #A8CC76;
+    margin-top: 3px;
+    margin-bottom: 3px;
+    padding-left: 15px;
+    padding-right: 15px;
+    border-radius: 3px;
 }
 
-.line-object {
-    height:2px;
-    background:#B2B2B2;
-}
-
-.star_rating {
-  direction: rtl;
-  font-size: medium;
-}
-.star_rating > span {
-  display: inline-block;
-  position: relative;
-  width: 15px;
-}
-.star_rating > span:hover:before,
-.star_rating > span:hover ~ span:before {
-   content: "\2605";
-   position: absolute;
+.comment-right {
+    color: black;
+    float: left;
+    min-height: 30px;
+    width: 92%;
+    background-color: #DDDDDD;
+    margin-top: 3px;
+    margin-bottom: 3px;
+    padding-left: 15px;
+    padding-right: 15px;
+    border-radius: 3px;
 }

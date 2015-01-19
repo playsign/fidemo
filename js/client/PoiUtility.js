@@ -60,9 +60,9 @@ function getPoiComments(buildingId, callback)
                     comments.push(comment);
                 }
             }
-            if (callback)
-                callback(comments);
         }
+        if (callback)
+            callback(comments);
     };
 
     cbclient.getContextBrokerItems("PoiComment", "PoiComment" + buildingId, internalCallback);
