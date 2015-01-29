@@ -1,6 +1,8 @@
 fidemo - a FIWARE Demo / Integration project
 ============================================
 
+Live demo: http://130.206.81.111/fidemo/ (hosted in FIWARE Lab)
+
 What's this FIDEMO?
 ---------------------------------
 
