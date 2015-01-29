@@ -1,7 +1,24 @@
-fidemo
-======
+fidemo - a FIWARE Demo / Integration project
+============================================
 
-FIWARE Demo / Integration project
+What's this FIDEMO?
+---------------------------------
+
+This is a demo of integration of WebGL based 3D city visualization and Open Data with live updates.
+
+We use several FIWARE technologies. Currently this first version features Context Broker & WebUI integration.
+
+Scenario: City of Helsinki
+--------------------------
+
+Features:
+- buildings automatically from map data (GIS/OSM)
+- real-time public traffic data (from the transit company)
+- cafes, shops etc. (also from Openstreetmaps (OSM))
+- Open311 issues from Context Broker (‘fix the city’ in HKI)
+- Building prices (Finnish Statistics Open Data)
+
++ adding comments to POIs to Context Broker (Orion)
 
 How things work
 ---------------
