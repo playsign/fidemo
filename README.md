@@ -14,13 +14,14 @@ Scenario: City of Helsinki
 --------------------------
 
 Features:
+
 - buildings automatically from map data (GIS/OSM)
 - real-time public traffic data (from the transit company)
 - cafes, shops etc. (also from Openstreetmaps (OSM))
 - Open311 issues from Context Broker (‘fix the city’ in HKI)
 - Building prices (Finnish Statistics Open Data)
+- adding comments to POIs to Context Broker (Orion)
 
-+ adding comments to POIs to Context Broker (Orion)
 
 How things work
 ---------------
