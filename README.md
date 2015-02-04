@@ -29,17 +29,17 @@ For traffic (to here via CIE's POI server):
 
 There are separate open data servers for Helsinki and Tampere.
 
-- Helsinki data is obtained from 
- - http://dev.hsl.fi/siriaccess/vm/json?operatorRef=HSL
+- Helsinki data is obtained from<br/> 
+  http://dev.hsl.fi/siriaccess/vm/json?operatorRef=HSL
 
-- Tampere data is obtained from
-  - http://data.itsfactory.fi/siriaccess/vm/json .
+- Tampere data is obtained from<br/>
+  http://data.itsfactory.fi/siriaccess/vm/json
 
-Official Helsinki page for extra info
-- http://dev.hsl.fi/
+Official Helsinki page for extra info<br/>
+http://dev.hsl.fi/
 
-Official Tampere page for extra info incl. license
-- http://wiki.itsfactory.fi/index.php/Tampere_Public_Transport_SIRI_Interface_%28Realtime_JSON_at_data.itsfactory.fi%29
+Official Tampere page for extra info incl. license<br/>
+http://wiki.itsfactory.fi/index.php/Tampere_Public_Transport_SIRI_Interface_%28Realtime_JSON_at_data.itsfactory.fi%29
 
 The data is SIRI ( http://user47094.vs.easily.co.uk/siri/ ) data converted to JSON format.
 
