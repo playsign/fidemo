@@ -410,6 +410,12 @@
           var points = [];
           var lat = 0.0, lon = 0.0, count = 0;
           // TODO: Don't manually use first set of coordinates (index 0)
+
+          // Quick check to see if we have a valid polygon to work with - from https://github.com/vizicities/vizicities/commit/b3b19ade289ce2733971d1e174ee768517b48f94
+          if (typeof feature.outline[0] !== "object") {
+              return;
+          }
+          
           _.each(feature.outline[0], function(coord, index) {
             var latLon = new VIZI.LatLon(coord[1], coord[0]);
             var geoCoord = project(latLon);
